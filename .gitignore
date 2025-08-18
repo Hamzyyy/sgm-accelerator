@@ -1,0 +1,14 @@
+# Ignore folders
+solution1
+.apc
+.settings
+
+
+
+# Ignore files
+vitis_hls.log
+hls.app
+.cproject
+.project
+.vitis_hls_log_all.xml
+
