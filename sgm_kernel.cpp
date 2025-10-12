@@ -12,17 +12,16 @@ void sgm_kernel(hls::stream<pix_t>& left,
 #pragma HLS INTERFACE axis         port=right  register
 #pragma HLS INTERFACE axis         port=disp   register
 #pragma HLS INTERFACE ap_ctrl_none port=return
-#pragma HLS DATAFLOW
 
-    /* Line buffer */
+    /* Line buffer for the left image window */
     xf::cv::LineBuffer<WIN, IMG_W, pix_t> bufL;
-    xf::cv::LineBuffer<WIN, IMG_W, pix_t> bufR;
 
-    /* WIN×WIN windows (registers) */
-    xf::cv::Window<WIN, WIN, pix_t> winL;
-    xf::cv::Window<WIN, WIN, pix_t> winR;
+    /* Right image window buffer */
+    static pix_t bufR[WIN][IMG_W];
+#pragma HLS bind_storage variable=bufR type=RAM_1P impl=LUTRAM
+#pragma HLS ARRAY_PARTITION variable=bufR complete dim=1
 
-    /* Per-row rolling costs (left→right) */
+    /* Cost arrays */
     static cost_t prevCostL[DISP];
 #pragma HLS bind_storage variable=prevCostL type=RAM_1P impl=LUTRAM
 #pragma HLS ARRAY_PARTITION variable=prevCostL complete dim=1
@@ -31,110 +30,133 @@ void sgm_kernel(hls::stream<pix_t>& left,
 #pragma HLS bind_storage variable=curCost type=RAM_1P impl=LUTRAM
 #pragma HLS ARRAY_PARTITION variable=curCost complete dim=1
 
-    /* For a WIN×WIN window, center offsets */
-    const int cy = WIN >> 1; // 1 when WIN=3
-    const int cx = WIN >> 1; // 1 when WIN=3
+    static cost_t aggCost[DISP];
+#pragma HLS bind_storage variable=aggCost type=RAM_1P impl=LUTRAM
+#pragma HLS ARRAY_PARTITION variable=aggCost complete dim=1
+
+    /* center offsets */
+    const int cy = WIN >> 1;
+    const int cx = WIN >> 1;
 
 Row:
-    for (int r = 0; r < IMG_H; ++r) {
+    for (int r = 0; r < IMG_H; r++)
+    {
         /* Reset aggregation for new row */
-        for (int d = 0; d < DISP; ++d) {
-        #pragma HLS UNROLL
-            prevCostL[d] = cost_t(4095);
+    ResetCosts:
+        for (int d = 0; d < DISP; d++)
+        {
+        //#pragma HLS UNROLL
+            prevCostL[d] = cost_t(0);
         }
 
     Col:
-        for (int c = 0; c < IMG_W; ++c) {
-        #pragma HLS PIPELINE II=1
+        for (int c = 0; c < IMG_W; c++)
+        {
+        //#pragma HLS PIPELINE II=1
 
-            /* 1) Stream next pixels */
+            /* Stream next pixels */
             pix_t pL = left.read();
             pix_t pR = right.read();
 
-            /* 2) Update line buffers */
+            /* Update left line buffer at column c */
             bufL.shift_up(c);
-            bufR.shift_up(c);
             bufL.insert_bottom(pL, c);
-            bufR.insert_bottom(pR, c);
 
-            /* Default output (warm‑up) */
+        ShiftRows:
+            for (int i = 0; i < WIN - 1; i++)
+            {
+            #pragma HLS UNROLL
+                bufR[i][c] = bufR[i+1][c];
+            }
+            bufR[WIN - 1][c] = pR;
+
+            /* Default output */
             pix_t outDisp = 0;
 
-            /* 3) Windows valid after WIN-1 rows */
-            if (r >= WIN - 1) {
-                /* Slide windows and insert new rightmost column */
-                winL.shift_pixels_left();
-                winR.shift_pixels_left();
-                for (int k = 0; k < WIN; ++k) {
-                #pragma HLS UNROLL
-                    winL.insert_pixel(bufL.getval(k, c), k, WIN - 1);
-                    winR.insert_pixel(bufR.getval(k, c), k, WIN - 1);
-                }
-
-                /* Accumulate min of previous-column costs */
-                cost_t minPrev = cost_t(4095);
-
-            DispLoop:
-                for (int d = 0; d < DISP; ++d) {
-                #pragma HLS UNROLL
-                    /* ---------- 3×3 SAD around (r,c) vs (r,c-d) ---------- */
+            if (r >= WIN - 1)
+            {
+                /* Calculate SAD matching cost for all disparities */
+            SAD_Loop:
+                for (int d = 0; d < DISP; d++)
+                {
+                //#pragma HLS UNROLL
                     cost_t sum = 0;
-                    for (int wy = 0; wy < WIN; ++wy) {
+                WinY:
+                    for (int wy = 0; wy < WIN; wy++)
+                    {
                     #pragma HLS UNROLL
-                        for (int wx = 0; wx < WIN; ++wx) {
+                    WinX:
+                        for (int wx = 0; wx < WIN; wx++)
+                        {
                         #pragma HLS UNROLL
-                            /* Left window pixel (already in registers) */
-                            pix_t lpx = winL.getval(wy, wx);
-
-                            /* Column on right image for this tap */
-                            int col_r = (c - d) + (wx - cx);
-
-                            /* Fetch from the right line buffer (row wy, col col_r) */
-                            pix_t rpx = (col_r >= 0 && col_r < IMG_W)
-                                            ? bufR.getval(wy, col_r)
-                                            : pix_t(0);
-
+                            int colL = c + wx - cx;
+                            pix_t lpx = pix_t(0);
+                            if (colL >= 0 && colL < IMG_W) {
+                                lpx = bufL.getval(wy, colL);
+                            }
+                            int col_r = c - d + wx - cx;
+                            pix_t rpx = pix_t(0);
+                            if (col_r >= 0 && col_r < IMG_W) {
+                                rpx = bufR[wy][col_r];
+                            }
                             sum += absdiff(lpx, rpx);
                         }
                     }
-                    curCost[d] = sum; /* fits 12 bits: 9*255 = 2295 */
-
-                    /* ---------- SGM L→R neighbors (prev column) ---------- */
-                    cost_t p0 = prevCostL[d];
-                    cost_t p1 = d            ? sat12(prevCostL[d-1] + P1) : cost_t(4095);
-                    cost_t p2 = (d < DISP-1) ? sat12(prevCostL[d+1] + P1) : cost_t(4095);
-
-                    if (p0 < minPrev) minPrev = p0;
-                    if (p1 < minPrev) minPrev = p1;
-                    if (p2 < minPrev) minPrev = p2;
+                    curCost[d] = sum;
                 }
 
-                /* Update aggregated costs & choose best disparity */
+                /* find minPrev over prevCostL */
+                cost_t minPrev = cost_t(4095);
+            MinLoop:
+                for (int d = 0; d < DISP; d++)
+                {
+                //#pragma HLS UNROLL
+                    if (prevCostL[d] < minPrev)
+                        minPrev = prevCostL[d];
+                }
+
                 cost_t bestCost = cost_t(4095);
-                pix_t  bestDisp = 0;
+                disp_t bestDisp = 0;
 
-            UpdateLoop:
-                for (int d = 0; d < DISP; ++d) {
-                #pragma HLS UNROLL
-                    cost_t thresh   = sat12(minPrev + P2);
-                    cost_t prevBest = (prevCostL[d] < thresh) ? prevCostL[d] : thresh;
-                    cost_t agg      = sat12(curCost[d] + prevBest);
+            AggregationLoop:
+                for (int d = 0; d < DISP; d++)
+                {
+                //#pragma HLS UNROLL
+                    cost_t p0 = prevCostL[d];
+                    cost_t p1 = (d > 0) ? sat12(prevCostL[d-1] + P1) : cost_t(4095);
+                    cost_t p2 = (d < DISP-1) ? sat12(prevCostL[d+1] + P1) : cost_t(4095);
+                    cost_t p3 = sat12(minPrev + P2);
 
-                    prevCostL[d] = agg;
+                    cost_t min_penalty = p0;
+                    if (p1 < min_penalty) min_penalty = p1;
+                    if (p2 < min_penalty) min_penalty = p2;
+                    if (p3 < min_penalty) min_penalty = p3;
 
-                    if (agg < bestCost) {
-                        bestCost = agg;
-                        bestDisp = pix_t(d);
+                    cost_t current_agg_cost = sat12(curCost[d] + min_penalty - minPrev);
+                    aggCost[d] = current_agg_cost;
+
+                    if (current_agg_cost < bestCost)
+                    {
+                        bestCost = current_agg_cost;
+                        bestDisp = disp_t(d);
                     }
                 }
 
-                /* Promote to valid disparity once both margins are met */
-                if (c >= (WIN - 1) && c >= (DISP - 1)) {
+                /* Copy aggregated costs to prevCostL for the next pixel */
+            CopyPrev:
+                for (int d = 0; d < DISP; ++d)
+                {
+                //#pragma HLS UNROLL
+                    prevCostL[d] = aggCost[d];
+                }
+
+                if (c >= DISP - 1)
+                {
                     outDisp = bestDisp;
                 }
             }
 
-            /* 4) Always write one output per input */
+            /* Write one output per input */
             disp.write(outDisp);
         }
     }

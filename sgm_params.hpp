@@ -4,15 +4,15 @@
 #include <limits>
 
 /*---------------------------------------------------------------------------*/
-using pix_t  = ap_uint<8>;        // 8-bit grayscale pixel
+using pix_t  = ap_uint<8>;
 using disp_t = ap_uint<8>;
-using cost_t = ap_uint<12>;       // enough bits for aggregated cost
+using cost_t = ap_uint<12>;
 using wide_t = ap_uint<16>;
 
 constexpr int IMG_H = 375;
 constexpr int IMG_W = 1242;
-constexpr int DISP  = 128;         // max disparity
-constexpr int WIN   = 3;          // 3×3 spatial window
+constexpr int DISP  = 128;
+constexpr int WIN   = 3;
 
 /*---------------------------------------------------------------------------*/
 static inline pix_t absdiff(pix_t a, pix_t b)
