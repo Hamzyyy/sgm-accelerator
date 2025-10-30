@@ -4,6 +4,8 @@
 const cost_t P1 = cost_t(10);
 const cost_t P2 = cost_t(150);
 
+static const cost_t INF_COST = cost_t(4095);
+
 void sgm_kernel(hls::stream<pix_t>& left,
                 hls::stream<pix_t>& right,
                 hls::stream<pix_t>& disp)
@@ -18,20 +20,20 @@ void sgm_kernel(hls::stream<pix_t>& left,
 
     /* Right image window buffer */
     static pix_t bufR[WIN][IMG_W];
-#pragma HLS bind_storage variable=bufR type=RAM_1P impl=LUTRAM
+#pragma HLS bind_storage variable=bufR type=RAM_2P impl=BRAM
 #pragma HLS ARRAY_PARTITION variable=bufR complete dim=1
 
     /* Cost arrays */
     static cost_t prevCostL[DISP];
-#pragma HLS bind_storage variable=prevCostL type=RAM_1P impl=LUTRAM
+#pragma HLS bind_storage variable=prevCostL type=RAM_1P impl=BRAM
 #pragma HLS ARRAY_PARTITION variable=prevCostL complete dim=1
 
     static cost_t curCost[DISP];
-#pragma HLS bind_storage variable=curCost type=RAM_1P impl=LUTRAM
+#pragma HLS bind_storage variable=curCost type=RAM_1P impl=BRAM
 #pragma HLS ARRAY_PARTITION variable=curCost complete dim=1
 
     static cost_t aggCost[DISP];
-#pragma HLS bind_storage variable=aggCost type=RAM_1P impl=LUTRAM
+#pragma HLS bind_storage variable=aggCost type=RAM_1P impl=BRAM
 #pragma HLS ARRAY_PARTITION variable=aggCost complete dim=1
 
     /* center offsets */
@@ -45,14 +47,15 @@ Row:
     ResetCosts:
         for (int d = 0; d < DISP; d++)
         {
-        //#pragma HLS UNROLL
             prevCostL[d] = cost_t(0);
         }
 
     Col:
         for (int c = 0; c < IMG_W; c++)
         {
-        //#pragma HLS PIPELINE II=1
+		//#pragma HLS PIPELINE II=10
+		#pragma HLS DEPENDENCE variable=bufL inter false
+		#pragma HLS DEPENDENCE variable=bufR inter false
 
             /* Stream next pixels */
             pix_t pL = left.read();
@@ -79,7 +82,6 @@ Row:
             SAD_Loop:
                 for (int d = 0; d < DISP; d++)
                 {
-                //#pragma HLS UNROLL
                     cost_t sum = 0;
                 WinY:
                     for (int wy = 0; wy < WIN; wy++)
@@ -91,12 +93,14 @@ Row:
                         #pragma HLS UNROLL
                             int colL = c + wx - cx;
                             pix_t lpx = pix_t(0);
-                            if (colL >= 0 && colL < IMG_W) {
+                            if (colL >= 0 && colL < IMG_W)
+                            {
                                 lpx = bufL.getval(wy, colL);
                             }
                             int col_r = c - d + wx - cx;
                             pix_t rpx = pix_t(0);
-                            if (col_r >= 0 && col_r < IMG_W) {
+                            if (col_r >= 0 && col_r < IMG_W)
+                            {
                                 rpx = bufR[wy][col_r];
                             }
                             sum += absdiff(lpx, rpx);
@@ -106,25 +110,25 @@ Row:
                 }
 
                 /* find minPrev over prevCostL */
-                cost_t minPrev = cost_t(4095);
+                cost_t minPrev = INF_COST;
             MinLoop:
                 for (int d = 0; d < DISP; d++)
                 {
-                //#pragma HLS UNROLL
                     if (prevCostL[d] < minPrev)
                         minPrev = prevCostL[d];
                 }
 
-                cost_t bestCost = cost_t(4095);
+                cost_t bestCost = INF_COST;
                 disp_t bestDisp = 0;
 
             AggregationLoop:
                 for (int d = 0; d < DISP; d++)
                 {
-                //#pragma HLS UNROLL
                     cost_t p0 = prevCostL[d];
-                    cost_t p1 = (d > 0) ? sat12(prevCostL[d-1] + P1) : cost_t(4095);
-                    cost_t p2 = (d < DISP-1) ? sat12(prevCostL[d+1] + P1) : cost_t(4095);
+                    cost_t p1 = (d > 0) ? sat12(prevCostL[d-1] + P1) :
+                    		INF_COST;
+                    cost_t p2 = (d < DISP-1) ? sat12(prevCostL[d+1] + P1) :
+                    		INF_COST;
                     cost_t p3 = sat12(minPrev + P2);
 
                     cost_t min_penalty = p0;
@@ -132,7 +136,8 @@ Row:
                     if (p2 < min_penalty) min_penalty = p2;
                     if (p3 < min_penalty) min_penalty = p3;
 
-                    cost_t current_agg_cost = sat12(curCost[d] + min_penalty - minPrev);
+                    cost_t current_agg_cost = sat12(curCost[d] + min_penalty
+                    		- minPrev);
                     aggCost[d] = current_agg_cost;
 
                     if (current_agg_cost < bestCost)
@@ -146,7 +151,6 @@ Row:
             CopyPrev:
                 for (int d = 0; d < DISP; ++d)
                 {
-                //#pragma HLS UNROLL
                     prevCostL[d] = aggCost[d];
                 }
 
@@ -156,7 +160,6 @@ Row:
                 }
             }
 
-            /* Write one output per input */
             disp.write(outDisp);
         }
     }
