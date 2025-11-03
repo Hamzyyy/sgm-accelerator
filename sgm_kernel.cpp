@@ -16,13 +16,9 @@ void sgm_kernel(hls::stream<pix_t>& left,
 #pragma HLS INTERFACE ap_ctrl_none port=return
 #pragma HLS DATAFLOW
 
-    /* Line buffer for the left image window */
+    /* Line buffers for the left & right images */
     xf::cv::LineBuffer<WIN, IMG_W, pix_t> bufL;
-
-    /* Right image window buffer */
-    static pix_t bufR[WIN][IMG_W];
-#pragma HLS bind_storage variable=bufR type=RAM_2P impl=BRAM
-#pragma HLS ARRAY_PARTITION variable=bufR complete dim=1
+    xf::cv::LineBuffer<WIN, IMG_W, pix_t> bufR;
 
     /* Cost arrays */
     static cost_t prevCostL[DISP];
@@ -93,13 +89,8 @@ Row:
             bufL.shift_up(c);
             bufL.insert_bottom(pL, c);
 
-        ShiftRows:
-            for (int i = 0; i < WIN - 1; i++)
-            {
-            #pragma HLS UNROLL
-                bufR[i][c] = bufR[i+1][c];
-            }
-            bufR[WIN - 1][c] = pR;
+            bufR.shift_up(c);
+            bufR.insert_bottom(pR, c);
 
             /* Default output */
             pix_t outDisp = 0;
@@ -130,7 +121,7 @@ Row:
                             pix_t rpx = pix_t(0);
                             if (col_r >= 0 && col_r < IMG_W)
                             {
-                                rpx = bufR[wy][col_r];
+                            	rpx = bufR.getval(wy, col_r);
                             }
                             sum += absdiff(lpx, rpx);
                         }
