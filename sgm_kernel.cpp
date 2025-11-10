@@ -4,8 +4,6 @@
 const cost_t P1 = cost_t(10);
 const cost_t P2 = cost_t(150);
 
-static const cost_t INF_COST = cost_t(4095);
-
 void sgm_kernel(hls::stream<pix_t>& left,
                 hls::stream<pix_t>& right,
                 hls::stream<pix_t>& disp)
@@ -37,20 +35,46 @@ void sgm_kernel(hls::stream<pix_t>& left,
 #pragma HLS bind_storage variable=aggCost type=RAM_1P impl=BRAM
 #pragma HLS ARRAY_PARTITION variable=aggCost complete dim=1
 
-    	static cost_t aggLR_arr[DISP];
-        static cost_t aggTB_arr[DISP];
-    #pragma HLS ARRAY_PARTITION variable=aggLR_arr complete dim=1
-    #pragma HLS ARRAY_PARTITION variable=aggTB_arr complete dim=1
+    static cost_t aggLR_arr[DISP];
+    static cost_t aggTB_arr[DISP];
+#pragma HLS ARRAY_PARTITION variable=aggLR_arr complete dim=1
+#pragma HLS ARRAY_PARTITION variable=aggTB_arr complete dim=1
+
+    /* Reverse-pass state (R->L, B->T) */
+
+    static cost_t prevCostR[DISP];
+#pragma HLS bind_storage variable=prevCostR type=RAM_1P impl=BRAM
+#pragma HLS ARRAY_PARTITION variable=prevCostR complete dim=1
+
+    static cost_t prevCostB[IMG_W][DISP];
+#pragma HLS bind_storage variable=prevCostB type=RAM_1P impl=BRAM
+#pragma HLS ARRAY_PARTITION variable=prevCostB complete dim=2
+
+    static cost_t partialCost[IMG_H][IMG_W][DISP];
+#pragma HLS bind_storage variable=partialCost type=RAM_2P impl=BRAM
+#pragma HLS ARRAY_PARTITION variable=partialCost complete dim=3
+
+
+    static pix_t imgL[IMG_H][IMG_W];
+    static pix_t imgR[IMG_H][IMG_W];
+#pragma HLS bind_storage variable=imgL type=RAM_2P impl=BRAM
+#pragma HLS bind_storage variable=imgR type=RAM_2P impl=BRAM
+
+    static pix_t dispBuf[IMG_H][IMG_W];
+#pragma HLS bind_storage variable=dispBuf type=RAM_2P impl=BRAM
+
+
+
 
     /* center offsets */
     const int cy = WIN >> 1;
     const int cx = WIN >> 1;
 
-Row:
+RowFwd:
     for (int r = 0; r < IMG_H; r++)
     {
         /* Reset aggregation for new row */
-    ResetCosts:
+    ResetCostsFwd:
         for (int d = 0; d < DISP; d++)
         {
 		#pragma HLS UNROLL
@@ -74,7 +98,7 @@ Row:
 
         }
 
-    Col:
+    ColFwd:
         for (int c = 0; c < IMG_W; c++)
         {
 		#pragma HLS PIPELINE II=1
@@ -85,10 +109,12 @@ Row:
             pix_t pL = left.read();
             pix_t pR = right.read();
 
+            imgL[r][c] = pL;
+            imgR[r][c] = pR;
+
             /* Update left line buffer at column c */
             bufL.shift_up(c);
             bufL.insert_bottom(pL, c);
-
             bufR.shift_up(c);
             bufR.insert_bottom(pR, c);
 
@@ -98,31 +124,31 @@ Row:
             if (r >= WIN - 1)
             {
                 /* Calculate SAD matching cost for all disparities */
-            SAD_Loop:
+            SAD_LoopFwd:
                 for (int d = 0; d < DISP; d++)
                 {
 				#pragma HLS UNROLL
                     cost_t sum = 0;
-                WinY:
+                WinYFwd:
                     for (int wy = 0; wy < WIN; wy++)
                     {
-                    #pragma HLS UNROLL
-                    WinX:
+					#pragma HLS UNROLL
+                    WinXFwd:
                         for (int wx = 0; wx < WIN; wx++)
                         {
                         #pragma HLS UNROLL
                             int colL = c + wx - cx;
                             pix_t lpx = pix_t(0);
+
                             if (colL >= 0 && colL < IMG_W)
-                            {
                                 lpx = bufL.getval(wy, colL);
-                            }
+
                             int col_r = c - d + wx - cx;
                             pix_t rpx = pix_t(0);
+
                             if (col_r >= 0 && col_r < IMG_W)
-                            {
                             	rpx = bufR.getval(wy, col_r);
-                            }
+
                             sum += absdiff(lpx, rpx);
                         }
                     }
@@ -131,6 +157,7 @@ Row:
 
                 /* find minPrev over prevCostL */
                 cost_t minPrevLR = INF_COST;
+
             MinLoopLR:
                 for (int d = 0; d < DISP; d++)
                 {
@@ -149,10 +176,7 @@ Row:
                           minPrevTB = v;
                   }
 
-                cost_t bestCost = INF_COST;
-                disp_t bestDisp = 0;
-
-            AggregationLoop:
+            AggregationLoopFwd:
                 for (int d = 0; d < DISP; d++)
                 {
 				#pragma HLS UNROLL
@@ -174,7 +198,7 @@ Row:
 
 
                     cost_t p0_TB = prevCostT[c][d];
-                    cost_t p1_TB = (d > 0)      ? sat12(prevCostT[c][d-1] + P1) :
+                    cost_t p1_TB = (d > 0) ? sat12(prevCostT[c][d-1] + P1) :
                     		INF_COST;
                     cost_t p2_TB = (d < DISP-1) ? sat12(prevCostT[c][d+1] + P1) :
                     		INF_COST;
@@ -191,30 +215,131 @@ Row:
 
                     cost_t sum2 = sat12(aggLR + aggTB);
                     aggCost[d] = sum2;
-
-                    if (sum2 < bestCost)
-                    {
-                        bestCost = sum2;
-                        bestDisp = disp_t(d);
-                    }
                 }
 
                 /* Copy aggregated costs to prevCostL for the next pixel */
-            CopyPrevLR:
+            CopyPrevLRFwd:
                 for (int d = 0; d < DISP; ++d)
                 {
 				#pragma HLS UNROLL
                     prevCostL[d] = aggLR_arr[d];
                     prevCostT[c][d] = aggTB_arr[d];
+                    partialCost[r][c][d] = aggCost[d];
                 }
 
-                if (c >= DISP - 1)
-                {
-                    outDisp = bestDisp;
-                }
+               }
             }
 
-            disp.write(outDisp);
         }
-    }
+
+        InitBT:
+            for (int c = 0; c < IMG_W; ++c)
+            {
+        	#pragma HLS LOOP_TRIPCOUNT min=IMG_W max=IMG_W
+              for (int d = 0; d < DISP; ++d)
+              {
+			  #pragma HLS UNROLL
+                prevCostB[c][d] = cost_t(0);
+              }
+            }
+
+         RowRev:
+             for (int r = IMG_H - 1; r >= 0; --r)
+                {
+                ResetCostsRev:
+                    for (int d = 0; d < DISP; d++)
+                    {
+            		#pragma HLS UNROLL
+                        prevCostR[d] = cost_t(0);
+                    }
+
+                ColRev:
+                    for (int c = IMG_W - 1; c >= 0; --c)
+                    {
+                    #pragma HLS PIPELINE II=1
+                    	pix_t outDisp = 0;
+
+                    	if (r >= WIN - 1)
+                    	{
+
+                    SAD_LoopRev:
+						for (int d = 0; d < DISP; d++)
+						{
+                    	#pragma HLS UNROLL
+							cost_t sum = 0;
+
+                    		WinYRev:
+							for (int wy = 0; wy < WIN; wy++)
+							{
+                    		#pragma HLS UNROLL
+								WinXRev:
+								for (int wx = 0; wx < WIN; wx++)
+								{
+								#pragma HLS UNROLL
+						            int rr = r - (WIN - 1) + wy;
+						            int ccL = c + wx - cx;
+						            int ccR = (c - d) + wx - cx;
+						            pix_t lpx = pix_t(0), rpx = pix_t(0);
+						            if (rr >= 0 && rr < IMG_H && ccL >= 0 && ccL < IMG_W)
+						            	lpx = imgL[rr][ccL];
+						            if (rr >= 0 && rr < IMG_H && ccR >= 0 && ccR < IMG_W)
+						            	rpx = imgR[rr][ccR];
+						             sum += absdiff(lpx, rpx);
+						         }
+						     }
+						    curCost[d] = sum;
+						}
+		                cost_t minPrevRL = min_array(prevCostR, DISP);
+		                cost_t minPrevBT = min_array(prevCostB[c], DISP);
+
+		                cost_t bestCost = INF_COST;
+		                disp_t bestDisp = 0;
+
+		            AggregationLoopRev:
+					for (int d = 0; d < DISP; d++)
+					{
+					#pragma HLS UNROLL
+						cost_t p0_RL = prevCostR[d];
+						cost_t p1_RL = (d > 0) ? sat12(prevCostR[d-1] + P1) : INF_COST;
+						cost_t p2_RL = (d < DISP-1) ? sat12(prevCostR[d+1] + P1) : INF_COST;
+						cost_t p3_RL = sat12(minPrevRL + P2);
+						cost_t minRL = min4(p0_RL, p1_RL, p2_RL, p3_RL);
+						cost_t aggRL = sat12(curCost[d] + minRL - minPrevRL);
+
+	                    cost_t p0_BT = prevCostB[c][d];
+	                    cost_t p1_BT = (d > 0)      ? sat12(prevCostB[c][d-1] + P1) : INF_COST;
+	                    cost_t p2_BT = (d < DISP-1) ? sat12(prevCostB[c][d+1] + P1) : INF_COST;
+	                    cost_t p3_BT = sat12(minPrevBT + P2);
+	                    cost_t minBT = min4(p0_BT, p1_BT, p2_BT, p3_BT);
+	                    cost_t aggBT = sat12(curCost[d] + minBT - minPrevBT);
+
+
+	                    cost_t fwd = partialCost[r][c][d];
+	                    cost_t sum4 = sat12( sat12(fwd + aggRL) + aggBT );
+
+	                    if (sum4 < bestCost)
+	                    {
+	                    	bestCost = sum4; bestDisp = disp_t(d);
+	                    }
+                    	prevCostR[d]     = aggRL;
+                    	prevCostB[c][d]  = aggBT;
+                   }
+                   if (c >= DISP - 1)
+                   {
+                	   outDisp = bestDisp;
+                   }
+               }
+
+               dispBuf[r][c] = outDisp;
+             }
+      }
+   FlushDisp:
+   for (int rr = 0; rr < IMG_H; ++rr)
+   {
+	   for (int cc = 0; cc < IMG_W; ++cc)
+	   {
+		   #pragma HLS PIPELINE II=1
+		   	   disp.write(dispBuf[rr][cc]);
+        }
+   }
 }
