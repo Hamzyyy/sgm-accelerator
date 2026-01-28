@@ -16,6 +16,11 @@ constexpr int WIN   = 3;
 
 static const cost_t INF_COST = cost_t(4095);
 
+#define CENSUS_WIN 5
+#define CENSUS_CX  (CENSUS_WIN >> 1)
+#define CENSUS_CY  (CENSUS_WIN >> 1)
+
+
 /*---------------------------------------------------------------------------*/
 static inline pix_t absdiff(pix_t a, pix_t b)
 {

@@ -15,8 +15,8 @@ void sgm_kernel(hls::stream<pix_t>& left,
 #pragma HLS DATAFLOW
 
     /* Line buffers for the left & right images */
-    xf::cv::LineBuffer<WIN, IMG_W, pix_t> bufL;
-    xf::cv::LineBuffer<WIN, IMG_W, pix_t> bufR;
+    xf::cv::LineBuffer<CENSUS_WIN, IMG_W, pix_t> bufL;
+    xf::cv::LineBuffer<CENSUS_WIN, IMG_W, pix_t> bufR;
 
     /* Cost arrays */
     static cost_t prevCostL[DISP];
@@ -67,8 +67,8 @@ void sgm_kernel(hls::stream<pix_t>& left,
 
 
     /* center offsets */
-    const int cy = WIN >> 1;
-    const int cx = WIN >> 1;
+    const int cy = CENSUS_CY;
+    const int cx = CENSUS_CX;
 
 RowFwd:
     for (int r = 0; r < IMG_H; r++)
@@ -123,33 +123,39 @@ RowFwd:
 
             if (r >= WIN - 1)
             {
-                /* Calculate SAD matching cost for all disparities */
-            SAD_LoopFwd:
+                /* Calculate census matching cost for all disparities */
+            Census_LoopFwd:
                 for (int d = 0; d < DISP; d++)
                 {
+
+                	pix_t centerL = bufL.getval(cy, c);
+                	pix_t centerR = pix_t(0);
 				#pragma HLS UNROLL
                     cost_t sum = 0;
                 WinYFwd:
-                    for (int wy = 0; wy < WIN; wy++)
+                    for (int wy = 0; wy < CENSUS_WIN; wy++)
                     {
 					#pragma HLS UNROLL
                     WinXFwd:
-                        for (int wx = 0; wx < WIN; wx++)
+                        for (int wx = 0; wx < CENSUS_WIN; wx++)
                         {
                         #pragma HLS UNROLL
                             int colL = c + wx - cx;
+                            int colR = (c - d) + wx - cx;
+
                             pix_t lpx = pix_t(0);
+                            pix_t rpx = pix_t(0);
 
                             if (colL >= 0 && colL < IMG_W)
                                 lpx = bufL.getval(wy, colL);
 
-                            int col_r = c - d + wx - cx;
-                            pix_t rpx = pix_t(0);
+                            if (colR >= 0 && colR < IMG_W)
+                                rpx = bufR.getval(wy, colR);
 
-                            if (col_r >= 0 && col_r < IMG_W)
-                            	rpx = bufR.getval(wy, col_r);
+                            bool bitL = (lpx < centerL);
+                            bool bitR = (rpx < centerR);
 
-                            sum += absdiff(lpx, rpx);
+                            sum += (bitL ^ bitR);
                         }
                     }
                     curCost[d] = sum;
@@ -262,29 +268,41 @@ RowFwd:
                     	if (r >= WIN - 1)
                     	{
 
-                    SAD_LoopRev:
+                    Census_LoopRev:
 						for (int d = 0; d < DISP; d++)
 						{
                     	#pragma HLS UNROLL
+							pix_t centerL = imgL[r][c];
+							pix_t centerR = pix_t(0);
+
+							int centerR_col = c - d;
+							if (centerR_col >= 0 && centerR_col << IMG_W)
+								centerR = imgR[r][centerR_col];
 							cost_t sum = 0;
 
-                    		WinYRev:
-							for (int wy = 0; wy < WIN; wy++)
+							for(int wy = 0; wy < CENSUS_WIN; wy++)
 							{
-                    		#pragma HLS UNROLL
-								WinXRev:
-								for (int wx = 0; wx < WIN; wx++)
+							#pragma HLS UNROLL
+								for(int wx = 0; wx < CENSUS_WIN; wx++)
 								{
 								#pragma HLS UNROLL
-						            int rr = r - (WIN - 1) + wy;
-						            int ccL = c + wx - cx;
-						            int ccR = (c - d) + wx - cx;
-						            pix_t lpx = pix_t(0), rpx = pix_t(0);
-						            if (rr >= 0 && rr < IMG_H && ccL >= 0 && ccL < IMG_W)
-						            	lpx = imgL[rr][ccL];
-						            if (rr >= 0 && rr < IMG_H && ccR >= 0 && ccR < IMG_W)
-						            	rpx = imgR[rr][ccR];
-						             sum += absdiff(lpx, rpx);
+									int rr = r - (CENSUS_WIN - 1) + wy;
+									int ccL = c + wx - cx;
+									int ccR = (c - d) + wx - cx;
+
+							        pix_t lpx = pix_t(0);
+							        pix_t rpx = pix_t(0);
+
+							        if (rr >= 0 && rr < IMG_H && ccL >= 0 && ccL < IMG_W)
+							                    lpx = imgL[rr][ccL];
+
+							        if (rr >= 0 && rr < IMG_H && ccR >= 0 && ccR < IMG_W)
+							                    rpx = imgR[rr][ccR];
+
+							        bool bitL = (lpx < centerL);
+							        bool bitR = (rpx < centerR);
+
+							        sum += (bitL ^ bitR);
 						         }
 						     }
 						    curCost[d] = sum;
