@@ -11,7 +11,7 @@ using wide_t = ap_uint<16>;
 
 constexpr int IMG_H = 375;
 constexpr int IMG_W = 1242;
-constexpr int DISP  = 128;
+constexpr int DISP  = 64;
 constexpr int WIN   = 3;
 
 static const cost_t INF_COST = cost_t(4095);

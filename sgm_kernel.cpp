@@ -77,7 +77,7 @@ RowFwd:
     ResetCostsFwd:
         for (int d = 0; d < DISP; d++)
         {
-		#pragma HLS UNROLL
+		#pragma HLS UNROLL factor=2
             prevCostL[d] = cost_t(0);
         }
 
@@ -90,7 +90,7 @@ RowFwd:
 		InitTBRowD:
 			for (int d = 0; d < DISP; ++d)
 			{
-			#pragma HLS UNROLL
+			#pragma HLS UNROLL factor=2
 				prevCostT[c][d] = cost_t(0);
 			}
 
@@ -101,7 +101,7 @@ RowFwd:
     ColFwd:
         for (int c = 0; c < IMG_W; c++)
         {
-		#pragma HLS PIPELINE II=1
+		#pragma HLS PIPELINE II=2
 		#pragma HLS DEPENDENCE variable=bufL inter false
 		#pragma HLS DEPENDENCE variable=bufR inter false
 
@@ -130,16 +130,16 @@ RowFwd:
 
                 	pix_t centerL = bufL.getval(cy, c);
                 	pix_t centerR = pix_t(0);
-				#pragma HLS UNROLL
+				#pragma HLS UNROLL factor=2
                     cost_t sum = 0;
                 WinYFwd:
                     for (int wy = 0; wy < CENSUS_WIN; wy++)
                     {
-					#pragma HLS UNROLL
+					#pragma HLS UNROLL factor=2
                     WinXFwd:
                         for (int wx = 0; wx < CENSUS_WIN; wx++)
                         {
-                        #pragma HLS UNROLL
+                        #pragma HLS UNROLL factor=2
                             int colL = c + wx - cx;
                             int colR = (c - d) + wx - cx;
 
@@ -167,7 +167,7 @@ RowFwd:
             MinLoopLR:
                 for (int d = 0; d < DISP; d++)
                 {
-				#pragma HLS UNROLL
+				#pragma HLS UNROLL factor=2
                     if (prevCostL[d] < minPrevLR)
                     	minPrevLR = prevCostL[d];
                 }
@@ -176,7 +176,7 @@ RowFwd:
             MinLoopTB:
                   for (int d = 0; d < DISP; d++)
                   {
-				#pragma HLS UNROLL
+				#pragma HLS UNROLL factor=2
                       cost_t v = prevCostT[c][d];
                       if (v < minPrevTB)
                           minPrevTB = v;
@@ -185,7 +185,7 @@ RowFwd:
             AggregationLoopFwd:
                 for (int d = 0; d < DISP; d++)
                 {
-				#pragma HLS UNROLL
+				#pragma HLS UNROLL factor=2
                     cost_t p0_LR = prevCostL[d];
                     cost_t p1_LR = (d > 0) ? sat12(prevCostL[d-1] + P1) :
                     		INF_COST;
@@ -227,7 +227,7 @@ RowFwd:
             CopyPrevLRFwd:
                 for (int d = 0; d < DISP; ++d)
                 {
-				#pragma HLS UNROLL
+				#pragma HLS UNROLL factor=2
                     prevCostL[d] = aggLR_arr[d];
                     prevCostT[c][d] = aggTB_arr[d];
                     partialCost[r][c][d] = aggCost[d];
@@ -244,7 +244,7 @@ RowFwd:
         	#pragma HLS LOOP_TRIPCOUNT min=IMG_W max=IMG_W
               for (int d = 0; d < DISP; ++d)
               {
-			  #pragma HLS UNROLL
+			  #pragma HLS UNROLL factor=2
                 prevCostB[c][d] = cost_t(0);
               }
             }
@@ -255,14 +255,14 @@ RowFwd:
                 ResetCostsRev:
                     for (int d = 0; d < DISP; d++)
                     {
-            		#pragma HLS UNROLL
+            		#pragma HLS UNROLL factor=2
                         prevCostR[d] = cost_t(0);
                     }
 
                 ColRev:
                     for (int c = IMG_W - 1; c >= 0; --c)
                     {
-                    #pragma HLS PIPELINE II=1
+                    #pragma HLS PIPELINE II=2
                     	pix_t outDisp = 0;
 
                     	if (r >= WIN - 1)
@@ -271,7 +271,7 @@ RowFwd:
                     Census_LoopRev:
 						for (int d = 0; d < DISP; d++)
 						{
-                    	#pragma HLS UNROLL
+                    	#pragma HLS UNROLL factor=2
 							pix_t centerL = imgL[r][c];
 							pix_t centerR = pix_t(0);
 
@@ -282,10 +282,10 @@ RowFwd:
 
 							for(int wy = 0; wy < CENSUS_WIN; wy++)
 							{
-							#pragma HLS UNROLL
+							#pragma HLS UNROLL factor=2
 								for(int wx = 0; wx < CENSUS_WIN; wx++)
 								{
-								#pragma HLS UNROLL
+								#pragma HLS UNROLL factor=2
 									int rr = r - (CENSUS_WIN - 1) + wy;
 									int ccL = c + wx - cx;
 									int ccR = (c - d) + wx - cx;
@@ -316,7 +316,7 @@ RowFwd:
 		            AggregationLoopRev:
 					for (int d = 0; d < DISP; d++)
 					{
-					#pragma HLS UNROLL
+					#pragma HLS UNROLL factor=2
 						cost_t p0_RL = prevCostR[d];
 						cost_t p1_RL = (d > 0) ? sat12(prevCostR[d-1] + P1) : INF_COST;
 						cost_t p2_RL = (d < DISP-1) ? sat12(prevCostR[d+1] + P1) : INF_COST;
@@ -356,7 +356,7 @@ RowFwd:
    {
 	   for (int cc = 0; cc < IMG_W; ++cc)
 	   {
-		   #pragma HLS PIPELINE II=1
+		   #pragma HLS PIPELINE II=2
 		   	   disp.write(dispBuf[rr][cc]);
         }
    }
