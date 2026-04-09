@@ -14,7 +14,7 @@ void sgm_kernel(hls::stream<pix_t>& left,
 #pragma HLS INTERFACE axis         port=right  register
 #pragma HLS INTERFACE axis         port=disp   register
 #pragma HLS INTERFACE ap_ctrl_none port=return
-#pragma HLS DATAFLOW
+//#pragma HLS DATAFLOW
 
     /* Line buffers for the left & right images */
     xf::cv::LineBuffer<WIN, IMG_W, pix_t> bufL;
@@ -22,7 +22,7 @@ void sgm_kernel(hls::stream<pix_t>& left,
 
     /* Cost arrays */
     static cost_t prevCostL[DISP];
-#pragma HLS bind_storage variable=prevCostL type=RAM_1P impl=BRAM
+//#pragma HLS bind_storage variable=prevCostL type=RAM_1P impl=BRAM
 #pragma HLS ARRAY_PARTITION variable=prevCostL complete dim=1
 
     static cost_t prevCostT[IMG_W][DISP];
@@ -30,11 +30,11 @@ void sgm_kernel(hls::stream<pix_t>& left,
 #pragma HLS ARRAY_PARTITION variable=prevCostT complete dim=2
 
     static cost_t curCost[DISP];
-#pragma HLS bind_storage variable=curCost type=RAM_1P impl=BRAM
+//#pragma HLS bind_storage variable=curCost type=RAM_1P impl=BRAM
 #pragma HLS ARRAY_PARTITION variable=curCost complete dim=1
 
     static cost_t aggCost[DISP];
-#pragma HLS bind_storage variable=aggCost type=RAM_1P impl=BRAM
+//#pragma HLS bind_storage variable=aggCost type=RAM_1P impl=BRAM
 #pragma HLS ARRAY_PARTITION variable=aggCost complete dim=1
 
     	static cost_t aggLR_arr[DISP];
@@ -53,7 +53,7 @@ Row:
     ResetCosts:
         for (int d = 0; d < DISP; d++)
         {
-		#pragma HLS UNROLL
+		#pragma HLS UNROLL factor=2
             prevCostL[d] = cost_t(0);
         }
 
@@ -66,7 +66,7 @@ Row:
 		InitTBRowD:
 			for (int d = 0; d < DISP; ++d)
 			{
-			#pragma HLS UNROLL
+			#pragma HLS UNROLL factor=2
 				prevCostT[c][d] = cost_t(0);
 			}
 
@@ -77,7 +77,7 @@ Row:
     Col:
         for (int c = 0; c < IMG_W; c++)
         {
-		#pragma HLS PIPELINE II=1
+		//#pragma HLS PIPELINE II=2
 		#pragma HLS DEPENDENCE variable=bufL inter false
 		#pragma HLS DEPENDENCE variable=bufR inter false
 
@@ -101,16 +101,16 @@ Row:
             SAD_Loop:
                 for (int d = 0; d < DISP; d++)
                 {
-				#pragma HLS UNROLL
+				#pragma HLS UNROLL factor=2
                     cost_t sum = 0;
                 WinY:
                     for (int wy = 0; wy < WIN; wy++)
                     {
-                    #pragma HLS UNROLL
+                    #pragma HLS UNROLL factor=2
                     WinX:
                         for (int wx = 0; wx < WIN; wx++)
                         {
-                        #pragma HLS UNROLL
+                        #pragma HLS UNROLL factor=2
                             int colL = c + wx - cx;
                             pix_t lpx = pix_t(0);
                             if (colL >= 0 && colL < IMG_W)
@@ -134,7 +134,7 @@ Row:
             MinLoopLR:
                 for (int d = 0; d < DISP; d++)
                 {
-				#pragma HLS UNROLL
+				#pragma HLS UNROLL factor=2
                     if (prevCostL[d] < minPrevLR)
                     	minPrevLR = prevCostL[d];
                 }
@@ -143,7 +143,7 @@ Row:
             MinLoopTB:
                   for (int d = 0; d < DISP; d++)
                   {
-				#pragma HLS UNROLL
+				#pragma HLS UNROLL factor=2
                       cost_t v = prevCostT[c][d];
                       if (v < minPrevTB)
                           minPrevTB = v;
@@ -155,7 +155,7 @@ Row:
             AggregationLoop:
                 for (int d = 0; d < DISP; d++)
                 {
-				#pragma HLS UNROLL
+				#pragma HLS UNROLL factor=2
                     cost_t p0_LR = prevCostL[d];
                     cost_t p1_LR = (d > 0) ? sat12(prevCostL[d-1] + P1) :
                     		INF_COST;
@@ -203,7 +203,7 @@ Row:
             CopyPrevLR:
                 for (int d = 0; d < DISP; ++d)
                 {
-				#pragma HLS UNROLL
+				#pragma HLS UNROLL factor=2
                     prevCostL[d] = aggLR_arr[d];
                     prevCostT[c][d] = aggTB_arr[d];
                 }
