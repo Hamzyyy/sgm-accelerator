@@ -261,6 +261,28 @@ Row:
                     aggTB_arr,
                     aggCost);
 
+                if (r == 96 && c == 160)
+                {
+                    std::cout << "DEBUG pixel (" << r << "," << c << ")\n";
+
+                    for (int d = 0; d < 8; ++d)
+                    {
+                        std::cout << "curCost[" << d << "] = " << curCost[d] << "\n";
+                    }
+
+                    std::cout << "minPrevLR = " << minPrevLR << "\n";
+                    std::cout << "minPrevTB = " << minPrevTB << "\n";
+
+                    for (int d = 0; d < 8; ++d)
+                    {
+                        std::cout << "aggLR[" << d << "] = " << aggLR_arr[d]
+                                  << " aggTB[" << d << "] = " << aggTB_arr[d]
+                                  << " aggCost[" << d << "] = " << aggCost[d] << "\n";
+                    }
+
+                    std::cout << "bestDisp = " << int(bestDisp) << "\n";
+                }
+
                 commit_prev_costs(
                     prevCostL,
                     prevCostT[c],
