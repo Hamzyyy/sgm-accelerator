@@ -8,6 +8,56 @@ static inline bool file_exist(const std::string &p)
 	return !p.empty();
 }
 
+using census_ref_t = uint32_t;
+
+static census_ref_t census_desc_ref(const cv::Mat& img, int r, int c, int win)
+{
+    int cy = win / 2;
+    int cx = win / 2;
+
+    uint8_t center = 0;
+    if (r >= 0 && r < img.rows && c >= 0 && c < img.cols)
+        center = img.at<uint8_t>(r, c);
+
+    census_ref_t desc = 0;
+    int bit_idx = 0;
+
+    for (int wy = -cy; wy <= cy; ++wy)
+    {
+        for (int wx = -cx; wx <= cx; ++wx)
+        {
+            if (wy == 0 && wx == 0)
+                continue;
+
+            int rr = r + wy;
+            int cc = c + wx;
+
+            uint8_t px = 0;
+            if (rr >= 0 && rr < img.rows && cc >= 0 && cc < img.cols)
+                px = img.at<uint8_t>(rr, cc);
+
+            if (px < center)
+                desc |= (census_ref_t(1) << bit_idx);
+
+            bit_idx++;
+        }
+    }
+
+    return desc;
+}
+
+static int hamming_ref(census_ref_t a, census_ref_t b)
+{
+    census_ref_t x = a ^ b;
+    int cnt = 0;
+    while (x)
+    {
+        cnt += (x & 1u);
+        x >>= 1;
+    }
+    return cnt;
+}
+
 int main(int argc, char** argv)
 {
 
@@ -83,6 +133,23 @@ int main(int argc, char** argv)
             left_stream.write(static_cast<pix_t>(lp[c]));
             right_stream.write(static_cast<pix_t>(rp[c]));
         }
+    }
+
+    int rr = 96;
+    int cc = 160;
+    int win = 3;
+
+    auto leftDesc = census_desc_ref(left, rr, cc, win);
+    std::cout << "SW leftDesc = " << leftDesc << "\n";
+
+    for (int d = 0; d < 4; ++d)
+    {
+        auto rightDesc = census_desc_ref(right, rr, cc - d, win);
+        int ham = hamming_ref(leftDesc, rightDesc);
+
+        std::cout << "SW d=" << d
+                  << " rightDesc=" << rightDesc
+                  << " ham=" << ham << "\n";
     }
 
     /* Run kernel */
