@@ -48,6 +48,31 @@ int main(int argc, char** argv)
         cv::resize(right, right, cv::Size(IMG_W, IMG_H), 0, 0, cv::INTER_AREA);
     }
 
+    /* Before resize the GT count valid/invalid pixels */
+    int original_total_pixels = 0;
+    int original_gt_valid_count = 0, original_gt_invalid_count = 0;
+
+    for (int r = 0; r < gt.rows; ++r)
+    {
+    	for (int c = 0; c < gt.cols; ++c)
+    	{
+    		++original_total_pixels;
+    		uint16_t raw_gt = gt.at<uint16_t>(r,c);
+    		if(raw_gt <= 0)
+    			{
+    				++original_gt_invalid_count;
+    				continue;
+    			}
+    		++original_gt_valid_count;
+    	}
+    }
+
+    std::cout << "gt type = " << gt.type() << "\n";
+    std::cout << "Pixel count on the original GT " << "\n";
+    std::cout << "Total pixels: " << original_total_pixels << "\n";
+    std::cout << "GT-valid pixels (>0): " << original_gt_valid_count << "\n";
+    std::cout << "GT-invalid pixels (<=0): " << original_gt_invalid_count << "\n";
+
     const float scale_x = static_cast<float>(IMG_W) / static_cast<float>(gt.cols);
 
     cv::Mat gt_f;
