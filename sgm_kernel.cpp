@@ -54,18 +54,6 @@ WindowFill:
     winR.insert_pixel(pR, WIN - 1, WIN - 1);
 }
 
-static inline pix_t safe_get(
-		xf::cv::LineBuffer<WIN, IMG_W, pix_t>& buf,
-		int wy,
-		int col
-		)
-{
-#pragma HLS INLINE
-    if (col >= 0 && col < IMG_W)
-        return buf.getval(wy, col);
-    return pix_t(0);
-}
-
 static void compute_sad_cost_vector(
 	    xf::cv::LineBuffer<WIN, IMG_W, pix_t>& bufL,
 	    xf::cv::LineBuffer<WIN, IMG_W, pix_t>& bufR,
@@ -74,31 +62,89 @@ static void compute_sad_cost_vector(
 	    cost_t curCost[DISP])
 {
 #pragma HLS INLINE off
-	SAD_Loop:
-	    for (int d = 0; d < DISP; d++)
-	    {
-	#pragma HLS UNROLL factor=2
-	        cost_t sum = 0;
 
-	    WinY:
-	        for (int wy = 0; wy < WIN; wy++)
-	        {
-	#pragma HLS UNROLL factor=2
-	        WinX:
-	            for (int wx = 0; wx < WIN; wx++)
-	            {
-	#pragma HLS UNROLL factor=2
-	                int colL  = c + wx - cx;
-	                int colR = c - d + wx - cx;
+	const int RIGHT_STRIPE_W = DISP + WIN - 1;
 
-	                pix_t lpx = safe_get(bufL, wy, colL);
-	                pix_t rpx = safe_get(bufR, wy, colR);
+	pix_t leftWin[WIN][WIN];
+	pix_t rightStripe[WIN][RIGHT_STRIPE_W];
 
-	                sum += absdiff(lpx, rpx);
-	            }
-	        }
-	        curCost[d] = sum;
-	    }
+#pragma HLS ARRAY_PARTITION variable=leftWin complete dim=0
+#pragma HLS ARRAY_PARTITION variable=rightStripe complete dim=1
+#pragma HLS ARRAY_PARTITION variable=rightStripe complete dim=2
+
+	const bool interior = (c - cx >= 0) &&
+						(c + (WIN - 1 - cx) < IMG_W) &&
+						(c - (DISP - 1) - cx >= 0);
+	if(!interior)
+	{
+		SAD_Loop_Border:
+		    for (int d = 0; d < DISP; d++)
+		    {
+			#pragma HLS PIPELINE II=1
+		        cost_t sum = 0;
+
+		    WinY:
+		        for (int wy = 0; wy < WIN; wy++)
+		        {
+		        WinX:
+		            for (int wx = 0; wx < WIN; wx++)
+		            {
+		                int colL  = c + wx - cx;
+		                int colR = c - d + wx - cx;
+
+		                pix_t lpx = 0;
+		                pix_t rpx = 0;
+
+		                if (colL >= 0 && colL < IMG_W) lpx = bufL.getval(wy, colL);
+		                if (colR >= 0 && colR < IMG_W) rpx = bufR.getval(wy, colR);
+
+		                sum += absdiff(lpx, rpx);
+		            }
+		        }
+		        curCost[d] = sum;
+		    }
+		    return;
+	}
+	/* Preload left window */
+	for(int wy = 0; wy < WIN; ++wy)
+	{
+		for(int wx = 0; wx < WIN; ++wx)
+		{
+		#pragma HLS UNROLL
+			const int colL = c + wx - cx;
+			leftWin[wy][wx] = bufL.getval(wy, colL);
+		}
+	}
+	/* Preload right strip */
+	const int rightBaseCol = c - (DISP - 1) - cx;
+	for(int wy = 0; wy < WIN; ++wy)
+	{
+		for(int k = 0; k < RIGHT_STRIPE_W; ++k)
+		{
+		#pragma HLS PIPELINE II=1
+			rightStripe[wy][k] = bufR.getval(wy, rightBaseCol + k);
+		}
+	}
+	SAD_Loop_Imterior:
+    for (int d = 0; d < DISP; ++d)
+    {
+	#pragma HLS PIPELINE II=1
+        cost_t sum = 0;
+
+        for (int wy = 0; wy < WIN; ++wy)
+        {
+		#pragma HLS UNROLL
+            for (int wx = 0; wx < WIN; ++wx)
+            {
+			#pragma HLS UNROLL
+                const int rightIndex = (DISP - 1 - d) + wx;
+                pix_t lpx = leftWin[wy][wx];
+                pix_t rpx = rightStripe[wy][rightIndex];
+                sum += absdiff(lpx, rpx);
+            }
+        }
+        curCost[d] = sum;
+    }
 }
 
 static cost_t reduce_min_vec(const cost_t vec[DISP])
@@ -249,8 +295,7 @@ void sgm_kernel(hls::stream<pix_t>& left,
     #pragma HLS ARRAY_PARTITION variable=aggLR_arr complete dim=1
     #pragma HLS ARRAY_PARTITION variable=aggTB_arr complete dim=1
 
-    /* center offsets */
-    const int cy = WIN >> 1;
+    /* center offset */
     const int cx = WIN >> 1;
 
 Row:
@@ -299,8 +344,6 @@ Row:
             if (r >= WIN - 1 && c >= DISP - 1)
             {
             	compute_sad_cost_vector(bufL, bufR, c, cx, curCost);
-
-            	//compute_census_cost_vector(winL, winR, r, c, cx, cy, curCost);
 
                 cost_t minPrevLR = reduce_min_vec(prevCostL);
                 cost_t minPrevTB = reduce_min_vec(prevCostT[c]);
