@@ -278,6 +278,56 @@ static pix_t col_backend(
     return outDisp;
 }
 
+static void row_frontend(
+	    hls::stream<pix_t>& left,
+	    hls::stream<pix_t>& right,
+	    xf::cv::LineBuffer<WIN, IMG_W, pix_t>& bufL,
+	    xf::cv::LineBuffer<WIN, IMG_W, pix_t>& bufR,
+	    int r,
+	    int cx,
+		CostPacket row_costs[IMG_W])
+{
+#pragma HLS INLINE off
+	for (int c = 0; c < IMG_W; ++c)
+	{
+	//#pragma HLS PIPELINE II=1
+	#pragma HLS DEPENDENCE variable=bufL inter false
+	#pragma HLS DEPENDENCE variable=bufR inter false
+
+		row_costs[c] = col_frontend(left, right, bufL, bufR, r, c, cx);
+	}
+}
+
+static void row_backend(
+	CostPacket row_costs[IMG_W],
+    hls::stream<pix_t>& disp,
+    cost_t prevCostL[DISP],
+    cost_t prevCostT[IMG_W][DISP],
+    cost_t aggLR_arr[DISP],
+    cost_t aggTB_arr[DISP],
+    cost_t aggCost[DISP])
+{
+#pragma HLS INLINE off
+
+RowBackCol:
+    for (int c = 0; c < IMG_W; ++c)
+    {
+	//#pragma HLS PIPELINE II=1
+
+        CostPacket pkt = row_costs[c];
+
+        pix_t outDisp = col_backend(
+            pkt,
+            prevCostL,
+            prevCostT[c],
+            aggLR_arr,
+            aggTB_arr,
+            aggCost);
+
+        disp.write(outDisp);
+    }
+}
+
 /* --------------------------------------------------------- */
 /* Top kernel                                                */
 /* --------------------------------------------------------- */
@@ -306,18 +356,6 @@ void sgm_kernel(hls::stream<pix_t>& left,
         }
     }
 
-    xf::cv::Window<WIN, WIN, pix_t> winL;
-    xf::cv::Window<WIN, WIN, pix_t> winR;
-
-    InitWin:
-    for (int wy = 0; wy < WIN; ++wy)
-    {
-        for (int wx = 0; wx < WIN; ++wx)
-        {
-            winL.val[wy][wx] = 0;
-            winR.val[wy][wx] = 0;
-        }
-    }
     /* Cost arrays */
     static cost_t prevCostL[DISP];
 #pragma HLS ARRAY_PARTITION variable=prevCostL complete dim=1
@@ -326,8 +364,8 @@ void sgm_kernel(hls::stream<pix_t>& left,
 #pragma HLS bind_storage variable=prevCostT type=RAM_1P impl=BRAM
 #pragma HLS ARRAY_PARTITION variable=prevCostT complete dim=2
 
-    static cost_t curCost[DISP];
-#pragma HLS ARRAY_PARTITION variable=curCost complete dim=1
+//    static cost_t curCost[DISP];
+//#pragma HLS ARRAY_PARTITION variable=curCost complete dim=1
 
     static cost_t aggCost[DISP];
 #pragma HLS ARRAY_PARTITION variable=aggCost complete dim=1
@@ -339,6 +377,8 @@ void sgm_kernel(hls::stream<pix_t>& left,
 
     /* center offset */
     const int cx = WIN >> 1;
+
+    static CostPacket row_costs[IMG_W];
 
 Row:
     for (int r = 0; r < IMG_H; r++)
@@ -366,21 +406,8 @@ Row:
 			}
         }
 
-    Col:
-        for (int c = 0; c < IMG_W; c++)
-        {
-		//#pragma HLS PIPELINE II=2
-		#pragma HLS DEPENDENCE variable=bufL inter false
-		#pragma HLS DEPENDENCE variable=bufR inter false
-
-        	CostPacket pkt = col_frontend(left, right, bufL, bufR,
-        			r, c, cx);
-
-            pix_t outDisp = col_backend(pkt, prevCostL, prevCostT[c],
-            		aggLR_arr, aggTB_arr, aggCost);
-
-            disp.write(outDisp);
-
-        }
+        row_frontend(left,right, bufL, bufR, r, cx, row_costs);
+        row_backend(row_costs, disp, prevCostL, prevCostT, aggLR_arr,
+        		aggTB_arr, aggCost);
     }
 }
