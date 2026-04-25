@@ -35,7 +35,8 @@ static void update_sliding_windows(
 	    xf::cv::LineBuffer<WIN, IMG_W, pix_t>& bufR,
 		int c,
 		pix_t leftWin[WIN][WIN],
-		pix_t rightStripe[WIN][RIGHT_STRIPE_W])
+		pix_t rightStripe[WIN][RIGHT_STRIPE_W],
+		int& right_wr)
 {
 #pragma HLS INLINE
 
@@ -57,27 +58,23 @@ static void update_sliding_windows(
 			leftWin[wy][WIN - 1] = bufL.getval(wy, c);
 	    }
 
+		right_wr++;
+		if(right_wr == RIGHT_STRIPE_W)
+			right_wr = 0;
+
 	ShiftRightStripe:
 		for (int wy = 0; wy < WIN; ++wy)
 		{
 		#pragma HLS UNROLL
-			for (int k = 0; k < RIGHT_STRIPE_W - 1; ++k)
-			{
-				rightStripe[wy][k] = rightStripe[wy][k + 1];
-		    }
+			rightStripe[wy][right_wr] = bufR.getval(wy, c);
 		}
 
-		InsertRightCol:
-		    for (int wy = 0; wy < WIN; ++wy)
-		    {
-		#pragma HLS UNROLL
-		        rightStripe[wy][RIGHT_STRIPE_W - 1] = bufR.getval(wy, c);
-		    }
 }
 
 static void compute_sad_cost_vector(
 		pix_t leftWin[WIN][WIN],
 		pix_t rightStripe[WIN][RIGHT_STRIPE_W],
+		int right_wr,
 	    cost_t curCost[DISP])
 {
 #pragma HLS INLINE off
@@ -97,9 +94,14 @@ static void compute_sad_cost_vector(
             for (int wx = 0; wx < WIN; ++wx)
             {
 			#pragma HLS UNROLL
-            	const int rightIndex = RIGHT_STRIPE_W - WIN - d + wx;
+            	int logicalIndex = RIGHT_STRIPE_W - WIN - d + wx;
+
+            	int physIndex = right_wr + 1 + logicalIndex;
+            	if (physIndex >= RIGHT_STRIPE_W)
+            			physIndex -= RIGHT_STRIPE_W;
+
                 pix_t lpx = leftWin[wy][wx];
-                pix_t rpx = rightStripe[wy][rightIndex];
+                pix_t rpx = rightStripe[wy][physIndex];
 
                 sum += absdiff(lpx, rpx);
             }
@@ -211,7 +213,8 @@ static CostPacket col_frontend(
 	    int c,
 	    int cx,
 		pix_t leftWin[WIN][WIN],
-		pix_t rightStripe[WIN][RIGHT_STRIPE_W])
+		pix_t rightStripe[WIN][RIGHT_STRIPE_W],
+		int& right_wr)
 {
 #pragma HLS INLINE off
 	CostPacket pkt;
@@ -221,16 +224,16 @@ static CostPacket col_frontend(
     pix_t pR = right.read();
 
 	update_line_buffers(bufL, bufR, c, pL, pR);
-	update_sliding_windows(bufL, bufR, c, leftWin, rightStripe);
+	update_sliding_windows(bufL, bufR, c, leftWin, rightStripe, right_wr);
 
 	const bool interior =
 	    (r >= WIN - 1) &&
-	    (c >= (DISP - 1) + cx) &&
-	    (c + (WIN - 1 - cx) < IMG_W);
+	    (c >= (DISP - 1) + 2* cx) &&
+	    (c < IMG_W);
 
     if (interior)
     {
-    	compute_sad_cost_vector(leftWin, rightStripe, pkt.curCost);
+    	compute_sad_cost_vector(leftWin, rightStripe, right_wr, pkt.curCost);
     	pkt.valid = true;
     }
     else
@@ -313,9 +316,6 @@ void sgm_kernel(hls::stream<pix_t>& left,
 #pragma HLS bind_storage variable=prevCostT type=RAM_1P impl=BRAM
 #pragma HLS ARRAY_PARTITION variable=prevCostT complete dim=2
 
-//    static cost_t curCost[DISP];
-//#pragma HLS ARRAY_PARTITION variable=curCost complete dim=1
-
     static cost_t aggCost[DISP];
 #pragma HLS ARRAY_PARTITION variable=aggCost complete dim=1
 
@@ -336,6 +336,8 @@ void sgm_kernel(hls::stream<pix_t>& left,
 Row:
     for (int r = 0; r < IMG_H; r++)
     {
+    	int right_wr = RIGHT_STRIPE_W - 1;
+
         /* Reset aggregation for new row */
     ResetCosts:
         for (int d = 0; d < DISP; d++)
@@ -379,12 +381,12 @@ Row:
 
     	for (int c = 0; c < IMG_W; ++c)
     	{
-    	#pragma HLS PIPELINE II=8
+    	//#pragma HLS PIPELINE II=16
     	#pragma HLS DEPENDENCE variable=bufL inter false
     	#pragma HLS DEPENDENCE variable=bufR inter false
 
     		CostPacket pkt = col_frontend(left, right, bufL, bufR, r, c, cx,
-    				leftWin, rightStripe);
+    				leftWin, rightStripe, right_wr);
 
     		int out_c = c - cx;
     		if(out_c >= 0)
