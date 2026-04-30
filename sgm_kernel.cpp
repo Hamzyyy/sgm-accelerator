@@ -110,21 +110,6 @@ static void compute_sad_cost_vector(
 	}
 }
 
-static cost_t reduce_min_vec(const cost_t vec[DISP])
-{
-#pragma HLS INLINE off
-    cost_t minVal = INF_COST;
-
-MinLoop:
-    for (int d = 0; d < DISP; d++)
-    {
-	#pragma HLS UNROLL factor=2
-        if (vec[d] < minVal)
-            minVal = vec[d];
-    }
-    return minVal;
-}
-
 static disp_t aggregate_paths_and_select(
     const cost_t curCost[DISP],
     const cost_t prevCostL[DISP],
@@ -133,17 +118,22 @@ static disp_t aggregate_paths_and_select(
     cost_t minPrevTB,
     cost_t aggLR_arr[DISP],
     cost_t aggTB_arr[DISP],
-    cost_t aggCost[DISP])
+    cost_t aggCost[DISP],
+	cost_t& newMinLR,
+	cost_t& newMinTB)
 {
 #pragma HLS INLINE off
 
     cost_t bestCost = INF_COST;
     disp_t bestDisp = 0;
+    newMinLR = INF_COST;
+    newMinTB = INF_COST;
 
 AggregationLoop:
     for (int d = 0; d < DISP; d++)
     {
-#pragma HLS UNROLL factor=2
+	#pragma HLS PIPELINE II=1
+	//#pragma HLS UNROLL factor=2
         cost_t p0_LR = prevCostL[d];
         cost_t p1_LR = (d > 0) ? sat12(prevCostL[d - 1] + P1) : INF_COST;
         cost_t p2_LR = (d < DISP - 1) ? sat12(prevCostL[d + 1] + P1) : INF_COST;
@@ -157,6 +147,9 @@ AggregationLoop:
         cost_t aggLR = sat12(curCost[d] + minLR - minPrevLR);
         aggLR_arr[d] = aggLR;
 
+        if(aggLR < newMinLR)
+        	newMinLR = aggLR;
+
         cost_t p0_TB = prevCostT_col[d];
         cost_t p1_TB = (d > 0) ? sat12(prevCostT_col[d - 1] + P1) : INF_COST;
         cost_t p2_TB = (d < DISP - 1) ? sat12(prevCostT_col[d + 1] + P1) : INF_COST;
@@ -169,6 +162,9 @@ AggregationLoop:
 
         cost_t aggTB = sat12(curCost[d] + minTB - minPrevTB);
         aggTB_arr[d] = aggTB;
+
+        if(aggTB < newMinTB)
+        	newMinTB = aggTB;
 
         cost_t sum2 = sat12(aggLR + aggTB);
         aggCost[d] = sum2;
@@ -193,7 +189,8 @@ static void commit_prev_costs(
 CopyPrevLR:
     for (int d = 0; d < DISP; ++d)
     {
-#pragma HLS UNROLL factor=2
+	//#pragma HLS UNROLL factor=2
+	#pragma HLS PIPELINE II=1
         prevCostL[d]    = aggLR_arr[d];
         prevCostT_col[d] = aggTB_arr[d];
     }
@@ -247,33 +244,27 @@ static pix_t col_backend(
 		const CostPacket& pkt,
 		cost_t prevCostL[DISP],
 		cost_t prevCostT_col[DISP],
+	    cost_t& minPrevLR,
+	    cost_t& minPrevTB,
 		cost_t aggLR_arr[DISP],
 		cost_t aggTB_arr[DISP],
 		cost_t aggCost[DISP])
 {
 #pragma HLS INLINE off
 	pix_t outDisp = 0;
+	cost_t newMinLR;
+	cost_t newMinTB;
 
 	if (pkt.valid)
 	{
-        cost_t minPrevLR = reduce_min_vec(prevCostL);
-        cost_t minPrevTB = reduce_min_vec(prevCostT_col);
+        disp_t bestDisp = aggregate_paths_and_select(pkt.curCost, prevCostL,
+			prevCostT_col, minPrevLR, minPrevTB, aggLR_arr, aggTB_arr,
+            aggCost, newMinLR, newMinTB);
 
-        disp_t bestDisp = aggregate_paths_and_select(
-            pkt.curCost,
-            prevCostL,
-			prevCostT_col,
-            minPrevLR,
-            minPrevTB,
-            aggLR_arr,
-            aggTB_arr,
-            aggCost);
+        commit_prev_costs(prevCostL, prevCostT_col, aggLR_arr, aggTB_arr);
 
-        commit_prev_costs(
-            prevCostL,
-			prevCostT_col,
-            aggLR_arr,
-            aggTB_arr);
+        minPrevLR = newMinLR;
+        minPrevTB = newMinTB;
 
         outDisp = bestDisp;
 	}
@@ -330,6 +321,8 @@ void sgm_kernel(hls::stream<pix_t>& left,
 #pragma HLS ARRAY_PARTITION variable=leftWin complete dim=0
 #pragma HLS ARRAY_PARTITION variable=rightStripe complete dim=1
 
+    static cost_t minPrevT[IMG_W];
+
     /* center offset */
     const int cx = WIN >> 1;
 
@@ -337,6 +330,8 @@ Row:
     for (int r = 0; r < IMG_H; r++)
     {
     	int right_wr = RIGHT_STRIPE_W - 1;
+
+    	cost_t minPrevLR = 0;
 
         /* Reset aggregation for new row */
     ResetCosts:
@@ -351,6 +346,7 @@ Row:
         InitTBRow:
 			for (int c = 0; c < IMG_W; ++c)
 			{
+				minPrevT[c] = 0;
 			#pragma HLS LOOP_TRIPCOUNT min=IMG_W max=IMG_W
 				InitTBRowD:
 				for (int d = 0; d < DISP; ++d)
@@ -392,7 +388,8 @@ Row:
     		if(out_c >= 0)
     		{
     			pix_t outDisp = col_backend(pkt, prevCostL, prevCostT[out_c],
-                aggLR_arr, aggTB_arr, aggCost);
+    					minPrevLR, minPrevT[out_c], aggLR_arr, aggTB_arr,
+						aggCost);
     			disp.write(outDisp);
     		}
     	}
