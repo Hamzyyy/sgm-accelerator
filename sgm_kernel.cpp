@@ -13,6 +13,8 @@ static const cost_t INF_COST = cost_t(4095);
 /* --------------------------------------------------------- */
 /* Helper Function                                           */
 /* --------------------------------------------------------- */
+static constexpr int RIGHT_STRIPE_W = DISP + WIN - 1;
+
 static inline void update_line_buffers(
 		xf::cv::LineBuffer<WIN, IMG_W, pix_t>& bufL,
 		xf::cv::LineBuffer<WIN, IMG_W, pix_t>& bufR,
@@ -28,71 +30,76 @@ static inline void update_line_buffers(
     bufR.insert_bottom(pR, c);
 }
 
-static inline void update_windows(
-    xf::cv::LineBuffer<WIN, IMG_W, pix_t>& bufL,
-    xf::cv::LineBuffer<WIN, IMG_W, pix_t>& bufR,
-    xf::cv::Window<WIN, WIN, pix_t>& winL,
-    xf::cv::Window<WIN, WIN, pix_t>& winR,
-    int c,
-    pix_t pL,
-    pix_t pR)
+static void update_sliding_windows(
+	    xf::cv::LineBuffer<WIN, IMG_W, pix_t>& bufL,
+	    xf::cv::LineBuffer<WIN, IMG_W, pix_t>& bufR,
+		int c,
+		pix_t leftWin[WIN][WIN],
+		pix_t rightStripe[WIN][RIGHT_STRIPE_W],
+		int& right_wr)
 {
 #pragma HLS INLINE
 
-    winL.shift_pixels_left();
-    winR.shift_pixels_left();
+	ShiftLeftWin:
+	    for (int wy = 0; wy < WIN; ++wy)
+	    {
+		#pragma HLS UNROLL
+	        for (int wx = 0; wx < WIN - 1; ++wx)
+	        {
+		#pragma HLS UNROLL
+	            leftWin[wy][wx] = leftWin[wy][wx + 1];
+	        }
+	    }
 
-WindowFill:
-    for (int wy = 0; wy < WIN - 1; ++wy)
-    {
-	#pragma HLS UNROLL factor=2
-        winL.insert_pixel(bufL.getval(wy, c), wy, WIN - 1);
-        winR.insert_pixel(bufR.getval(wy, c), wy, WIN - 1);
-    }
+	InsertLeftCol:
+		for (int wy = 0; wy < WIN; ++wy)
+		{
+	    #pragma HLS UNROLL
+			leftWin[wy][WIN - 1] = bufL.getval(wy, c);
+	    }
 
-    winL.insert_pixel(pL, WIN - 1, WIN - 1);
-    winR.insert_pixel(pR, WIN - 1, WIN - 1);
-}
+		right_wr++;
+		if(right_wr == RIGHT_STRIPE_W)
+			right_wr = 0;
 
-static inline pix_t safe_get(
-		xf::cv::LineBuffer<WIN, IMG_W, pix_t>& buf,
-		int wy,
-		int col
-		)
-{
-#pragma HLS INLINE
-    if (col >= 0 && col < IMG_W)
-        return buf.getval(wy, col);
-    return pix_t(0);
+	ShiftRightStripe:
+		for (int wy = 0; wy < WIN; ++wy)
+		{
+		#pragma HLS UNROLL
+			rightStripe[wy][right_wr] = bufR.getval(wy, c);
+		}
 }
 
 static void compute_sad_cost_vector(
-	    xf::cv::LineBuffer<WIN, IMG_W, pix_t>& bufL,
-	    xf::cv::LineBuffer<WIN, IMG_W, pix_t>& bufR,
-	    int c,
-	    int cx,
+		pix_t leftWin[WIN][WIN],
+		pix_t rightStripe[WIN][RIGHT_STRIPE_W],
+		int right_wr,
 	    cost_t curCost[DISP])
 {
 #pragma HLS INLINE off
 	SAD_Loop:
 	    for (int d = 0; d < DISP; d++)
 	    {
-	#pragma HLS UNROLL factor=2
+		#pragma HLS PIPELINE II=1
 	        cost_t sum = 0;
 
 	    WinY:
 	        for (int wy = 0; wy < WIN; wy++)
 	        {
-	#pragma HLS UNROLL factor=2
+			#pragma HLS UNROLL
 	        WinX:
 	            for (int wx = 0; wx < WIN; wx++)
 	            {
-	#pragma HLS UNROLL factor=2
-	                int colL  = c + wx - cx;
-	                int colR = c - d + wx - cx;
+				#pragma HLS UNROLL
 
-	                pix_t lpx = safe_get(bufL, wy, colL);
-	                pix_t rpx = safe_get(bufR, wy, colR);
+	            	int logicalIndex = RIGHT_STRIPE_W - WIN - d + wx;
+
+	            	int physIndex = right_wr + 1 + logicalIndex;
+	            	if (physIndex >= RIGHT_STRIPE_W)
+	            			physIndex -= RIGHT_STRIPE_W;
+
+	                pix_t lpx = leftWin[wy][wx];
+	                pix_t rpx = rightStripe[wy][physIndex];
 
 	                sum += absdiff(lpx, rpx);
 	            }
@@ -134,7 +141,7 @@ static disp_t aggregate_paths_and_select(
 AggregationLoop:
     for (int d = 0; d < DISP; d++)
     {
-#pragma HLS UNROLL factor=2
+	#pragma HLS UNROLL factor=2
         cost_t p0_LR = prevCostL[d];
         cost_t p1_LR = (d > 0) ? sat12(prevCostL[d - 1] + P1) : INF_COST;
         cost_t p2_LR = (d < DISP - 1) ? sat12(prevCostL[d + 1] + P1) : INF_COST;
@@ -184,7 +191,7 @@ static void commit_prev_costs(
 CopyPrevLR:
     for (int d = 0; d < DISP; ++d)
     {
-#pragma HLS UNROLL factor=2
+	#pragma HLS UNROLL factor=2
         prevCostL[d]    = aggLR_arr[d];
         prevCostT_col[d] = aggTB_arr[d];
     }
@@ -249,6 +256,12 @@ void sgm_kernel(hls::stream<pix_t>& left,
     #pragma HLS ARRAY_PARTITION variable=aggLR_arr complete dim=1
     #pragma HLS ARRAY_PARTITION variable=aggTB_arr complete dim=1
 
+        pix_t leftWin[WIN][WIN];
+        pix_t rightStripe[WIN][RIGHT_STRIPE_W];
+
+    #pragma HLS ARRAY_PARTITION variable=leftWin complete dim=0
+    #pragma HLS ARRAY_PARTITION variable=rightStripe complete dim=1
+
     /* center offsets */
     const int cy = WIN >> 1;
     const int cx = WIN >> 1;
@@ -256,6 +269,8 @@ void sgm_kernel(hls::stream<pix_t>& left,
 Row:
     for (int r = 0; r < IMG_H; r++)
     {
+    	int right_wr = RIGHT_STRIPE_W - 1;
+
         /* Reset aggregation for new row */
     ResetCosts:
         for (int d = 0; d < DISP; d++)
@@ -279,6 +294,24 @@ Row:
 			}
         }
 
+    	InitLeftWin:
+    	for (int wy = 0; wy < WIN; ++wy)
+    	{
+    	    for (int wx = 0; wx < WIN; ++wx)
+    	    {
+    	        leftWin[wy][wx] = 0;
+    	    }
+    	}
+
+    	InitRightStripe:
+    	for (int wy = 0; wy < WIN; ++wy)
+    	{
+    	    for (int k = 0; k < RIGHT_STRIPE_W; ++k)
+    	    {
+    	        rightStripe[wy][k] = 0;
+    	    }
+    	}
+
     Col:
         for (int c = 0; c < IMG_W; c++)
         {
@@ -291,43 +324,47 @@ Row:
             pix_t pR = right.read();
 
             update_line_buffers(bufL, bufR, c, pL, pR);
-            update_windows(bufL, bufR, winL, winR, c, pL, pR);
+            update_sliding_windows(bufL, bufR, c, leftWin, rightStripe, right_wr);
 
             /* Default output */
             pix_t outDisp = 0;
+            int out_c = c - cx;
 
-            if (r >= WIN - 1 && c >= DISP - 1)
+            const bool valid = (r >= WIN - 1) && (c >= RIGHT_STRIPE_W - 1);
+
+            if (out_c >= 0)
             {
-            	compute_sad_cost_vector(bufL, bufR, c, cx, curCost);
+            	if (valid)
+            	{
+					compute_sad_cost_vector(leftWin, rightStripe, right_wr, curCost);
 
-            	//compute_census_cost_vector(winL, winR, r, c, cx, cy, curCost);
+					cost_t minPrevLR = reduce_min_vec(prevCostL);
+					cost_t minPrevTB = reduce_min_vec(prevCostT[out_c]);
 
-                cost_t minPrevLR = reduce_min_vec(prevCostL);
-                cost_t minPrevTB = reduce_min_vec(prevCostT[c]);
+					disp_t bestDisp = aggregate_paths_and_select(
+						curCost,
+						prevCostL,
+						prevCostT[out_c],
+						minPrevLR,
+						minPrevTB,
+						aggLR_arr,
+						aggTB_arr,
+						aggCost);
 
-                disp_t bestDisp = aggregate_paths_and_select(
-                    curCost,
-                    prevCostL,
-                    prevCostT[c],
-                    minPrevLR,
-                    minPrevTB,
-                    aggLR_arr,
-                    aggTB_arr,
-                    aggCost);
+					commit_prev_costs(
+						prevCostL,
+						prevCostT[out_c],
+						aggLR_arr,
+						aggTB_arr);
 
-                commit_prev_costs(
-                    prevCostL,
-                    prevCostT[c],
-                    aggLR_arr,
-                    aggTB_arr);
-
-                if (c >= DISP - 1)
-                {
-                    outDisp = bestDisp;
-                }
+						outDisp = bestDisp;
+				}
+				disp.write(outDisp);
             }
-
-            disp.write(outDisp);
+        }
+        for (int t = 0; t < cx; ++t)
+        {
+            disp.write(0);
         }
     }
 }
