@@ -197,6 +197,89 @@ CopyPrevLR:
     }
 }
 
+struct CostPacket
+{
+	bool valid;
+	cost_t curCost[DISP];
+};
+
+static CostPacket col_frontend(
+	    hls::stream<pix_t>& left,
+	    hls::stream<pix_t>& right,
+	    xf::cv::LineBuffer<WIN, IMG_W, pix_t>& bufL,
+	    xf::cv::LineBuffer<WIN, IMG_W, pix_t>& bufR,
+	    int r,
+	    int c,
+	    int cx,
+		pix_t leftWin[WIN][WIN],
+		pix_t rightStripe[WIN][RIGHT_STRIPE_W],
+		int& right_wr)
+{
+#pragma HLS INLINE off
+	CostPacket pkt;
+	pkt.valid = false;
+
+    pix_t pL = left.read();
+    pix_t pR = right.read();
+
+	update_line_buffers(bufL, bufR, c, pL, pR);
+	update_sliding_windows(bufL, bufR, c, leftWin, rightStripe, right_wr);
+
+	const bool interior =
+	    (r >= WIN - 1) &&
+	    (c >= (DISP - 1) + 2* cx) &&
+	    (c < IMG_W);
+
+    if (interior)
+    {
+    	compute_sad_cost_vector(leftWin, rightStripe, right_wr, pkt.curCost);
+    	pkt.valid = true;
+    }
+    else
+    {
+    	pkt.valid = false;
+    }
+    return pkt;
+}
+
+static pix_t col_backend(
+		const CostPacket& pkt,
+		cost_t prevCostL[DISP],
+		cost_t prevCostT_col[DISP],
+		cost_t aggLR_arr[DISP],
+		cost_t aggTB_arr[DISP],
+		cost_t aggCost[DISP])
+{
+#pragma HLS INLINE off
+	pix_t outDisp = 0;
+
+	if (pkt.valid)
+	{
+		cost_t minPrevLR = reduce_min_vec(prevCostL);
+		cost_t minPrevTB = reduce_min_vec(prevCostT_col);
+
+		disp_t bestDisp = aggregate_paths_and_select(
+			pkt.curCost,
+			prevCostL,
+			prevCostT_col,
+			minPrevLR,
+			minPrevTB,
+			aggLR_arr,
+			aggTB_arr,
+			aggCost);
+
+		commit_prev_costs(
+			prevCostL,
+			prevCostT_col,
+			aggLR_arr,
+			aggTB_arr);
+
+			outDisp = bestDisp;
+	}
+
+	return outDisp;
+}
+
 /* --------------------------------------------------------- */
 /* Top kernel                                                */
 /* --------------------------------------------------------- */
@@ -225,18 +308,6 @@ void sgm_kernel(hls::stream<pix_t>& left,
         }
     }
 
-    xf::cv::Window<WIN, WIN, pix_t> winL;
-    xf::cv::Window<WIN, WIN, pix_t> winR;
-
-    InitWin:
-    for (int wy = 0; wy < WIN; ++wy)
-    {
-        for (int wx = 0; wx < WIN; ++wx)
-        {
-            winL.val[wy][wx] = 0;
-            winR.val[wy][wx] = 0;
-        }
-    }
     /* Cost arrays */
     static cost_t prevCostL[DISP];
 #pragma HLS ARRAY_PARTITION variable=prevCostL complete dim=1
@@ -244,9 +315,6 @@ void sgm_kernel(hls::stream<pix_t>& left,
     static cost_t prevCostT[IMG_W][DISP];
 #pragma HLS bind_storage variable=prevCostT type=RAM_1P impl=BRAM
 #pragma HLS ARRAY_PARTITION variable=prevCostT complete dim=2
-
-    static cost_t curCost[DISP];
-#pragma HLS ARRAY_PARTITION variable=curCost complete dim=1
 
     static cost_t aggCost[DISP];
 #pragma HLS ARRAY_PARTITION variable=aggCost complete dim=1
@@ -263,7 +331,6 @@ void sgm_kernel(hls::stream<pix_t>& left,
     #pragma HLS ARRAY_PARTITION variable=rightStripe complete dim=1
 
     /* center offsets */
-    const int cy = WIN >> 1;
     const int cx = WIN >> 1;
 
 Row:
@@ -319,47 +386,32 @@ Row:
 		#pragma HLS DEPENDENCE variable=bufL inter false
 		#pragma HLS DEPENDENCE variable=bufR inter false
 
-            /* Stream next pixels */
-            pix_t pL = left.read();
-            pix_t pR = right.read();
-
-            update_line_buffers(bufL, bufR, c, pL, pR);
-            update_sliding_windows(bufL, bufR, c, leftWin, rightStripe, right_wr);
+    		CostPacket pkt = col_frontend(
+    				left,
+					right,
+					bufL,
+					bufR,
+					r,
+					c,
+					cx,
+    				leftWin,
+					rightStripe,
+					right_wr);
 
             /* Default output */
-            pix_t outDisp = 0;
             int out_c = c - cx;
-
-            const bool valid = (r >= WIN - 1) && (c >= RIGHT_STRIPE_W - 1);
 
             if (out_c >= 0)
             {
-            	if (valid)
-            	{
-					compute_sad_cost_vector(leftWin, rightStripe, right_wr, curCost);
-
-					cost_t minPrevLR = reduce_min_vec(prevCostL);
-					cost_t minPrevTB = reduce_min_vec(prevCostT[out_c]);
-
-					disp_t bestDisp = aggregate_paths_and_select(
-						curCost,
-						prevCostL,
+    			pix_t outDisp = col_backend(
+    					pkt,
+    					prevCostL,
 						prevCostT[out_c],
-						minPrevLR,
-						minPrevTB,
 						aggLR_arr,
 						aggTB_arr,
 						aggCost);
 
-					commit_prev_costs(
-						prevCostL,
-						prevCostT[out_c],
-						aggLR_arr,
-						aggTB_arr);
-
-						outDisp = bestDisp;
-				}
-				disp.write(outDisp);
+    			disp.write(outDisp);
             }
         }
         for (int t = 0; t < cx; ++t)

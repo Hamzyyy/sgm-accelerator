@@ -3,7 +3,7 @@
 ================================================================
 == Vitis HLS Report for 'compute_sad_cost_vector'
 ================================================================
-* Date:           Wed May 27 02:45:51 2026
+* Date:           Sun May 31 16:00:02 2026
 
 * Version:        2023.1 (Build 3854077 on May  4 2023)
 * Project:        sgm_kernel
@@ -20,7 +20,7 @@
     +--------+----------+----------+------------+
     |  Clock |  Target  | Estimated| Uncertainty|
     +--------+----------+----------+------------+
-    |ap_clk  |  10.00 ns|  7.252 ns|     2.70 ns|
+    |ap_clk  |  10.00 ns|  7.002 ns|     2.70 ns|
     +--------+----------+----------+------------+
 
 + Latency: 
@@ -29,17 +29,17 @@
     |  Latency (cycles) |  Latency (absolute) |  Interval | Pipeline|
     |   min   |   max   |    min   |    max   | min | max |   Type  |
     +---------+---------+----------+----------+-----+-----+---------+
-    |       38|       38|  0.380 us|  0.380 us|   38|   38|       no|
+    |       39|       39|  0.390 us|  0.390 us|   39|   39|       no|
     +---------+---------+----------+----------+-----+-----+---------+
 
     + Detail: 
         * Instance: 
-        +------------------------------------------------------+-------------------------------------------+---------+---------+----------+----------+-----+-----+---------+
-        |                                                      |                                           |  Latency (cycles) |  Latency (absolute) |  Interval | Pipeline|
-        |                       Instance                       |                   Module                  |   min   |   max   |    min   |    max   | min | max |   Type  |
-        +------------------------------------------------------+-------------------------------------------+---------+---------+----------+----------+-----+-----+---------+
-        |grp_compute_sad_cost_vector_Pipeline_SAD_Loop_fu_144  |compute_sad_cost_vector_Pipeline_SAD_Loop  |       36|       36|  0.360 us|  0.360 us|   36|   36|       no|
-        +------------------------------------------------------+-------------------------------------------+---------+---------+----------+----------+-----+-----+---------+
+        +-----------------------------------------------------+-------------------------------------------+---------+---------+----------+----------+-----+-----+---------+
+        |                                                     |                                           |  Latency (cycles) |  Latency (absolute) |  Interval | Pipeline|
+        |                       Instance                      |                   Module                  |   min   |   max   |    min   |    max   | min | max |   Type  |
+        +-----------------------------------------------------+-------------------------------------------+---------+---------+----------+----------+-----+-----+---------+
+        |grp_compute_sad_cost_vector_Pipeline_SAD_Loop_fu_82  |compute_sad_cost_vector_Pipeline_SAD_Loop  |       37|       37|  0.370 us|  0.370 us|   37|   37|       no|
+        +-----------------------------------------------------+-------------------------------------------+---------+---------+----------+----------+-----+-----+---------+
 
         * Loop: 
         N/A
@@ -56,12 +56,12 @@
 |DSP              |        -|   -|      -|      -|    -|
 |Expression       |        -|   -|      0|     53|    -|
 |FIFO             |        -|   -|      -|      -|    -|
-|Instance         |        -|   -|    204|   1001|    -|
+|Instance         |        -|   -|    214|   1001|    -|
 |Memory           |        -|   -|      -|      -|    -|
 |Multiplexer      |        -|   -|      -|     20|    -|
 |Register         |        -|   -|     48|      -|    -|
 +-----------------+---------+----+-------+-------+-----+
-|Total            |        0|   0|    252|   1074|    0|
+|Total            |        0|   0|    262|   1074|    0|
 +-----------------+---------+----+-------+-------+-----+
 |Available        |      120|  80|  35200|  17600|    0|
 +-----------------+---------+----+-------+-------+-----+
@@ -70,13 +70,13 @@
 
 + Detail: 
     * Instance: 
-    +------------------------------------------------------+-------------------------------------------+---------+----+-----+------+-----+
-    |                       Instance                       |                   Module                  | BRAM_18K| DSP|  FF |  LUT | URAM|
-    +------------------------------------------------------+-------------------------------------------+---------+----+-----+------+-----+
-    |grp_compute_sad_cost_vector_Pipeline_SAD_Loop_fu_144  |compute_sad_cost_vector_Pipeline_SAD_Loop  |        0|   0|  204|  1001|    0|
-    +------------------------------------------------------+-------------------------------------------+---------+----+-----+------+-----+
-    |Total                                                 |                                           |        0|   0|  204|  1001|    0|
-    +------------------------------------------------------+-------------------------------------------+---------+----+-----+------+-----+
+    +-----------------------------------------------------+-------------------------------------------+---------+----+-----+------+-----+
+    |                       Instance                      |                   Module                  | BRAM_18K| DSP|  FF |  LUT | URAM|
+    +-----------------------------------------------------+-------------------------------------------+---------+----+-----+------+-----+
+    |grp_compute_sad_cost_vector_Pipeline_SAD_Loop_fu_82  |compute_sad_cost_vector_Pipeline_SAD_Loop  |        0|   0|  214|  1001|    0|
+    +-----------------------------------------------------+-------------------------------------------+---------+----+-----+------+-----+
+    |Total                                                |                                           |        0|   0|  214|  1001|    0|
+    +-----------------------------------------------------+-------------------------------------------+---------+----+-----+------+-----+
 
     * DSP: 
     N/A
@@ -91,8 +91,8 @@
     +--------------------+----------+----+---+----+------------+------------+
     |    Variable Name   | Operation| DSP| FF| LUT| Bitwidth P0| Bitwidth P1|
     +--------------------+----------+----+---+----+------------+------------+
-    |add9_fu_239_p2      |         +|   0|  0|  39|          32|           1|
-    |add_ln81_fu_245_p2  |         +|   0|  0|  14|           6|           1|
+    |add9_fu_115_p2      |         +|   0|  0|  39|          32|           1|
+    |add_ln81_fu_121_p2  |         +|   0|  0|  14|           6|           1|
     +--------------------+----------+----+---+----+------------+------------+
     |Total               |          |   0|  0|  53|          38|           2|
     +--------------------+----------+----+---+----+------------+------------+
@@ -107,17 +107,17 @@
     +-----------+----+-----------+-----+-----------+
 
     * Register: 
-    +-------------------------------------------------------------------+----+----+-----+-----------+
-    |                                Name                               | FF | LUT| Bits| Const Bits|
-    +-------------------------------------------------------------------+----+----+-----+-----------+
-    |add9_reg_257                                                       |  32|   0|   32|          0|
-    |add_ln81_reg_297                                                   |   6|   0|    6|          0|
-    |ap_CS_fsm                                                          |   3|   0|    3|          0|
-    |empty_reg_251                                                      |   6|   0|    6|          0|
-    |grp_compute_sad_cost_vector_Pipeline_SAD_Loop_fu_144_ap_start_reg  |   1|   0|    1|          0|
-    +-------------------------------------------------------------------+----+----+-----+-----------+
-    |Total                                                              |  48|   0|   48|          0|
-    +-------------------------------------------------------------------+----+----+-----+-----------+
+    +------------------------------------------------------------------+----+----+-----+-----------+
+    |                               Name                               | FF | LUT| Bits| Const Bits|
+    +------------------------------------------------------------------+----+----+-----+-----------+
+    |add9_reg_133                                                      |  32|   0|   32|          0|
+    |add_ln81_reg_173                                                  |   6|   0|    6|          0|
+    |ap_CS_fsm                                                         |   3|   0|    3|          0|
+    |empty_reg_127                                                     |   6|   0|    6|          0|
+    |grp_compute_sad_cost_vector_Pipeline_SAD_Loop_fu_82_ap_start_reg  |   1|   0|    1|          0|
+    +------------------------------------------------------------------+----+----+-----+-----------+
+    |Total                                                             |  48|   0|   48|          0|
+    +------------------------------------------------------------------+----+----+-----+-----------+
 
 
 
@@ -125,113 +125,53 @@
 == Interface
 ================================================================
 * Summary: 
-+-----------------------------------------------------------------------------+-----+-----+------------+----------------------------------------------------------------------+--------------+
-|                                  RTL Ports                                  | Dir | Bits|  Protocol  |                             Source Object                            |    C Type    |
-+-----------------------------------------------------------------------------+-----+-----+------------+----------------------------------------------------------------------+--------------+
-|ap_clk                                                                       |   in|    1|  ap_ctrl_hs|                                               compute_sad_cost_vector|  return value|
-|ap_rst                                                                       |   in|    1|  ap_ctrl_hs|                                               compute_sad_cost_vector|  return value|
-|ap_start                                                                     |   in|    1|  ap_ctrl_hs|                                               compute_sad_cost_vector|  return value|
-|ap_done                                                                      |  out|    1|  ap_ctrl_hs|                                               compute_sad_cost_vector|  return value|
-|ap_idle                                                                      |  out|    1|  ap_ctrl_hs|                                               compute_sad_cost_vector|  return value|
-|ap_ready                                                                     |  out|    1|  ap_ctrl_hs|                                               compute_sad_cost_vector|  return value|
-|leftWin_0_0_val                                                              |   in|    8|     ap_none|                                                       leftWin_0_0_val|        scalar|
-|leftWin_0_1_val                                                              |   in|    8|     ap_none|                                                       leftWin_0_1_val|        scalar|
-|leftWin_0_2_val                                                              |   in|    8|     ap_none|                                                       leftWin_0_2_val|        scalar|
-|leftWin_1_0_val                                                              |   in|    8|     ap_none|                                                       leftWin_1_0_val|        scalar|
-|leftWin_1_1_val                                                              |   in|    8|     ap_none|                                                       leftWin_1_1_val|        scalar|
-|leftWin_2_0_val                                                              |   in|    8|     ap_none|                                                       leftWin_2_0_val|        scalar|
-|leftWin_2_1_val                                                              |   in|    8|     ap_none|                                                       leftWin_2_1_val|        scalar|
-|rightStripe_0_address0                                                       |  out|    6|   ap_memory|                                                         rightStripe_0|         array|
-|rightStripe_0_ce0                                                            |  out|    1|   ap_memory|                                                         rightStripe_0|         array|
-|rightStripe_0_q0                                                             |   in|    8|   ap_memory|                                                         rightStripe_0|         array|
-|rightStripe_0_address1                                                       |  out|    6|   ap_memory|                                                         rightStripe_0|         array|
-|rightStripe_0_ce1                                                            |  out|    1|   ap_memory|                                                         rightStripe_0|         array|
-|rightStripe_0_q1                                                             |   in|    8|   ap_memory|                                                         rightStripe_0|         array|
-|rightStripe_0_address2                                                       |  out|    6|   ap_memory|                                                         rightStripe_0|         array|
-|rightStripe_0_ce2                                                            |  out|    1|   ap_memory|                                                         rightStripe_0|         array|
-|rightStripe_0_q2                                                             |   in|    8|   ap_memory|                                                         rightStripe_0|         array|
-|rightStripe_1_address0                                                       |  out|    6|   ap_memory|                                                         rightStripe_1|         array|
-|rightStripe_1_ce0                                                            |  out|    1|   ap_memory|                                                         rightStripe_1|         array|
-|rightStripe_1_q0                                                             |   in|    1|   ap_memory|                                                         rightStripe_1|         array|
-|rightStripe_1_address1                                                       |  out|    6|   ap_memory|                                                         rightStripe_1|         array|
-|rightStripe_1_ce1                                                            |  out|    1|   ap_memory|                                                         rightStripe_1|         array|
-|rightStripe_1_q1                                                             |   in|    1|   ap_memory|                                                         rightStripe_1|         array|
-|rightStripe_1_address2                                                       |  out|    6|   ap_memory|                                                         rightStripe_1|         array|
-|rightStripe_1_ce2                                                            |  out|    1|   ap_memory|                                                         rightStripe_1|         array|
-|rightStripe_1_q2                                                             |   in|    1|   ap_memory|                                                         rightStripe_1|         array|
-|rightStripe_2_address0                                                       |  out|    6|   ap_memory|                                                         rightStripe_2|         array|
-|rightStripe_2_ce0                                                            |  out|    1|   ap_memory|                                                         rightStripe_2|         array|
-|rightStripe_2_q0                                                             |   in|    1|   ap_memory|                                                         rightStripe_2|         array|
-|rightStripe_2_address1                                                       |  out|    6|   ap_memory|                                                         rightStripe_2|         array|
-|rightStripe_2_ce1                                                            |  out|    1|   ap_memory|                                                         rightStripe_2|         array|
-|rightStripe_2_q1                                                             |   in|    1|   ap_memory|                                                         rightStripe_2|         array|
-|rightStripe_2_address2                                                       |  out|    6|   ap_memory|                                                         rightStripe_2|         array|
-|rightStripe_2_ce2                                                            |  out|    1|   ap_memory|                                                         rightStripe_2|         array|
-|rightStripe_2_q2                                                             |   in|    1|   ap_memory|                                                         rightStripe_2|         array|
-|right_wr                                                                     |   in|   32|     ap_none|                                                              right_wr|        scalar|
-|sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_9            |  out|   11|      ap_vld|     sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_9|       pointer|
-|sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_9_ap_vld     |  out|    1|      ap_vld|     sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_9|       pointer|
-|sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_8            |  out|   11|      ap_vld|     sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_8|       pointer|
-|sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_8_ap_vld     |  out|    1|      ap_vld|     sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_8|       pointer|
-|sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_7            |  out|   11|      ap_vld|     sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_7|       pointer|
-|sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_7_ap_vld     |  out|    1|      ap_vld|     sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_7|       pointer|
-|sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_6            |  out|   11|      ap_vld|     sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_6|       pointer|
-|sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_6_ap_vld     |  out|    1|      ap_vld|     sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_6|       pointer|
-|sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_5            |  out|   11|      ap_vld|     sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_5|       pointer|
-|sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_5_ap_vld     |  out|    1|      ap_vld|     sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_5|       pointer|
-|sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_4            |  out|   11|      ap_vld|     sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_4|       pointer|
-|sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_4_ap_vld     |  out|    1|      ap_vld|     sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_4|       pointer|
-|sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_3            |  out|   11|      ap_vld|     sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_3|       pointer|
-|sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_3_ap_vld     |  out|    1|      ap_vld|     sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_3|       pointer|
-|sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_2            |  out|   11|      ap_vld|     sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_2|       pointer|
-|sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_2_ap_vld     |  out|    1|      ap_vld|     sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_2|       pointer|
-|sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_1            |  out|   11|      ap_vld|     sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_1|       pointer|
-|sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_1_ap_vld     |  out|    1|      ap_vld|     sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_1|       pointer|
-|sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost              |  out|   11|      ap_vld|       sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost|       pointer|
-|sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost_ap_vld       |  out|    1|      ap_vld|       sgm_kernel_stream_stream_ap_uint_8_0_stream_ap_uint_8_0_curCost|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_10         |  out|   11|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_10|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_10_ap_vld  |  out|    1|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_10|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_11         |  out|   11|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_11|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_11_ap_vld  |  out|    1|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_11|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_12         |  out|   11|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_12|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_12_ap_vld  |  out|    1|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_12|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_13         |  out|   11|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_13|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_13_ap_vld  |  out|    1|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_13|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_14         |  out|   11|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_14|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_14_ap_vld  |  out|    1|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_14|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_15         |  out|   11|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_15|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_15_ap_vld  |  out|    1|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_15|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_16         |  out|   11|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_16|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_16_ap_vld  |  out|    1|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_16|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_17         |  out|   11|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_17|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_17_ap_vld  |  out|    1|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_17|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_18         |  out|   11|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_18|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_18_ap_vld  |  out|    1|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_18|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_19         |  out|   11|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_19|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_19_ap_vld  |  out|    1|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_19|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_20         |  out|   11|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_20|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_20_ap_vld  |  out|    1|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_20|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_21         |  out|   11|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_21|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_21_ap_vld  |  out|    1|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_21|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_22         |  out|   11|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_22|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_22_ap_vld  |  out|    1|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_22|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_23         |  out|   11|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_23|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_23_ap_vld  |  out|    1|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_23|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_24         |  out|   11|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_24|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_24_ap_vld  |  out|    1|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_24|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_25         |  out|   11|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_25|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_25_ap_vld  |  out|    1|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_25|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_26         |  out|   11|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_26|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_26_ap_vld  |  out|    1|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_26|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_27         |  out|   11|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_27|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_27_ap_vld  |  out|    1|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_27|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_28         |  out|   11|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_28|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_28_ap_vld  |  out|    1|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_28|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_29         |  out|   11|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_29|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_29_ap_vld  |  out|    1|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_29|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_30         |  out|   11|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_30|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_30_ap_vld  |  out|    1|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_30|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_31         |  out|   11|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_31|       pointer|
-|p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_31_ap_vld  |  out|    1|      ap_vld|  p_ZZ10sgm_kernelRN3hls6streamI7ap_uintILi8EELi0EEES4_S4_E7curCost_31|       pointer|
-+-----------------------------------------------------------------------------+-----+-----+------------+----------------------------------------------------------------------+--------------+
++------------------------+-----+-----+------------+-------------------------+--------------+
+|        RTL Ports       | Dir | Bits|  Protocol  |      Source Object      |    C Type    |
++------------------------+-----+-----+------------+-------------------------+--------------+
+|ap_clk                  |   in|    1|  ap_ctrl_hs|  compute_sad_cost_vector|  return value|
+|ap_rst                  |   in|    1|  ap_ctrl_hs|  compute_sad_cost_vector|  return value|
+|ap_start                |   in|    1|  ap_ctrl_hs|  compute_sad_cost_vector|  return value|
+|ap_done                 |  out|    1|  ap_ctrl_hs|  compute_sad_cost_vector|  return value|
+|ap_idle                 |  out|    1|  ap_ctrl_hs|  compute_sad_cost_vector|  return value|
+|ap_ready                |  out|    1|  ap_ctrl_hs|  compute_sad_cost_vector|  return value|
+|leftWin_0_0_val         |   in|    8|     ap_none|          leftWin_0_0_val|        scalar|
+|leftWin_0_1_val         |   in|    8|     ap_none|          leftWin_0_1_val|        scalar|
+|leftWin_0_2_val         |   in|    8|     ap_none|          leftWin_0_2_val|        scalar|
+|leftWin_1_0_val         |   in|    8|     ap_none|          leftWin_1_0_val|        scalar|
+|leftWin_1_1_val         |   in|    8|     ap_none|          leftWin_1_1_val|        scalar|
+|leftWin_2_0_val         |   in|    8|     ap_none|          leftWin_2_0_val|        scalar|
+|leftWin_2_1_val         |   in|    8|     ap_none|          leftWin_2_1_val|        scalar|
+|rightStripe_0_address0  |  out|    6|   ap_memory|            rightStripe_0|         array|
+|rightStripe_0_ce0       |  out|    1|   ap_memory|            rightStripe_0|         array|
+|rightStripe_0_q0        |   in|    8|   ap_memory|            rightStripe_0|         array|
+|rightStripe_0_address1  |  out|    6|   ap_memory|            rightStripe_0|         array|
+|rightStripe_0_ce1       |  out|    1|   ap_memory|            rightStripe_0|         array|
+|rightStripe_0_q1        |   in|    8|   ap_memory|            rightStripe_0|         array|
+|rightStripe_0_address2  |  out|    6|   ap_memory|            rightStripe_0|         array|
+|rightStripe_0_ce2       |  out|    1|   ap_memory|            rightStripe_0|         array|
+|rightStripe_0_q2        |   in|    8|   ap_memory|            rightStripe_0|         array|
+|rightStripe_1_address0  |  out|    6|   ap_memory|            rightStripe_1|         array|
+|rightStripe_1_ce0       |  out|    1|   ap_memory|            rightStripe_1|         array|
+|rightStripe_1_q0        |   in|    1|   ap_memory|            rightStripe_1|         array|
+|rightStripe_1_address1  |  out|    6|   ap_memory|            rightStripe_1|         array|
+|rightStripe_1_ce1       |  out|    1|   ap_memory|            rightStripe_1|         array|
+|rightStripe_1_q1        |   in|    1|   ap_memory|            rightStripe_1|         array|
+|rightStripe_1_address2  |  out|    6|   ap_memory|            rightStripe_1|         array|
+|rightStripe_1_ce2       |  out|    1|   ap_memory|            rightStripe_1|         array|
+|rightStripe_1_q2        |   in|    1|   ap_memory|            rightStripe_1|         array|
+|rightStripe_2_address0  |  out|    6|   ap_memory|            rightStripe_2|         array|
+|rightStripe_2_ce0       |  out|    1|   ap_memory|            rightStripe_2|         array|
+|rightStripe_2_q0        |   in|    1|   ap_memory|            rightStripe_2|         array|
+|rightStripe_2_address1  |  out|    6|   ap_memory|            rightStripe_2|         array|
+|rightStripe_2_ce1       |  out|    1|   ap_memory|            rightStripe_2|         array|
+|rightStripe_2_q1        |   in|    1|   ap_memory|            rightStripe_2|         array|
+|rightStripe_2_address2  |  out|    6|   ap_memory|            rightStripe_2|         array|
+|rightStripe_2_ce2       |  out|    1|   ap_memory|            rightStripe_2|         array|
+|rightStripe_2_q2        |   in|    1|   ap_memory|            rightStripe_2|         array|
+|right_wr                |   in|   32|     ap_none|                 right_wr|        scalar|
+|curCost_address0        |  out|    5|   ap_memory|                  curCost|         array|
+|curCost_ce0             |  out|    1|   ap_memory|                  curCost|         array|
+|curCost_we0             |  out|    1|   ap_memory|                  curCost|         array|
+|curCost_d0              |  out|   11|   ap_memory|                  curCost|         array|
++------------------------+-----+-----+------------+-------------------------+--------------+
 
