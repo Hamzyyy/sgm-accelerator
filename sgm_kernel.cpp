@@ -189,7 +189,7 @@ static void commit_prev_costs(
 CopyPrevLR:
     for (int d = 0; d < DISP; ++d)
     {
-	#pragma HLS UNROLL
+	#pragma HLS UNROLL factor=2
         prevCostL[d]    = aggLR_arr[d];
         prevCostT_col[d] = aggTB_arr[d];
     }
@@ -315,7 +315,7 @@ void sgm_kernel(hls::stream<pix_t>& left,
 #pragma HLS ARRAY_PARTITION variable=prevCostL complete dim=1
 
     static cost_t prevCostT[IMG_W][DISP];
-#pragma HLS bind_storage variable=prevCostT type=RAM_2P impl=BRAM
+#pragma HLS bind_storage variable=prevCostT type=RAM_1P impl=BRAM
 #pragma HLS ARRAY_PARTITION variable=prevCostT complete dim=2
 
     static cost_t aggCost[DISP];
