@@ -4,10 +4,6 @@
 #include <iostream>
 #endif
 
-/* Penalties */
-const cost_t P1 = cost_t(10);
-const cost_t P2 = cost_t(150);
-
 static const cost_t INF_COST = cost_t(4095);
 
 /* --------------------------------------------------------- */

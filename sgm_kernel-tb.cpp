@@ -113,24 +113,17 @@ int main(int argc, char** argv)
     sgm_kernel(left_stream, right_stream, disp_stream);
 
     /* Retrieve output disparity */
-#if (DISP > 256)
-    cv::Mat disp(IMG_H, IMG_W, CV_16U);
-    using out_u_t = uint16_t;
-#else
     cv::Mat disp(IMG_H, IMG_W, CV_8U);
-        using out_u_t = uint8_t;
-#endif
+    using out_u_t = uint8_t;
 
     const int expected = IMG_W * IMG_H;
     int result = 0;
 
     for (int r = 0; r < IMG_H; ++r)
     {
-#if (DISP > 256)
-        uint16_t *dp = disp.ptr<uint16_t>(r);
-#else
-        uint8_t *dp = disp.ptr<uint8_t>(r);
-#endif
+
+    uint8_t *dp = disp.ptr<uint8_t>(r);
+
         for (int c = 0; c < IMG_W; ++c)
         {
         	if (disp_stream.empty())
@@ -188,11 +181,10 @@ int main(int argc, char** argv)
               << " count4plus=" << count4plus << "\n";
 
     /* Save result */
-#if (DISP > 256)
-    const char* raw_name = "disp_u16.png";
-#else
     const char* raw_name = "disp_u8.png";
-#endif
+
+    static_assert(DISP <= 256, "Current output saving assume 8-bit disparity");
+
     cv::imwrite(raw_name, disp);
     std::cout << "OK: Disparity map written to " << raw_name << " ("
             << IMG_W << "x" << IMG_H << ")\n";
