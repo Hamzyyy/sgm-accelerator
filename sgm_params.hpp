@@ -19,6 +19,8 @@ constexpr int WIN   = 3;
 const cost_t P1 = cost_t(10);
 const cost_t P2 = cost_t(150);
 
+static constexpr int RIGHT_STRIPE_W = DISP + WIN - 1;
+
 /*---------------------------------------------------------------------------*/
 static inline pix_t absdiff(pix_t a, pix_t b)
 {

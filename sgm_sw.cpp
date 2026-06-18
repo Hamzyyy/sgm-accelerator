@@ -10,8 +10,6 @@ static const uint16_t P1_SW = 10;
 static const uint16_t P2_SW = 150;
 static const uint16_t INF_COST_SW = 4095;
 
-constexpr int RIGHT_STRIPE_W = DISP + WIN - 1;
-
 static inline uint16_t sat12_sw(unsigned v)
 {
     return v > 4095u ? 4095u : uint16_t(v);
@@ -34,7 +32,6 @@ void update_line_buffers_sw(
         bufL[i][c] = bufL[i + 1][c];
         bufR[i][c] = bufR[i + 1][c];
     }
-
     bufL[WIN - 1][c] = pL;
     bufR[WIN - 1][c] = pR;
 }
@@ -177,8 +174,6 @@ void commit_prev_costs_sw(
     }
 }
 
-
-
 void sgm_sw(
 		const cv::Mat& left,
 		const cv::Mat& right,
@@ -258,34 +253,12 @@ void sgm_sw(
     		update_sliding_windows_sw(bufL, bufR, c, leftWin, rightStripe,
     				right_wr);
 
-	    	if (r == 2 && c == 33)
-	    	{
-	    	    std::cout << "SW leftWin at r=2 c=33:\n";
-	    	    for (int wy = 0; wy < WIN; ++wy)
-	    	    {
-	    	    	for(int wx = 0; wx < WIN; ++wx)
-	    	    	{
-	    	    		std::cout << int(leftWin[wy][wx]) << " ";
-
-	    	    	}
-	    	    	std::cout << "\n";
-	    	    }
-	    	}
-
     		const bool interior = (r >= WIN - 1) && (c >= (DISP - 1) + 2* cx)
     				&& (c < IMG_W);
 
     	    if (interior)
     	    {
     	    	compute_sad_cost_vector_sw(leftWin, rightStripe, right_wr, curCost);
-
-    	    	if (r == 2 && c == 33)
-    	    	{
-    	    	    std::cout << "SW curCost at r=2 c=33:\n";
-    	    	    for (int d = 0; d < DISP; ++d)
-    	    	        std::cout << int(curCost[d]) << " ";
-    	    	    std::cout << "\n";
-    	    	}
     	    }
 
     	    int out_c = c - cx;
@@ -298,7 +271,9 @@ void sgm_sw(
         	    			uint16_t newMinTB = INF_COST_SW;
 
         	    			uint8_t bestDisp = aggregate_paths_and_select_sw(curCost,
-        	    					prevCostL, prevCostT[out_c], minPrevLR, minPrevT[out_c], aggLR_arr, aggTB_arr, aggCost, newMinLR, newMinTB);
+        	    					prevCostL, prevCostT[out_c], minPrevLR,
+									minPrevT[out_c], aggLR_arr, aggTB_arr,
+									aggCost, newMinLR, newMinTB);
 
         	    	        commit_prev_costs_sw(prevCostL, prevCostT[out_c], aggLR_arr,
         	    	        		aggTB_arr);
