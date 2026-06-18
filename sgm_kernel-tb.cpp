@@ -2,6 +2,7 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 #include <iostream>
+#include <chrono>
 
 static inline bool file_exist(const std::string &p)
 {
@@ -145,10 +146,17 @@ int main(int argc, char** argv)
         return 5;
     }
 
-
     /* Run software SGM baseline */
     cv::Mat disp_sw;
+    auto sw_start = std::chrono::high_resolution_clock::now();
     sgm_sw(left, right, disp_sw);
+    auto sw_end = std::chrono::high_resolution_clock::now();
+
+    double sw_ms = std::chrono::duration<double, std::milli>(sw_end - sw_start).count();
+    double sw_fps = 1000.0 / sw_ms;
+
+    std::cout << "SW SGM Latency = " << sw_ms << " ms\n";
+    std::cout << "SW SGM FPS     = " << sw_fps << " \n";
 
     cv::imwrite("disp_sw_u8.png", disp_sw);
     std::cout << "OK: Software disparity written to disp_sw_u8.png\n";
@@ -167,56 +175,8 @@ int main(int argc, char** argv)
         }
     }
 
-    int diff_same = 0;
-    int diff_sw_left = 0;
-    int diff_sw_right = 0;
-
-    for (int r = 0; r < IMG_H; ++r)
-    {
-        for (int c = 1; c < IMG_W - 1; ++c)
-        {
-            int hw = int(disp.at<uint8_t>(r, c));
-
-            if (hw != int(disp_sw.at<uint8_t>(r, c)))
-                diff_same++;
-
-            if (hw != int(disp_sw.at<uint8_t>(r, c - 1)))
-                diff_sw_left++;
-
-            if (hw != int(disp_sw.at<uint8_t>(r, c + 1)))
-                diff_sw_right++;
-        }
-    }
-
-    std::cout << "Diff same    = " << diff_same << "\n";
-    std::cout << "Diff sw c-1  = " << diff_sw_left << "\n";
-    std::cout << "Diff sw c+1  = " << diff_sw_right << "\n";
-
     std::cout << "HW/SW different pixels = "
               << diff_count << " / " << IMG_W * IMG_H << "\n";
-
-    for (int r = 0; r < IMG_H; ++r)
-    {
-        for (int c = 0; c < IMG_W; ++c)
-        {
-            int hw = int(disp.at<uint8_t>(r, c));
-            int sw = int(disp_sw.at<uint8_t>(r, c));
-
-            if (hw != sw)
-            {
-                std::cout << "First mismatch at r=" << r
-                          << " c=" << c
-                          << " HW=" << hw
-                          << " SW=" << sw << "\n";
-                goto done_mismatch_debug;
-            }
-        }
-    }
-
-    done_mismatch_debug:
-	std::cout << "SW disp(48,80)  = " << int(disp_sw.at<uint8_t>(48,80)) << "\n";
-	std::cout << "SW disp(48,160) = " << int(disp_sw.at<uint8_t>(48,160)) << "\n";
-	std::cout << "SW disp(48,240) = " << int(disp_sw.at<uint8_t>(48,240)) << "\n";
 
     double disp_min = 0.0, disp_max = 0.0;
     cv::minMaxLoc(disp, &disp_min, &disp_max);
