@@ -275,7 +275,7 @@ int main(int argc, char** argv)
         cv::imwrite("disp_color.png", disp_color);
 
         int total_pixels = 0;
-        int gt_valid_count = 0, gt_invalid_count = 0;
+        int eval_valid_count = 0, eval_invalid_count = 0;
         int zero_count_on_gt_valid= 0;
         int nonzero_count_on_gt_valid= 0;
         int out_of_range_on_gt_valid= 0;
@@ -284,18 +284,37 @@ int main(int argc, char** argv)
         double sum_abs_err = 0.0;
         cv::Mat err_map(IMG_H, IMG_W, CV_32F, cv::Scalar(0));
 
+        const int cx = WIN >> 1;
+
+        const int valid_r_min = WIN - 1;
+        const int valid_c_min = (DISP - 1) + cx;
+        const int valid_c_max = IMG_W - cx;
+
         for (int r = 0; r < IMG_H; ++r)
         {
         	for (int c = 0; c < IMG_W; ++c)
         	{
         		++total_pixels;
         		float gt_disp = gt_f.at<float>(r,c);
-        		if(gt_disp <= 0.0f)
+
+                bool gt_valid = gt_disp > 0.0f;
+                bool roi_valid =
+                    (r >= valid_r_min) &&
+                    (c >= valid_c_min) &&
+                    (c < valid_c_max);
+
+                bool disp_range_valid =
+                    (gt_disp >= 0.0f) &&
+                    (gt_disp < DISP);
+
+                bool eval_valid = gt_valid && roi_valid && disp_range_valid;
+
+        		if(!eval_valid)
         			{
-        				++gt_invalid_count;
+        				++eval_invalid_count;
         				continue;
         			}
-        		++gt_valid_count;
+        		++eval_valid_count;
 
         		float est_disp = float(disp.at<out_u_t>(r,c));
 
@@ -327,21 +346,21 @@ int main(int argc, char** argv)
         cv::imwrite("err_map.png", err_vis);
 
         std::cout << "Total pixels: " << total_pixels << "\n";
-        std::cout << "GT-valid pixels (>0): " << gt_valid_count << "\n";
-        std::cout << "GT-invalid pixels (<=0): " << gt_invalid_count << "\n";
+        std::cout << "Evaluation-valid pixels (>0): " << eval_valid_count << "\n";
+        std::cout << "Excluded invalid pixels (<=0): " << eval_invalid_count << "\n";
         std::cout << "est == 0 on GT-valid pixels: " << zero_count_on_gt_valid << "\n";
         std::cout << "est != 0 on GT-valid pixels: " << nonzero_count_on_gt_valid << "\n";
         std::cout << "est out of range on GT-valid pixels: " << out_of_range_on_gt_valid << "\n";
 
-        if (gt_valid_count == 0)
+        if (eval_valid_count == 0)
         {
             std::cerr << "ERROR: No valid GT pixels for comparison\n";
             return 6;
         }
 
-        std::cout << "MAE: " << (sum_abs_err / gt_valid_count) << "\n";
-        std::cout << "Bad >1 px: " << (100.0 * bad1 / gt_valid_count) << "%\n";
-        std::cout << "Bad >3 px: " << (100.0 * bad3 / gt_valid_count) << "%\n";
+        std::cout << "MAE: " << (sum_abs_err / eval_valid_count) << "\n";
+        std::cout << "Bad >1 px: " << (100.0 * bad1 / eval_valid_count) << "%\n";
+        std::cout << "Bad >3 px: " << (100.0 * bad3 / eval_valid_count) << "%\n";
 
         return 0;
 }
