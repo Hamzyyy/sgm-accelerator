@@ -216,7 +216,33 @@ static CostPacket col_frontend(
     pix_t pR = right.read();
 
 	update_line_buffers(bufL, bufR, c, pL, pR);
+	#ifndef __SYNTHESIS__
+
+	if((r == 0 || r == 1 || r == 2) && c == 33)
+	{
+		for(int i = 0; i < WIN; ++i)
+		{
+			std::cout << "bufL[" << i <<"][33] = "
+					<< int(bufL.getval(i, c)) << "\n";
+		}
+	}
+	#endif
 	update_sliding_windows(bufL, bufR, c, leftWin, rightStripe, right_wr);
+
+	#ifndef __SYNTHESIS__
+	if (r == 2 && c == 33)
+	{
+	    std::cout << "HW leftWin at r=2 c=33:\n";
+	    for (int wy = 0; wy < WIN; ++wy)
+	    {
+	    	for(int wx = 0; wx < WIN; ++wx)
+	    	{
+	    		std::cout << int(leftWin[wy][wx]) << " ";
+	    	}
+    		std::cout << "\n";
+	    }
+	}
+	#endif
 
 	const bool interior =
 	    (r >= WIN - 1) &&
@@ -227,6 +253,16 @@ static CostPacket col_frontend(
     {
     	compute_sad_cost_vector(leftWin, rightStripe, right_wr, pkt.curCost);
     	pkt.valid = true;
+
+	#ifndef __SYNTHESIS__
+    	if (r == 2 && c == 33)
+    	{
+		std::cout << "HW curCost at r=2 c=33:\n";
+		for (int d = 0; d < DISP; ++d)
+			std::cout << int(pkt.curCost[d]) << " ";
+		std::cout << "\n";
+    	}
+	#endif
     }
     else
     {
@@ -354,6 +390,7 @@ Row:
 			for (int c = 0; c < IMG_W; ++c)
 			{
 			#pragma HLS LOOP_TRIPCOUNT min=IMG_W max=IMG_W
+		        minPrevT[c] = cost_t(0);
 				InitTBRowD:
 				for (int d = 0; d < DISP; ++d)
 				{

@@ -9,5 +9,10 @@ void sgm_kernel(hls::stream<pix_t>& left,
                 hls::stream<pix_t>& right,
                 hls::stream<disp_t>& disp);
 
+void sgm_sw(const cv::Mat& left,
+		const cv::Mat& right,
+		cv::Mat& disp);
+
+
 #endif // SGM_KERNEL_TB_HPP
 
