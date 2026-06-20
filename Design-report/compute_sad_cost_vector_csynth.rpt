@@ -3,7 +3,7 @@
 ================================================================
 == Vitis HLS Report for 'compute_sad_cost_vector'
 ================================================================
-* Date:           Sun May  3 21:53:58 2026
+* Date:           Thu Jun 18 19:15:54 2026
 
 * Version:        2023.1 (Build 3854077 on May  4 2023)
 * Project:        sgm_kernel
@@ -20,7 +20,7 @@
     +--------+----------+----------+------------+
     |  Clock |  Target  | Estimated| Uncertainty|
     +--------+----------+----------+------------+
-    |ap_clk  |  10.00 ns|  7.002 ns|     2.70 ns|
+    |ap_clk  |  10.00 ns|  7.108 ns|     2.70 ns|
     +--------+----------+----------+------------+
 
 + Latency: 
@@ -38,7 +38,7 @@
         |                                                          |                                                |  Latency (cycles) |  Latency (absolute) |  Interval | Pipeline|
         |                         Instance                         |                     Module                     |   min   |   max   |    min   |    max   | min | max |   Type  |
         +----------------------------------------------------------+------------------------------------------------+---------+---------+----------+----------+-----+-----+---------+
-        |grp_compute_sad_cost_vector_Pipeline_SAD_Disparity_fu_82  |compute_sad_cost_vector_Pipeline_SAD_Disparity  |       37|       37|  0.370 us|  0.370 us|   37|   37|       no|
+        |grp_compute_sad_cost_vector_Pipeline_SAD_Disparity_fu_98  |compute_sad_cost_vector_Pipeline_SAD_Disparity  |       37|       37|  0.370 us|  0.370 us|   37|   37|       no|
         +----------------------------------------------------------+------------------------------------------------+---------+---------+----------+----------+-----+-----+---------+
 
         * Loop: 
@@ -56,12 +56,12 @@
 |DSP              |        -|   -|      -|      -|    -|
 |Expression       |        -|   -|      0|     53|    -|
 |FIFO             |        -|   -|      -|      -|    -|
-|Instance         |        -|   -|    214|   1001|    -|
+|Instance         |        -|   -|    219|   1115|    -|
 |Memory           |        -|   -|      -|      -|    -|
 |Multiplexer      |        -|   -|      -|     20|    -|
 |Register         |        -|   -|     48|      -|    -|
 +-----------------+---------+----+-------+-------+-----+
-|Total            |        0|   0|    262|   1074|    0|
+|Total            |        0|   0|    267|   1188|    0|
 +-----------------+---------+----+-------+-------+-----+
 |Available        |      120|  80|  35200|  17600|    0|
 +-----------------+---------+----+-------+-------+-----+
@@ -73,9 +73,9 @@
     +----------------------------------------------------------+------------------------------------------------+---------+----+-----+------+-----+
     |                         Instance                         |                     Module                     | BRAM_18K| DSP|  FF |  LUT | URAM|
     +----------------------------------------------------------+------------------------------------------------+---------+----+-----+------+-----+
-    |grp_compute_sad_cost_vector_Pipeline_SAD_Disparity_fu_82  |compute_sad_cost_vector_Pipeline_SAD_Disparity  |        0|   0|  214|  1001|    0|
+    |grp_compute_sad_cost_vector_Pipeline_SAD_Disparity_fu_98  |compute_sad_cost_vector_Pipeline_SAD_Disparity  |        0|   0|  219|  1115|    0|
     +----------------------------------------------------------+------------------------------------------------+---------+----+-----+------+-----+
-    |Total                                                     |                                                |        0|   0|  214|  1001|    0|
+    |Total                                                     |                                                |        0|   0|  219|  1115|    0|
     +----------------------------------------------------------+------------------------------------------------+---------+----+-----+------+-----+
 
     * DSP: 
@@ -91,8 +91,8 @@
     +--------------------+----------+----+---+----+------------+------------+
     |    Variable Name   | Operation| DSP| FF| LUT| Bitwidth P0| Bitwidth P1|
     +--------------------+----------+----+---+----+------------+------------+
-    |add9_fu_115_p2      |         +|   0|  0|  39|          32|           1|
-    |add_ln83_fu_121_p2  |         +|   0|  0|  14|           6|           1|
+    |add9_fu_135_p2      |         +|   0|  0|  39|          32|           1|
+    |add_ln80_fu_141_p2  |         +|   0|  0|  14|           6|           1|
     +--------------------+----------+----+---+----+------------+------------+
     |Total               |          |   0|  0|  53|          38|           2|
     +--------------------+----------+----+---+----+------------+------------+
@@ -110,11 +110,11 @@
     +-----------------------------------------------------------------------+----+----+-----+-----------+
     |                                  Name                                 | FF | LUT| Bits| Const Bits|
     +-----------------------------------------------------------------------+----+----+-----+-----------+
-    |add9_reg_133                                                           |  32|   0|   32|          0|
-    |add_ln83_reg_173                                                       |   6|   0|    6|          0|
+    |add9_reg_153                                                           |  32|   0|   32|          0|
+    |add_ln80_reg_203                                                       |   6|   0|    6|          0|
     |ap_CS_fsm                                                              |   3|   0|    3|          0|
-    |empty_reg_127                                                          |   6|   0|    6|          0|
-    |grp_compute_sad_cost_vector_Pipeline_SAD_Disparity_fu_82_ap_start_reg  |   1|   0|    1|          0|
+    |empty_reg_147                                                          |   6|   0|    6|          0|
+    |grp_compute_sad_cost_vector_Pipeline_SAD_Disparity_fu_98_ap_start_reg  |   1|   0|    1|          0|
     +-----------------------------------------------------------------------+----+----+-----+-----------+
     |Total                                                                  |  48|   0|   48|          0|
     +-----------------------------------------------------------------------+----+----+-----+-----------+
@@ -139,8 +139,10 @@
 |leftWin_0_2_val         |   in|    8|     ap_none|          leftWin_0_2_val|        scalar|
 |leftWin_1_0_val         |   in|    8|     ap_none|          leftWin_1_0_val|        scalar|
 |leftWin_1_1_val         |   in|    8|     ap_none|          leftWin_1_1_val|        scalar|
+|leftWin_1_2_val         |   in|    8|     ap_none|          leftWin_1_2_val|        scalar|
 |leftWin_2_0_val         |   in|    8|     ap_none|          leftWin_2_0_val|        scalar|
 |leftWin_2_1_val         |   in|    8|     ap_none|          leftWin_2_1_val|        scalar|
+|leftWin_2_2_val         |   in|    8|     ap_none|          leftWin_2_2_val|        scalar|
 |rightStripe_0_address0  |  out|    6|   ap_memory|            rightStripe_0|         array|
 |rightStripe_0_ce0       |  out|    1|   ap_memory|            rightStripe_0|         array|
 |rightStripe_0_q0        |   in|    8|   ap_memory|            rightStripe_0|         array|
@@ -152,26 +154,26 @@
 |rightStripe_0_q2        |   in|    8|   ap_memory|            rightStripe_0|         array|
 |rightStripe_1_address0  |  out|    6|   ap_memory|            rightStripe_1|         array|
 |rightStripe_1_ce0       |  out|    1|   ap_memory|            rightStripe_1|         array|
-|rightStripe_1_q0        |   in|    1|   ap_memory|            rightStripe_1|         array|
+|rightStripe_1_q0        |   in|    8|   ap_memory|            rightStripe_1|         array|
 |rightStripe_1_address1  |  out|    6|   ap_memory|            rightStripe_1|         array|
 |rightStripe_1_ce1       |  out|    1|   ap_memory|            rightStripe_1|         array|
-|rightStripe_1_q1        |   in|    1|   ap_memory|            rightStripe_1|         array|
+|rightStripe_1_q1        |   in|    8|   ap_memory|            rightStripe_1|         array|
 |rightStripe_1_address2  |  out|    6|   ap_memory|            rightStripe_1|         array|
 |rightStripe_1_ce2       |  out|    1|   ap_memory|            rightStripe_1|         array|
-|rightStripe_1_q2        |   in|    1|   ap_memory|            rightStripe_1|         array|
+|rightStripe_1_q2        |   in|    8|   ap_memory|            rightStripe_1|         array|
 |rightStripe_2_address0  |  out|    6|   ap_memory|            rightStripe_2|         array|
 |rightStripe_2_ce0       |  out|    1|   ap_memory|            rightStripe_2|         array|
-|rightStripe_2_q0        |   in|    1|   ap_memory|            rightStripe_2|         array|
+|rightStripe_2_q0        |   in|    8|   ap_memory|            rightStripe_2|         array|
 |rightStripe_2_address1  |  out|    6|   ap_memory|            rightStripe_2|         array|
 |rightStripe_2_ce1       |  out|    1|   ap_memory|            rightStripe_2|         array|
-|rightStripe_2_q1        |   in|    1|   ap_memory|            rightStripe_2|         array|
+|rightStripe_2_q1        |   in|    8|   ap_memory|            rightStripe_2|         array|
 |rightStripe_2_address2  |  out|    6|   ap_memory|            rightStripe_2|         array|
 |rightStripe_2_ce2       |  out|    1|   ap_memory|            rightStripe_2|         array|
-|rightStripe_2_q2        |   in|    1|   ap_memory|            rightStripe_2|         array|
+|rightStripe_2_q2        |   in|    8|   ap_memory|            rightStripe_2|         array|
 |right_wr                |   in|   32|     ap_none|                 right_wr|        scalar|
 |curCost_address0        |  out|    5|   ap_memory|                  curCost|         array|
 |curCost_ce0             |  out|    1|   ap_memory|                  curCost|         array|
 |curCost_we0             |  out|    1|   ap_memory|                  curCost|         array|
-|curCost_d0              |  out|   11|   ap_memory|                  curCost|         array|
+|curCost_d0              |  out|   12|   ap_memory|                  curCost|         array|
 +------------------------+-----+-----+------------+-------------------------+--------------+
 

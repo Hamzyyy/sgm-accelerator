@@ -1,7 +1,6 @@
 #include <iostream>
 #include <cstdint>
 #include <cstdlib>
-#include <chrono>
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
@@ -184,12 +183,6 @@ void sgm_sw(
     uint8_t bufL[WIN][IMG_W];
     uint8_t bufR[WIN][IMG_W];
 
-    double t_linebuf = 0.0;
-    double t_windows = 0.0;
-    double t_sad     = 0.0;
-    double t_aggr    = 0.0;
-    double t_commit  = 0.0;
-
     for (int wy = 0; wy < WIN; ++wy)
     {
     	for (int c = 0; c < IMG_W; ++c)
@@ -256,30 +249,17 @@ void sgm_sw(
     		uint8_t pL = left.at<uint8_t>(r, c);
     		uint8_t pR = right.at<uint8_t>(r, c);
 
-    		auto t0 = std::chrono::high_resolution_clock::now();
     		update_line_buffers_sw(bufL, bufR, c, pL, pR);
-    		auto t1 = std::chrono::high_resolution_clock::now();
 
-    		t_linebuf += std::chrono::duration<double, std::milli>(t1-t0).count();
-
-    		t0 = std::chrono::high_resolution_clock::now();
     		update_sliding_windows_sw(bufL, bufR, c, leftWin, rightStripe,
     				right_wr);
-    		t1 = std::chrono::high_resolution_clock::now();
-
-    		t_windows += std::chrono::duration<double, std::milli>(t1-t0).count();
-
 
     		const bool interior = (r >= WIN - 1) && (c >= (DISP - 1) + 2* cx)
     				&& (c < IMG_W);
 
     	    if (interior)
     	    {
-    	    	t0 = std::chrono::high_resolution_clock::now();
     	    	compute_sad_cost_vector_sw(leftWin, rightStripe, right_wr, curCost);
-    	    	t1 = std::chrono::high_resolution_clock::now();
-
-    	    	t_sad += std::chrono::duration<double, std::milli>(t1-t0).count();
     	    }
 
     	    int out_c = c - cx;
@@ -291,21 +271,13 @@ void sgm_sw(
         	    			uint16_t newMinLR = INF_COST_SW;
         	    			uint16_t newMinTB = INF_COST_SW;
 
-        	    			t0 = std::chrono::high_resolution_clock::now();
         	    			uint8_t bestDisp = aggregate_paths_and_select_sw(curCost,
         	    					prevCostL, prevCostT[out_c], minPrevLR,
 									minPrevT[out_c], aggLR_arr, aggTB_arr,
 									aggCost, newMinLR, newMinTB);
-        	    			t1 = std::chrono::high_resolution_clock::now();
 
-        	    			t_aggr += std::chrono::duration<double, std::milli>(t1-t0).count();
-
-        	    			t0 = std::chrono::high_resolution_clock::now();
         	    	        commit_prev_costs_sw(prevCostL, prevCostT[out_c], aggLR_arr,
         	    	        		aggTB_arr);
-        	    	        t1 = std::chrono::high_resolution_clock::now();
-
-        	    	        t_commit += std::chrono::duration<double, std::milli>(t1-t0).count();
 
         	    	        minPrevLR = newMinLR;
         	    	        minPrevT[out_c] = newMinTB;
@@ -320,10 +292,4 @@ void sgm_sw(
     	        	disp.at<uint8_t>(r, IMG_W - cx + t) = 0;
     	        }
     	}
-    std::cout << "\nSW function profiling:\n";
-    std::cout << "update_line_buffers_sw        = " << t_linebuf << " ms\n";
-    std::cout << "update_sliding_windows_sw     = " << t_windows << " ms\n";
-    std::cout << "compute_sad_cost_vector_sw    = " << t_sad     << " ms\n";
-    std::cout << "aggregate_paths_and_select_sw = " << t_aggr    << " ms\n";
-    std::cout << "commit_prev_costs_sw          = " << t_commit  << " ms\n";
 }

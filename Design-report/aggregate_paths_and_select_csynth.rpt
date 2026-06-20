@@ -3,7 +3,7 @@
 ================================================================
 == Vitis HLS Report for 'aggregate_paths_and_select'
 ================================================================
-* Date:           Sun May  3 21:53:59 2026
+* Date:           Thu Jun 18 19:15:55 2026
 
 * Version:        2023.1 (Build 3854077 on May  4 2023)
 * Project:        sgm_kernel
@@ -142,7 +142,7 @@
 |ap_return_2                                                                    |  out|   12|  ap_ctrl_hs|                                              aggregate_paths_and_select|  return value|
 |curCost_address0                                                               |  out|    5|   ap_memory|                                                                 curCost|         array|
 |curCost_ce0                                                                    |  out|    1|   ap_memory|                                                                 curCost|         array|
-|curCost_q0                                                                     |   in|   11|   ap_memory|                                                                 curCost|         array|
+|curCost_q0                                                                     |   in|   12|   ap_memory|                                                                 curCost|         array|
 |prevCostT_col_0_val                                                            |   in|   12|     ap_none|                                                     prevCostT_col_0_val|        scalar|
 |prevCostT_col_1_val                                                            |   in|   12|     ap_none|                                                     prevCostT_col_1_val|        scalar|
 |prevCostT_col_2_val                                                            |   in|   12|     ap_none|                                                     prevCostT_col_2_val|        scalar|

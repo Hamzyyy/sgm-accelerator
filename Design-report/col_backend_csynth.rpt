@@ -3,7 +3,7 @@
 ================================================================
 == Vitis HLS Report for 'col_backend'
 ================================================================
-* Date:           Sun May  3 21:53:59 2026
+* Date:           Thu Jun 18 19:15:55 2026
 
 * Version:        2023.1 (Build 3854077 on May  4 2023)
 * Project:        sgm_kernel
@@ -470,7 +470,7 @@
 |pkt_valid_val                                                                    |   in|    1|     ap_none|                                                           pkt_valid_val|        scalar|
 |pkt_curCost_address0                                                             |  out|    5|   ap_memory|                                                             pkt_curCost|         array|
 |pkt_curCost_ce0                                                                  |  out|    1|   ap_memory|                                                             pkt_curCost|         array|
-|pkt_curCost_q0                                                                   |   in|   11|   ap_memory|                                                             pkt_curCost|         array|
+|pkt_curCost_q0                                                                   |   in|   12|   ap_memory|                                                             pkt_curCost|         array|
 |p_read1                                                                          |   in|   12|     ap_none|                                                                 p_read1|        scalar|
 |p_read2                                                                          |   in|   12|     ap_none|                                                                 p_read2|        scalar|
 |p_read3                                                                          |   in|   12|     ap_none|                                                                 p_read3|        scalar|
