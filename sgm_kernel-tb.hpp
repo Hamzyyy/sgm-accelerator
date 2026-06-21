@@ -4,6 +4,7 @@
 #include <opencv2/opencv.hpp>
 #include "hls_stream.h"
 #include "sgm_params.hpp"
+#include "sgm_config.hpp"
 
 void sgm_kernel(hls::stream<pix_t>& left,
                 hls::stream<pix_t>& right,

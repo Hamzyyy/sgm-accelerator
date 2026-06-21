@@ -1,27 +1,16 @@
-#include <iostream>
-#include <cstdint>
-#include <cstdlib>
-#include <opencv2/core.hpp>
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/imgproc.hpp>
-#include "sgm_params.hpp"
-#include "sgm_config.hpp"
+#include "sgm_sw_core.hpp"
 
-static const uint16_t P1_SW = 10;
-static const uint16_t P2_SW = 150;
-static const uint16_t INF_COST_SW = 4095;
-
-static inline uint16_t sat12_sw(unsigned v)
+static inline uint16_t sat12_core(unsigned v)
 {
     return v > 4095u ? 4095u : uint16_t(v);
 }
 
-static inline uint8_t absdiff_sw(uint8_t a, uint8_t b)
+static inline uint8_t absdiff_core(uint8_t a, uint8_t b)
 {
     return a > b ? a - b : b - a;
 }
 
-void update_line_buffers_sw(
+static void update_line_buffers_core(
 		uint8_t bufL[WIN][IMG_W],
 		uint8_t bufR[WIN][IMG_W],
 		int c,
@@ -37,7 +26,7 @@ void update_line_buffers_sw(
     bufR[WIN - 1][c] = pR;
 }
 
-void update_sliding_windows_sw(
+static void update_sliding_windows_core(
 		uint8_t bufL[WIN][IMG_W],
 		uint8_t bufR[WIN][IMG_W],
 		int c,
@@ -68,7 +57,7 @@ void update_sliding_windows_sw(
 		}
 }
 
-void compute_sad_cost_vector_sw(
+static void compute_sad_cost_vector_core(
 		uint8_t leftWin[WIN][WIN],
 		uint8_t rightStripe[WIN][RIGHT_STRIPE_W],
 		int right_wr,
@@ -91,14 +80,14 @@ void compute_sad_cost_vector_sw(
 				uint8_t lpx = leftWin[wy][wx];
 				uint8_t rpx = rightStripe[wy][physIndex];
 
-				sum +=absdiff_sw(lpx, rpx);
+				sum +=absdiff_core(lpx, rpx);
 			}
 		}
 		curCost[d] = sum;
 	}
 }
 
-uint8_t aggregate_paths_and_select_sw(
+static uint8_t aggregate_paths_and_select_core(
     const uint16_t curCost[DISP],
     const uint16_t prevCostL[DISP],
     const uint16_t prevCostT_col[DISP],
@@ -110,44 +99,44 @@ uint8_t aggregate_paths_and_select_sw(
 	uint16_t& newMinLR,
 	uint16_t& newMinTB)
 {
-	uint16_t bestCost = INF_COST_SW;
+	uint16_t bestCost = INF_COST_core;
     uint8_t bestDisp = 0;
 
-    uint16_t runMinLR = INF_COST_SW;
-    uint16_t runMinTB = INF_COST_SW;
+    uint16_t runMinLR = INF_COST_core;
+    uint16_t runMinTB = INF_COST_core;
 
     for (int d = 0; d < DISP; ++d)
     {
     	uint16_t p0_LR = prevCostL[d];
-    	uint16_t p1_LR = (d > 0) ? sat12_sw(prevCostL[d - 1] + P1_SW) : INF_COST_SW;
-    	uint16_t p2_LR = (d < DISP - 1) ? sat12_sw(prevCostL[d + 1] + P1_SW) : INF_COST_SW;
-    	uint16_t p3_LR = sat12_sw(minPrevLR + P2_SW);
+    	uint16_t p1_LR = (d > 0) ? sat12_core(prevCostL[d - 1] + P1_core) : INF_COST_core;
+    	uint16_t p2_LR = (d < DISP - 1) ? sat12_core(prevCostL[d + 1] + P1_core) : INF_COST_core;
+    	uint16_t p3_LR = sat12_core(minPrevLR + P2_core);
 
     	uint16_t minLR = p0_LR;
         if (p1_LR < minLR) minLR = p1_LR;
         if (p2_LR < minLR) minLR = p2_LR;
         if (p3_LR < minLR) minLR = p3_LR;
 
-        uint16_t aggLR = sat12_sw(curCost[d] + minLR - minPrevLR);
+        uint16_t aggLR = sat12_core(curCost[d] + minLR - minPrevLR);
         aggLR_arr[d] = aggLR;
 
         uint16_t p0_TB = prevCostT_col[d];
-        uint16_t p1_TB = (d > 0) ? sat12_sw(prevCostT_col[d - 1] + P1_SW) : INF_COST_SW;
-        uint16_t p2_TB = (d < DISP - 1) ? sat12_sw(prevCostT_col[d + 1] + P1_SW) : INF_COST_SW;
-        uint16_t p3_TB = sat12_sw(minPrevTB + P2_SW);
+        uint16_t p1_TB = (d > 0) ? sat12_core(prevCostT_col[d - 1] + P1_core) : INF_COST_core;
+        uint16_t p2_TB = (d < DISP - 1) ? sat12_core(prevCostT_col[d + 1] + P1_core) : INF_COST_core;
+        uint16_t p3_TB = sat12_core(minPrevTB + P2_core);
 
         uint16_t minTB = p0_TB;
         if (p1_TB < minTB) minTB = p1_TB;
         if (p2_TB < minTB) minTB = p2_TB;
         if (p3_TB < minTB) minTB = p3_TB;
 
-        uint16_t aggTB = sat12_sw(curCost[d] + minTB - minPrevTB);
+        uint16_t aggTB = sat12_core(curCost[d] + minTB - minPrevTB);
         aggTB_arr[d] = aggTB;
 
         if(aggLR < runMinLR) runMinLR = aggLR;
         if(aggTB < runMinTB) runMinTB = aggTB;
 
-        uint16_t sum2 = sat12_sw(aggLR + aggTB);
+        uint16_t sum2 = sat12_core(aggLR + aggTB);
         aggCost[d] = sum2;
 
         if (sum2 < bestCost)
@@ -162,7 +151,7 @@ uint8_t aggregate_paths_and_select_sw(
     return bestDisp;
 }
 
-void commit_prev_costs_sw(
+static void commit_prev_costs_core(
 		uint16_t prevCostL[DISP],
 		uint16_t prevCostT_col[DISP],
 		const uint16_t aggLR_arr[DISP],
@@ -175,12 +164,15 @@ void commit_prev_costs_sw(
     }
 }
 
-void sgm_sw(
-		const cv::Mat& left,
-		const cv::Mat& right,
-		cv::Mat& disp)
+void sgm_sw_core(
+		const uint8_t left[IMG_H][IMG_W],
+		const uint8_t right[IMG_H][IMG_W],
+		uint8_t disp[IMG_H][IMG_W])
 {
-    disp = cv::Mat::zeros(IMG_H, IMG_W, CV_8UC1);
+	for (int r = 0; r < IMG_H; ++r)
+	    for (int c = 0; c < IMG_W; ++c)
+	        disp[r][c] = 0;
+
     uint8_t bufL[WIN][IMG_W];
     uint8_t bufR[WIN][IMG_W];
 
@@ -247,12 +239,12 @@ void sgm_sw(
     	}
     	for (int c = 0; c < IMG_W; ++c)
     	{
-    		uint8_t pL = left.at<uint8_t>(r, c);
-    		uint8_t pR = right.at<uint8_t>(r, c);
+    		uint8_t pL = left[r][c];
+    		uint8_t pR = right[r][c];
 
-    		update_line_buffers_sw(bufL, bufR, c, pL, pR);
+    		update_line_buffers_core(bufL, bufR, c, pL, pR);
 
-    		update_sliding_windows_sw(bufL, bufR, c, leftWin, rightStripe,
+    		update_sliding_windows_core(bufL, bufR, c, leftWin, rightStripe,
     				right_wr);
 
     		const bool interior = (r >= WIN - 1) && (c >= (DISP - 1) + 2* cx)
@@ -260,7 +252,7 @@ void sgm_sw(
 
     	    if (interior)
     	    {
-    	    	compute_sad_cost_vector_sw(leftWin, rightStripe, right_wr, curCost);
+    	    	compute_sad_cost_vector_core(leftWin, rightStripe, right_wr, curCost);
     	    }
 
     	    int out_c = c - cx;
@@ -269,15 +261,15 @@ void sgm_sw(
     	    			uint8_t outDisp = 0;
     	    			if(interior)
     	    			{
-        	    			uint16_t newMinLR = INF_COST_SW;
-        	    			uint16_t newMinTB = INF_COST_SW;
+        	    			uint16_t newMinLR = INF_COST_core;
+        	    			uint16_t newMinTB = INF_COST_core;
 
-        	    			uint8_t bestDisp = aggregate_paths_and_select_sw(curCost,
+        	    			uint8_t bestDisp = aggregate_paths_and_select_core(curCost,
         	    					prevCostL, prevCostT[out_c], minPrevLR,
 									minPrevT[out_c], aggLR_arr, aggTB_arr,
 									aggCost, newMinLR, newMinTB);
 
-        	    	        commit_prev_costs_sw(prevCostL, prevCostT[out_c], aggLR_arr,
+        	    	        commit_prev_costs_core(prevCostL, prevCostT[out_c], aggLR_arr,
         	    	        		aggTB_arr);
 
         	    	        minPrevLR = newMinLR;
@@ -285,12 +277,12 @@ void sgm_sw(
 
         	    	        outDisp = bestDisp;
     	    			}
-    	    	        disp.at<uint8_t>(r, out_c) = outDisp;
+    	    	        disp[r][out_c] = outDisp;
     	    		}
     	    	}
     	        for (int t = 0; t < cx; ++t)
     	        {
-    	        	disp.at<uint8_t>(r, IMG_W - cx + t) = 0;
+    	        	disp[r][IMG_W - cx + t] = 0;
     	        }
     	}
 }

@@ -3,6 +3,9 @@
 #include <opencv2/imgproc.hpp>
 #include <iostream>
 #include <chrono>
+#include "sgm_sw_core.hpp"
+#include "left_img.hpp"
+#include "right_img.hpp"
 
 static inline bool file_exist(const std::string &p)
 {
@@ -148,18 +151,13 @@ int main(int argc, char** argv)
 
     /* Run software SGM baseline */
     cv::Mat disp_sw;
-    auto sw_start = std::chrono::high_resolution_clock::now();
     sgm_sw(left, right, disp_sw);
-    auto sw_end = std::chrono::high_resolution_clock::now();
-
-    double sw_ms = std::chrono::duration<double, std::milli>(sw_end - sw_start).count();
-    double sw_fps = 1000.0 / sw_ms;
-
-    std::cout << "SW SGM Latency = " << sw_ms << " ms\n";
-    std::cout << "SW SGM FPS     = " << sw_fps << " \n";
 
     cv::imwrite("disp_sw_u8.png", disp_sw);
     std::cout << "OK: Software disparity written to disp_sw_u8.png\n";
+
+    static uint8_t disp_core[IMG_H][IMG_W];
+    sgm_sw_core(left_img, right_img, disp_core);
 
     /* Compare HW kernel output vs SW output */
     int diff_count = 0;
@@ -174,9 +172,24 @@ int main(int argc, char** argv)
                 diff_count++;
         }
     }
-
     std::cout << "HW/SW different pixels = "
               << diff_count << " / " << IMG_W * IMG_H << "\n";
+
+    /* Compare HW kernel output vs SW PS output */
+    int core_diff = 0;
+    for (int r = 0; r < IMG_H; ++r)
+    {
+        for (int c = 0; c < IMG_W; ++c)
+        {
+            int hw_v = int(disp.at<uint8_t>(r, c));
+            int core_v = int(disp_core[r][c]);
+
+            if (hw_v != core_v)
+            	core_diff++;
+        }
+    }
+    std::cout << "HW/PS-core different pixels = "
+              << core_diff << " / " << IMG_W * IMG_H << "\n";
 
     double disp_min = 0.0, disp_max = 0.0;
     cv::minMaxLoc(disp, &disp_min, &disp_max);

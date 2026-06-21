@@ -2,24 +2,16 @@
 #include <ap_int.h>
 #include <cstdint>
 #include <limits>
-
+#include "sgm_config.hpp"
 /*---------------------------------------------------------------------------*/
 using pix_t  = ap_uint<8>;
 using disp_t = ap_uint<8>;
 using cost_t = ap_uint<12>;
 using wide_t = ap_uint<16>;
 
-/* Thesis evaluation parameters*/
-constexpr int IMG_H = 96;
-constexpr int IMG_W = 320;
-constexpr int DISP  = 32;
-constexpr int WIN   = 3;
-
 /* Penalties */
 const cost_t P1 = cost_t(10);
 const cost_t P2 = cost_t(150);
-
-static constexpr int RIGHT_STRIPE_W = DISP + WIN - 1;
 
 /*---------------------------------------------------------------------------*/
 static inline pix_t absdiff(pix_t a, pix_t b)
