@@ -173,8 +173,8 @@ void sgm_sw_core(
 	    for (int c = 0; c < IMG_W; ++c)
 	        disp[r][c] = 0;
 
-    uint8_t bufL[WIN][IMG_W];
-    uint8_t bufR[WIN][IMG_W];
+    static uint8_t bufL[WIN][IMG_W];
+    static uint8_t bufR[WIN][IMG_W];
 
     for (int wy = 0; wy < WIN; ++wy)
     {
@@ -186,15 +186,15 @@ void sgm_sw_core(
     }
 
     /* Cost arrays */
-    uint16_t curCost[DISP];
-    uint16_t prevCostL[DISP];
-    uint16_t prevCostT[IMG_W][DISP];
-    uint16_t aggCost[DISP];
-    uint16_t aggLR_arr[DISP];
-    uint16_t aggTB_arr[DISP];
-    uint8_t leftWin[WIN][WIN];
-    uint8_t rightStripe[WIN][RIGHT_STRIPE_W];
-    uint16_t minPrevT[IMG_W];
+    static uint16_t curCost[DISP];
+    static uint16_t prevCostL[DISP];
+    static uint16_t prevCostT[IMG_W][DISP];
+    static uint16_t aggCost[DISP];
+    static uint16_t aggLR_arr[DISP];
+    static uint16_t aggTB_arr[DISP];
+    static uint8_t leftWin[WIN][WIN];
+    static uint8_t rightStripe[WIN][RIGHT_STRIPE_W];
+    static uint16_t minPrevT[IMG_W];
 
     /* center offset */
     const int cx = WIN >> 1;

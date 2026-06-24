@@ -1,7 +1,7 @@
 #ifndef SGM_SW_CORE_HPP
 #define SGM_SW_CORE_HPP
 
-#include <cstdint>
+#include <stdint.h>
 #include "sgm_config.hpp"
 
 static const uint16_t P1_core = 10;
