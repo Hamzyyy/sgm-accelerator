@@ -44,5 +44,11 @@ int main()
 	xil_printf("disp(48, 160) = %d\r\n", disp_out[48][160]);
 	xil_printf("disp(48, 240) = %d\r\n", disp_out[48][240]);
 
+	xil_printf("Line Buffer = %u ms\r\n", (unsigned int) ((t_linebuffer * 1000ULL) / COUNTS_PER_SECOND));
+	xil_printf("Sliding Windows = %u ms\r\n", (unsigned int) ((t_slidingwindow * 1000ULL) / COUNTS_PER_SECOND));
+	xil_printf("SAD Cost = %u ms\r\n", (unsigned int) ((t_computesad * 1000ULL) / COUNTS_PER_SECOND));
+	xil_printf("Aggregate Cost = %u ms\r\n", (unsigned int) ((t_aggregatecost * 1000ULL) / COUNTS_PER_SECOND));
+	xil_printf("Commit Prev. Costs = %u ms\r\n", (unsigned int) ((t_commitcosts * 1000ULL) / COUNTS_PER_SECOND));
+
 	while(1);
 }

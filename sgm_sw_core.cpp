@@ -1,4 +1,11 @@
 #include "sgm_sw_core.hpp"
+#include "xtime_l.h"
+
+uint64_t t_linebuffer = 0;
+uint64_t t_slidingwindow = 0;
+uint64_t t_computesad = 0;
+uint64_t t_aggregatecost = 0;
+uint64_t t_commitcosts = 0;
 
 static inline uint16_t sat12_core(unsigned v)
 {
@@ -169,6 +176,14 @@ void sgm_sw_core(
 		const uint8_t right[IMG_H][IMG_W],
 		uint8_t disp[IMG_H][IMG_W])
 {
+	t_linebuffer = 0;
+	t_slidingwindow = 0;
+	t_computesad = 0;
+	t_aggregatecost = 0;
+	t_commitcosts = 0;
+
+	XTime t0, t1;
+
 	for (int r = 0; r < IMG_H; ++r)
 	    for (int c = 0; c < IMG_W; ++c)
 	        disp[r][c] = 0;
@@ -242,17 +257,29 @@ void sgm_sw_core(
     		uint8_t pL = left[r][c];
     		uint8_t pR = right[r][c];
 
+    		XTime_GetTime(&t0);
     		update_line_buffers_core(bufL, bufR, c, pL, pR);
+    		XTime_GetTime(&t1);
 
+    		t_linebuffer += (t1 - t0);
+
+    		XTime_GetTime(&t0);
     		update_sliding_windows_core(bufL, bufR, c, leftWin, rightStripe,
     				right_wr);
+    		XTime_GetTime(&t1);
+
+    		t_slidingwindow += (t1 - t0);
 
     		const bool interior = (r >= WIN - 1) && (c >= (DISP - 1) + 2* cx)
     				&& (c < IMG_W);
 
     	    if (interior)
     	    {
+    	    	XTime_GetTime(&t0);
     	    	compute_sad_cost_vector_core(leftWin, rightStripe, right_wr, curCost);
+    	    	XTime_GetTime(&t1);
+
+    	    	t_computesad += (t1 - t0);
     	    }
 
     	    int out_c = c - cx;
@@ -264,13 +291,21 @@ void sgm_sw_core(
         	    			uint16_t newMinLR = INF_COST_core;
         	    			uint16_t newMinTB = INF_COST_core;
 
+        	    			XTime_GetTime(&t0);
         	    			uint8_t bestDisp = aggregate_paths_and_select_core(curCost,
         	    					prevCostL, prevCostT[out_c], minPrevLR,
 									minPrevT[out_c], aggLR_arr, aggTB_arr,
 									aggCost, newMinLR, newMinTB);
+        	    			XTime_GetTime(&t1);
 
+        	    			t_aggregatecost += (t1 - t0);
+
+        	    			XTime_GetTime(&t0);
         	    	        commit_prev_costs_core(prevCostL, prevCostT[out_c], aggLR_arr,
         	    	        		aggTB_arr);
+        	    	        XTime_GetTime(&t1);
+
+        	    	        t_commitcosts += (t1 - t0);
 
         	    	        minPrevLR = newMinLR;
         	    	        minPrevT[out_c] = newMinTB;

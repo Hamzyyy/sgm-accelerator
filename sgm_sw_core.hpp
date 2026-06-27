@@ -4,6 +4,12 @@
 #include <stdint.h>
 #include "sgm_config.hpp"
 
+extern uint64_t t_linebuffer;
+extern uint64_t t_slidingwindow;
+extern uint64_t t_computesad;
+extern uint64_t t_aggregatecost;
+extern uint64_t t_commitcosts;
+
 static const uint16_t P1_core = 10;
 static const uint16_t P2_core = 150;
 static const uint16_t INF_COST_core = 4095;
