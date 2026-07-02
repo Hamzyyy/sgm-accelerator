@@ -6,9 +6,9 @@
 #include "sgm_params.hpp"
 #include "sgm_config.hpp"
 
-void sgm_kernel(hls::stream<pix_t>& left,
-                hls::stream<pix_t>& right,
-                hls::stream<disp_t>& disp);
+void sgm_kernel(pix_t left,
+                pix_t right,
+                disp_t disp);
 
 void sgm_sw(const cv::Mat& left,
 		const cv::Mat& right,
