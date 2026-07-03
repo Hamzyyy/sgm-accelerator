@@ -10,6 +10,10 @@
 
 int main()
 {
+	xil_printf("Starting PL-PS Variant-B... \r\n");
+	XTime t0, t1;
+
+	XTime_GetTime(&t0);
 	static uint8_t left_buf[IMG_H][IMG_W] __attribute__((aligned(32)));
 	static uint8_t right_buf[IMG_H][IMG_W] __attribute__((aligned(32)));
 	static uint8_t disp_hw[IMG_H][IMG_W] __attribute__((aligned(32)));
@@ -40,17 +44,12 @@ int main()
 	Xil_DCacheFlushRange((UINTPTR)&right_buf[0][0], IMG_H * IMG_W * sizeof(uint8_t));
 	Xil_DCacheFlushRange((UINTPTR)&disp_hw[0][0], IMG_H * IMG_W * sizeof(uint8_t));
 
-
-	xil_printf("Starting PL-PS Variant-B... \r\n");
-
-	XTime t0, t1;
-
-	XTime_GetTime(&t0);
 	XSgm_kernel_Start(&pl_accel);
 	while(!XSgm_kernel_IsDone(&pl_accel));
-	XTime_GetTime(&t1);
 
-	Xil_DCacheInvalidateRange((UINTPTR)disp_hw[0][0], IMG_H * IMG_W * sizeof(uint8_t));
+	Xil_DCacheInvalidateRange((UINTPTR)&disp_hw[0][0], IMG_H * IMG_W * sizeof(uint8_t));
+
+	XTime_GetTime(&t1);
 
 	volatile uint32_t checksum = 0;
 	for(int r = 0; r < IMG_H; ++r)
@@ -67,8 +66,8 @@ int main()
 	xil_printf("SGM finished. \r\n");
 	xil_printf("checksum = %u\r\n", (unsigned int)checksum);
 	xil_printf("Timer counts = %u\r\n", (unsigned int)cycles);
-    xil_printf("PL latency = %u us\r\n", (unsigned int)us);
-    xil_printf("PL latency = %u ms\r\n", (unsigned int)(us / 1000));
+    xil_printf("Variant B latency = %u us\r\n", (unsigned int)us);
+    xil_printf("Variant B latency = %u ms\r\n", (unsigned int)(us / 1000));
 
 	xil_printf("Counts per second = %d\r\n", COUNTS_PER_SECOND);
 
