@@ -6,14 +6,8 @@
 #include "sgm_params.hpp"
 #include "sgm_config.hpp"
 
-void sgm_kernel(pix_t left,
-                pix_t right,
-                disp_t disp);
-
-void sgm_sw(const cv::Mat& left,
-		const cv::Mat& right,
-		cv::Mat& disp);
-
+void sgm_kernel(pix_t left[IMG_H][IMG_W],
+                pix_t right[IMG_H][IMG_W],
+                disp_t disp[IMG_H][IMG_W]);
 
 #endif // SGM_KERNEL_TB_HPP
-

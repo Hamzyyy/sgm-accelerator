@@ -1,0 +1,195 @@
+
+
+================================================================
+== Vitis HLS Report for 'compute_census_cost_vector'
+================================================================
+* Date:           Wed Jul  8 22:36:39 2026
+
+* Version:        2023.1 (Build 3854077 on May  4 2023)
+* Project:        sgm_kernel
+* Solution:       solution1 (Vivado IP Flow Target)
+* Product family: zynq
+* Target device:  xc7z010-clg400-1
+
+
+================================================================
+== Performance Estimates
+================================================================
++ Timing: 
+    * Summary: 
+    +--------+----------+----------+------------+
+    |  Clock |  Target  | Estimated| Uncertainty|
+    +--------+----------+----------+------------+
+    |ap_clk  |  10.00 ns|  7.060 ns|     2.70 ns|
+    +--------+----------+----------+------------+
+
++ Latency: 
+    * Summary: 
+    +---------+---------+----------+----------+-----+-----+---------+
+    |  Latency (cycles) |  Latency (absolute) |  Interval | Pipeline|
+    |   min   |   max   |    min   |    max   | min | max |   Type  |
+    +---------+---------+----------+----------+-----+-----+---------+
+    |       38|       38|  0.380 us|  0.380 us|   38|   38|       no|
+    +---------+---------+----------+----------+-----+-----+---------+
+
+    + Detail: 
+        * Instance: 
+        +----------------------------------------------------------------+------------------------------------------------------+---------+---------+----------+----------+-----+-----+---------+
+        |                                                                |                                                      |  Latency (cycles) |  Latency (absolute) |  Interval | Pipeline|
+        |                            Instance                            |                        Module                        |   min   |   max   |    min   |    max   | min | max |   Type  |
+        +----------------------------------------------------------------+------------------------------------------------------+---------+---------+----------+----------+-----+-----+---------+
+        |grp_compute_census_cost_vector_Pipeline_CENSUS_Disparity_fu_98  |compute_census_cost_vector_Pipeline_CENSUS_Disparity  |       36|       36|  0.360 us|  0.360 us|   36|   36|       no|
+        +----------------------------------------------------------------+------------------------------------------------------+---------+---------+----------+----------+-----+-----+---------+
+
+        * Loop: 
+        N/A
+
+
+
+================================================================
+== Utilization Estimates
+================================================================
+* Summary: 
++-----------------+---------+----+-------+-------+-----+
+|       Name      | BRAM_18K| DSP|   FF  |  LUT  | URAM|
++-----------------+---------+----+-------+-------+-----+
+|DSP              |        -|   -|      -|      -|    -|
+|Expression       |        -|   -|      0|    173|    -|
+|FIFO             |        -|   -|      -|      -|    -|
+|Instance         |        -|   -|    169|    743|    -|
+|Memory           |        -|   -|      -|      -|    -|
+|Multiplexer      |        -|   -|      -|     20|    -|
+|Register         |        -|   -|     56|      -|    -|
++-----------------+---------+----+-------+-------+-----+
+|Total            |        0|   0|    225|    936|    0|
++-----------------+---------+----+-------+-------+-----+
+|Available        |      120|  80|  35200|  17600|    0|
++-----------------+---------+----+-------+-------+-----+
+|Utilization (%)  |        0|   0|     ~0|      5|    0|
++-----------------+---------+----+-------+-------+-----+
+
++ Detail: 
+    * Instance: 
+    +----------------------------------------------------------------+------------------------------------------------------+---------+----+-----+-----+-----+
+    |                            Instance                            |                        Module                        | BRAM_18K| DSP|  FF | LUT | URAM|
+    +----------------------------------------------------------------+------------------------------------------------------+---------+----+-----+-----+-----+
+    |grp_compute_census_cost_vector_Pipeline_CENSUS_Disparity_fu_98  |compute_census_cost_vector_Pipeline_CENSUS_Disparity  |        0|   0|  169|  743|    0|
+    +----------------------------------------------------------------+------------------------------------------------------+---------+----+-----+-----+-----+
+    |Total                                                           |                                                      |        0|   0|  169|  743|    0|
+    +----------------------------------------------------------------+------------------------------------------------------+---------+----+-----+-----+-----+
+
+    * DSP: 
+    N/A
+
+    * Memory: 
+    N/A
+
+    * FIFO: 
+    N/A
+
+    * Expression: 
+    +----------------------+----------+----+---+----+------------+------------+
+    |     Variable Name    | Operation| DSP| FF| LUT| Bitwidth P0| Bitwidth P1|
+    +----------------------+----------+----+---+----+------------+------------+
+    |add1_cast1_fu_131_p2  |         +|   0|  0|  14|           6|           1|
+    |add1_fu_125_p2        |         +|   0|  0|  39|          32|           1|
+    |bitL_1_fu_144_p2      |      icmp|   0|  0|  15|           8|           8|
+    |bitL_2_fu_151_p2      |      icmp|   0|  0|  15|           8|           8|
+    |bitL_3_fu_158_p2      |      icmp|   0|  0|  15|           8|           8|
+    |bitL_4_fu_165_p2      |      icmp|   0|  0|  15|           8|           8|
+    |bitL_5_fu_172_p2      |      icmp|   0|  0|  15|           8|           8|
+    |bitL_6_fu_179_p2      |      icmp|   0|  0|  15|           8|           8|
+    |bitL_7_fu_186_p2      |      icmp|   0|  0|  15|           8|           8|
+    |bitL_fu_137_p2        |      icmp|   0|  0|  15|           8|           8|
+    +----------------------+----------+----+---+----+------------+------------+
+    |Total                 |          |   0|  0| 173|         102|          66|
+    +----------------------+----------+----+---+----+------------+------------+
+
+    * Multiplexer: 
+    +-----------+----+-----------+-----+-----------+
+    |    Name   | LUT| Input Size| Bits| Total Bits|
+    +-----------+----+-----------+-----+-----------+
+    |ap_NS_fsm  |  20|          4|    1|          4|
+    +-----------+----+-----------+-----+-----------+
+    |Total      |  20|          4|    1|          4|
+    +-----------+----+-----------+-----+-----------+
+
+    * Register: 
+    +-----------------------------------------------------------------------------+----+----+-----+-----------+
+    |                                     Name                                    | FF | LUT| Bits| Const Bits|
+    +-----------------------------------------------------------------------------+----+----+-----+-----------+
+    |add1_cast1_reg_204                                                           |   6|   0|    6|          0|
+    |add1_reg_199                                                                 |  32|   0|   32|          0|
+    |ap_CS_fsm                                                                    |   3|   0|    3|          0|
+    |bitL_1_reg_214                                                               |   1|   0|    1|          0|
+    |bitL_2_reg_219                                                               |   1|   0|    1|          0|
+    |bitL_3_reg_224                                                               |   1|   0|    1|          0|
+    |bitL_4_reg_229                                                               |   1|   0|    1|          0|
+    |bitL_5_reg_234                                                               |   1|   0|    1|          0|
+    |bitL_6_reg_239                                                               |   1|   0|    1|          0|
+    |bitL_7_reg_244                                                               |   1|   0|    1|          0|
+    |bitL_reg_209                                                                 |   1|   0|    1|          0|
+    |empty_reg_193                                                                |   6|   0|    6|          0|
+    |grp_compute_census_cost_vector_Pipeline_CENSUS_Disparity_fu_98_ap_start_reg  |   1|   0|    1|          0|
+    +-----------------------------------------------------------------------------+----+----+-----+-----------+
+    |Total                                                                        |  56|   0|   56|          0|
+    +-----------------------------------------------------------------------------+----+----+-----+-----------+
+
+
+
+================================================================
+== Interface
+================================================================
+* Summary: 
++------------------------+-----+-----+------------+----------------------------+--------------+
+|        RTL Ports       | Dir | Bits|  Protocol  |        Source Object       |    C Type    |
++------------------------+-----+-----+------------+----------------------------+--------------+
+|ap_clk                  |   in|    1|  ap_ctrl_hs|  compute_census_cost_vector|  return value|
+|ap_rst                  |   in|    1|  ap_ctrl_hs|  compute_census_cost_vector|  return value|
+|ap_start                |   in|    1|  ap_ctrl_hs|  compute_census_cost_vector|  return value|
+|ap_done                 |  out|    1|  ap_ctrl_hs|  compute_census_cost_vector|  return value|
+|ap_idle                 |  out|    1|  ap_ctrl_hs|  compute_census_cost_vector|  return value|
+|ap_ready                |  out|    1|  ap_ctrl_hs|  compute_census_cost_vector|  return value|
+|leftWin_0_0_val         |   in|    8|     ap_none|             leftWin_0_0_val|        scalar|
+|leftWin_0_1_val         |   in|    8|     ap_none|             leftWin_0_1_val|        scalar|
+|leftWin_0_2_val         |   in|    8|     ap_none|             leftWin_0_2_val|        scalar|
+|leftWin_1_0_val         |   in|    8|     ap_none|             leftWin_1_0_val|        scalar|
+|leftWin_1_1_val         |   in|    8|     ap_none|             leftWin_1_1_val|        scalar|
+|leftWin_1_2_val         |   in|    8|     ap_none|             leftWin_1_2_val|        scalar|
+|leftWin_2_0_val         |   in|    8|     ap_none|             leftWin_2_0_val|        scalar|
+|leftWin_2_1_val         |   in|    8|     ap_none|             leftWin_2_1_val|        scalar|
+|leftWin_2_2_val         |   in|    8|     ap_none|             leftWin_2_2_val|        scalar|
+|rightStripe_0_address0  |  out|    6|   ap_memory|               rightStripe_0|         array|
+|rightStripe_0_ce0       |  out|    1|   ap_memory|               rightStripe_0|         array|
+|rightStripe_0_q0        |   in|    8|   ap_memory|               rightStripe_0|         array|
+|rightStripe_0_address1  |  out|    6|   ap_memory|               rightStripe_0|         array|
+|rightStripe_0_ce1       |  out|    1|   ap_memory|               rightStripe_0|         array|
+|rightStripe_0_q1        |   in|    8|   ap_memory|               rightStripe_0|         array|
+|rightStripe_0_address2  |  out|    6|   ap_memory|               rightStripe_0|         array|
+|rightStripe_0_ce2       |  out|    1|   ap_memory|               rightStripe_0|         array|
+|rightStripe_0_q2        |   in|    8|   ap_memory|               rightStripe_0|         array|
+|rightStripe_1_address0  |  out|    6|   ap_memory|               rightStripe_1|         array|
+|rightStripe_1_ce0       |  out|    1|   ap_memory|               rightStripe_1|         array|
+|rightStripe_1_q0        |   in|    8|   ap_memory|               rightStripe_1|         array|
+|rightStripe_1_address1  |  out|    6|   ap_memory|               rightStripe_1|         array|
+|rightStripe_1_ce1       |  out|    1|   ap_memory|               rightStripe_1|         array|
+|rightStripe_1_q1        |   in|    8|   ap_memory|               rightStripe_1|         array|
+|rightStripe_1_address2  |  out|    6|   ap_memory|               rightStripe_1|         array|
+|rightStripe_1_ce2       |  out|    1|   ap_memory|               rightStripe_1|         array|
+|rightStripe_1_q2        |   in|    8|   ap_memory|               rightStripe_1|         array|
+|rightStripe_2_address0  |  out|    6|   ap_memory|               rightStripe_2|         array|
+|rightStripe_2_ce0       |  out|    1|   ap_memory|               rightStripe_2|         array|
+|rightStripe_2_q0        |   in|    8|   ap_memory|               rightStripe_2|         array|
+|rightStripe_2_address1  |  out|    6|   ap_memory|               rightStripe_2|         array|
+|rightStripe_2_ce1       |  out|    1|   ap_memory|               rightStripe_2|         array|
+|rightStripe_2_q1        |   in|    8|   ap_memory|               rightStripe_2|         array|
+|rightStripe_2_address2  |  out|    6|   ap_memory|               rightStripe_2|         array|
+|rightStripe_2_ce2       |  out|    1|   ap_memory|               rightStripe_2|         array|
+|rightStripe_2_q2        |   in|    8|   ap_memory|               rightStripe_2|         array|
+|right_wr                |   in|   32|     ap_none|                    right_wr|        scalar|
+|curCost_address0        |  out|    5|   ap_memory|                     curCost|         array|
+|curCost_ce0             |  out|    1|   ap_memory|                     curCost|         array|
+|curCost_we0             |  out|    1|   ap_memory|                     curCost|         array|
+|curCost_d0              |  out|    4|   ap_memory|                     curCost|         array|
++------------------------+-----+-----+------------+----------------------------+--------------+
+

@@ -10,4 +10,8 @@ constexpr int MED_RAD = MED_WIN/2;
 static_assert(MED_WIN % 2 == 1, "MED_WIN must be odd");
 
 
+constexpr int CENSUS_WIN = WIN;
+constexpr int CENSUS_CX = CENSUS_WIN >> 1;
+constexpr int CENSUS_CY = CENSUS_WIN >> 1;
+
 static constexpr int RIGHT_STRIPE_W = DISP + WIN - 1;

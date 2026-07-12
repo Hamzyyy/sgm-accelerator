@@ -10,8 +10,8 @@ using cost_t = ap_uint<12>;
 using wide_t = ap_uint<16>;
 
 /* Penalties */
-const cost_t P1 = cost_t(10);
-const cost_t P2 = cost_t(150);
+const cost_t P1 = cost_t(3);
+const cost_t P2 = cost_t(15);
 
 /*---------------------------------------------------------------------------*/
 static inline pix_t absdiff(pix_t a, pix_t b)
