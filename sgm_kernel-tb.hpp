@@ -10,10 +10,5 @@ void sgm_kernel(pix_t left,
                 pix_t right,
                 disp_t disp);
 
-void sgm_sw(const cv::Mat& left,
-		const cv::Mat& right,
-		cv::Mat& disp);
-
-
 #endif // SGM_KERNEL_TB_HPP
 

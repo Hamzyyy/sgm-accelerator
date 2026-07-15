@@ -107,6 +107,63 @@ static void compute_sad_cost_vector(
 	}
 }
 
+static void compute_census_cost_vector(
+		pix_t leftWin[WIN][WIN],
+		pix_t rightStripe[WIN][RIGHT_STRIPE_W],
+		int right_wr,
+	    cost_t curCost[DISP])
+{
+#pragma HLS INLINE off
+
+	CENSUS_Disparity:
+	for (int d = 0; d < DISP; ++d)
+	{
+	#pragma HLS PIPELINE II=1
+		cost_t sum = 0;
+
+    	int logicalIndex_center = RIGHT_STRIPE_W - WIN - d + CENSUS_CX;
+    	int physIndex_center= right_wr + 1 + logicalIndex_center;
+    	if (physIndex_center >= RIGHT_STRIPE_W)
+    		physIndex_center -= RIGHT_STRIPE_W;
+
+		pix_t centerL = leftWin[CENSUS_CY][CENSUS_CX];
+		pix_t centerR = rightStripe[CENSUS_CY][physIndex_center];
+
+    CENSUS_WinY:
+        for (int wy = 0; wy < WIN; ++wy)
+        {
+		#pragma HLS UNROLL
+
+        CENSUS_WinX:
+            for (int wx = 0; wx < WIN; ++wx)
+            {
+			#pragma HLS UNROLL
+            	if (wy == CENSUS_CY && wx == CENSUS_CX)
+            	{
+            	    continue;
+            	}
+            	else
+            	{
+					int logicalIndex = RIGHT_STRIPE_W - WIN - d + wx;
+
+					int physIndex = right_wr + 1 + logicalIndex;
+					if (physIndex >= RIGHT_STRIPE_W)
+							physIndex -= RIGHT_STRIPE_W;
+
+					pix_t lpx = leftWin[wy][wx];
+					pix_t rpx = rightStripe[wy][physIndex];
+
+					bool bitL = (lpx < centerL);
+					bool bitR = (rpx < centerR);
+
+					sum += (bitL ^ bitR);
+            	}
+            }
+        }
+        curCost[d] = sum;
+	}
+}
+
 static disp_t aggregate_paths_and_select(
     const cost_t curCost[DISP],
     const cost_t prevCostL[DISP],
@@ -226,7 +283,7 @@ static CostPacket col_frontend(
 
     if (interior)
     {
-    	compute_sad_cost_vector(leftWin, rightStripe, right_wr, pkt.curCost);
+    	compute_census_cost_vector(leftWin, rightStripe, right_wr, pkt.curCost);
     	pkt.valid = true;
     }
     else
