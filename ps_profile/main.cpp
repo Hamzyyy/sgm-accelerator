@@ -9,15 +9,61 @@
 #include "xil_cache.h"
 #include "xstatus.h"
 
+static uint8_t median(uint8_t v[MED_WIN*MED_WIN])
+{
+	for(int i = 1; i < (MED_WIN*MED_WIN); i++)
+	{
+		uint8_t key = v[i];
+		int j = i - 1;
+		while(j >= 0 && v[j] > key)
+		{
+			v[j+1] = v[j];
+			j--;
+		}
+		v[j+1] = key;
+	}
+	return v[(MED_WIN*MED_WIN)/2];
+}
+
+static void median_filter(const uint8_t in[IMG_H][IMG_W],
+						uint8_t out[IMG_H][IMG_W])
+{
+	for(int r = 0; r < IMG_H; ++r)
+	{
+		for(int c = 0; c < IMG_W; ++c)
+		{
+			out[r][c] = in[r][c];
+		}
+	}
+	for(int r = MED_RAD; r < IMG_H - MED_RAD; ++r)
+	{
+		for(int c = MED_RAD; c < IMG_W - MED_RAD; ++c)
+		{
+			uint8_t window[MED_WIN*MED_WIN];
+			int k = 0;
+
+			for(int dy = -MED_RAD; dy <= MED_RAD; ++dy)
+			{
+				for(int dx = -MED_RAD; dx <= MED_RAD; ++dx)
+				{
+					window[k++] = in[r+dy][c+dx];
+				}
+			}
+			out[r][c] = median(window);
+		}
+	}
+}
+
 int main()
 {
-	xil_printf("Starting PL-PS Variant-B Census... \r\n");
+	xil_printf("Starting PL-PS Variant-C Census... \r\n");
 	XTime t0, t1;
 
 	XTime_GetTime(&t0);
 	static uint8_t left_buf[IMG_H][IMG_W] __attribute__((aligned(32)));
 	static uint8_t right_buf[IMG_H][IMG_W] __attribute__((aligned(32)));
 	static uint8_t disp_hw[IMG_H][IMG_W] __attribute__((aligned(32)));
+	static uint8_t disp_post[IMG_H][IMG_W] __attribute__((aligned(32)));
 
 	for(int r = 0; r < IMG_H; ++r)
 	{
@@ -66,25 +112,34 @@ int main()
 	XTime t_cache_invalidate = t1 - t0;
 
 	XTime_GetTime(&t0);
+	median_filter(disp_hw, disp_post);
+	XTime_GetTime(&t1);
+
+	XTime t_median = t1 - t0;
+
+	XTime_GetTime(&t0);
 	volatile uint32_t checksum = 0;
 	for(int r = 0; r < IMG_H; ++r)
 	{
 		for(int c = 0; c < IMG_W; ++c)
 		{
-			checksum += disp_hw[r][c];
+			checksum += disp_post[r][c];
 		}
 	}
 	XTime_GetTime(&t1);
 	XTime t_checksum = t1 - t0;
 
 	XTime t_variant_b = t_input + t_cache_flush + t_pl + t_cache_invalidate;
+	XTime t_variant_c = t_variant_b + t_median;
 
 
 
 	/* Evaluation metrics */
     int eval_valid_count = 0;
     int bad1_b = 0, bad3_b = 0;
+    int bad1_c = 0, bad3_c = 0;
     double sum_abs_err_b = 0.0;
+    double sum_abs_err_c = 0.0;
 
     const int cx = WIN >> 1;
 
@@ -118,13 +173,21 @@ int main()
             ++eval_valid_count;
 
     		float est_disp_b = float(disp_hw[r][c]);
+    		float est_disp_c = float(disp_post[r][c]);
 
     		float err_b= est_disp_b - gt_val;
     		if(err_b < 0) err_b = -err_b;
 
+    		float err_c= est_disp_c - gt_val;
+    		if(err_c < 0) err_c = -err_c;
+
     		sum_abs_err_b += err_b;
     		if (err_b > 1.0f) bad1_b++;
     		if (err_b > 3.0f) bad3_b++;
+
+    		sum_abs_err_c += err_c;
+    		if (err_c > 1.0f) bad1_c++;
+    		if (err_c > 3.0f) bad3_c++;
     	}
     }
 
@@ -135,16 +198,24 @@ int main()
     xil_printf("cache flush time = %u us \r\n", (unsigned)((t_cache_flush * 1000000ULL) / COUNTS_PER_SECOND));
     xil_printf("PL accelerator time = %u us \r\n", (unsigned)((t_pl * 1000000ULL) / COUNTS_PER_SECOND));
     xil_printf("cache invalidate time = %u us \r\n", (unsigned)((t_cache_invalidate * 1000000ULL) / COUNTS_PER_SECOND));
+    xil_printf("median time = %u us \r\n", (unsigned)((t_median * 1000000ULL) / COUNTS_PER_SECOND));
     xil_printf("checksum time = %u us \r\n", (unsigned)((t_checksum * 1000000ULL) / COUNTS_PER_SECOND));
 
     xil_printf("Variant B Census latency = %u us\r\n", (unsigned int)((t_variant_b * 1000000ULL) / COUNTS_PER_SECOND));
     xil_printf("Variant B Census latency = %u ms\r\n", (unsigned int)((t_variant_b * 1000ULL) / COUNTS_PER_SECOND));
 
+    xil_printf("Variant-C latency = %u us\r\n", (unsigned int)((t_variant_c * 1000000ULL) / COUNTS_PER_SECOND));
+    xil_printf("Variant-C latency = %u ms\r\n", (unsigned int)((t_variant_c * 1000ULL) / COUNTS_PER_SECOND));
+
 	xil_printf("Counts per second = %d\r\n", COUNTS_PER_SECOND);
 
-	xil_printf("disp(48, 80) = %d\r\n", disp_hw[48][80]);
-	xil_printf("disp(48, 160) = %d\r\n", disp_hw[48][160]);
-	xil_printf("disp(48, 240) = %d\r\n", disp_hw[48][240]);
+	xil_printf("disp_hw(48, 80) = %d\r\n", disp_hw[48][80]);
+	xil_printf("disp_hw(48, 160) = %d\r\n", disp_hw[48][160]);
+	xil_printf("disp_hw(48, 240) = %d\r\n", disp_hw[48][240]);
+
+	xil_printf("disp_post(48, 80) = %d\r\n", disp_post[48][80]);
+	xil_printf("disp_post(48, 160) = %d\r\n", disp_post[48][160]);
+	xil_printf("disp_post(48, 240) = %d\r\n", disp_post[48][240]);
 
     if (eval_valid_count == 0)
     {
@@ -156,10 +227,18 @@ int main()
     unsigned int bad1_x100_b  = (unsigned int)((bad1_b * 10000.0) / eval_valid_count);
     unsigned int bad3_x100_b  = (unsigned int)((bad3_b * 10000.0) / eval_valid_count);
 
+    unsigned int mae_x1000_c  = (unsigned int)((sum_abs_err_c * 1000.0) / eval_valid_count);
+    unsigned int bad1_x100_c  = (unsigned int)((bad1_c * 10000.0) / eval_valid_count);
+    unsigned int bad3_x100_c  = (unsigned int)((bad3_c * 10000.0) / eval_valid_count);
+
     xil_printf("Evaluation valid pixels = %u\r\n", eval_valid_count);
-    xil_printf("Variant-B MAE = %u.%03u px\r\n", mae_x1000_b / 1000, mae_x1000_b % 1000);
-    xil_printf("Variant-B Bad >1 px = %u.%02u %%\r\n", bad1_x100_b / 100, bad1_x100_b % 100);
-    xil_printf("Variant-B Bad >3 px = %u.%02u %%\r\n", bad3_x100_b / 100, bad3_x100_b % 100);
+    xil_printf("Variant-B Census MAE = %u.%03u px\r\n", mae_x1000_b / 1000, mae_x1000_b % 1000);
+    xil_printf("Variant-B Census Bad >1 px = %u.%02u %%\r\n", bad1_x100_b / 100, bad1_x100_b % 100);
+    xil_printf("Variant-B Census Bad >3 px = %u.%02u %%\r\n", bad3_x100_b / 100, bad3_x100_b % 100);
+
+    xil_printf("Variant-C Census MAE = %u.%03u px\r\n", mae_x1000_c / 1000, mae_x1000_c % 1000);
+    xil_printf("Variant-C Census Bad >1 px = %u.%02u %%\r\n", bad1_x100_c / 100, bad1_x100_c % 100);
+    xil_printf("Variant-C Census Bad >3 px = %u.%02u %%\r\n", bad3_x100_c / 100, bad3_x100_c % 100);
 
 	while(1);
 }
