@@ -3,7 +3,7 @@
 
 uint64_t t_linebuffer = 0;
 uint64_t t_slidingwindow = 0;
-uint64_t t_computesad = 0;
+uint64_t t_computecensus = 0;
 uint64_t t_aggregatecost = 0;
 uint64_t t_commitcosts = 0;
 
@@ -64,33 +64,52 @@ static void update_sliding_windows_core(
 		}
 }
 
-static void compute_sad_cost_vector_core(
+static void compute_census_cost_vector_core(
 		uint8_t leftWin[WIN][WIN],
 		uint8_t rightStripe[WIN][RIGHT_STRIPE_W],
 		int right_wr,
 		uint16_t curCost[DISP])
 {
-	for(int d= 0; d < DISP; ++d)
+	for (int d = 0; d < DISP; ++d)
 	{
 		uint16_t sum = 0;
 
-		for(int wy = 0; wy < WIN; ++wy)
-		{
-			for(int wx = 0; wx < WIN; ++wx)
-			{
-				int logicalIndex = RIGHT_STRIPE_W - WIN - d + wx;
-				int physIndex = right_wr + 1 + logicalIndex;
+    	int logicalIndex_center = RIGHT_STRIPE_W - WIN - d + CENSUS_CX;
+    	int physIndex_center= right_wr + 1 + logicalIndex_center;
 
-				if(physIndex >= RIGHT_STRIPE_W)
-					physIndex -= RIGHT_STRIPE_W;
+    	if (physIndex_center >= RIGHT_STRIPE_W)
+    		physIndex_center -= RIGHT_STRIPE_W;
 
-				uint8_t lpx = leftWin[wy][wx];
-				uint8_t rpx = rightStripe[wy][physIndex];
+    	uint8_t centerL = leftWin[CENSUS_CY][CENSUS_CX];
+    	uint8_t centerR = rightStripe[CENSUS_CY][physIndex_center];
 
-				sum +=absdiff_core(lpx, rpx);
-			}
-		}
-		curCost[d] = sum;
+        for (int wy = 0; wy < WIN; ++wy)
+        {
+            for (int wx = 0; wx < WIN; ++wx)
+            {
+            	if (wy == CENSUS_CY && wx == CENSUS_CX)
+            	{
+            	    continue;
+            	}
+            	else
+            	{
+					int logicalIndex = RIGHT_STRIPE_W - WIN - d + wx;
+
+					int physIndex = right_wr + 1 + logicalIndex;
+					if (physIndex >= RIGHT_STRIPE_W)
+							physIndex -= RIGHT_STRIPE_W;
+
+					uint8_t lpx = leftWin[wy][wx];
+					uint8_t rpx = rightStripe[wy][physIndex];
+
+					bool bitL = (lpx < centerL);
+					bool bitR = (rpx < centerR);
+
+					sum += (bitL ^ bitR);
+            	}
+            }
+        }
+        curCost[d] = sum;
 	}
 }
 
@@ -178,7 +197,7 @@ void sgm_sw_core(
 {
 	t_linebuffer = 0;
 	t_slidingwindow = 0;
-	t_computesad = 0;
+	t_computecensus = 0;
 	t_aggregatecost = 0;
 	t_commitcosts = 0;
 
@@ -276,10 +295,10 @@ void sgm_sw_core(
     	    if (interior)
     	    {
     	    	XTime_GetTime(&t0);
-    	    	compute_sad_cost_vector_core(leftWin, rightStripe, right_wr, curCost);
+    	    	compute_census_cost_vector_core(leftWin, rightStripe, right_wr, curCost);
     	    	XTime_GetTime(&t1);
 
-    	    	t_computesad += (t1 - t0);
+    	    	t_computecensus += (t1 - t0);
     	    }
 
     	    int out_c = c - cx;
