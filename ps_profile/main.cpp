@@ -9,7 +9,7 @@ int main()
 {
 	static uint8_t disp_out[IMG_H][IMG_W];
 
-	xil_printf("Starting PS SGM profiling... \r\n");
+	xil_printf("Starting Variant A - PS SGM profiling... \r\n");
 
 	sgm_sw_core(left_img, right_img, disp_out);
 
@@ -17,6 +17,7 @@ int main()
 
 	XTime_GetTime(&t0);
 	sgm_sw_core(left_img, right_img, disp_out);
+	XTime_GetTime(&t1);
 
 	volatile uint32_t checksum = 0;
 	for(int r = 0; r < IMG_H; ++r)
@@ -27,16 +28,14 @@ int main()
 		}
 	}
 
-	XTime_GetTime(&t1);
-
 	uint64_t cycles = uint64_t(t1 - t0);
     uint32_t us = (uint32_t)((cycles * 1000000ULL) / COUNTS_PER_SECOND);
 
 	xil_printf("SGM finished. \r\n");
 	xil_printf("checksum = %u\r\n", (unsigned int)checksum);
 	xil_printf("Timer counts = %u\r\n", (unsigned int)cycles);
-    xil_printf("PS latency = %u us\r\n", (unsigned int)us);
-    xil_printf("PS latency = %u ms\r\n", (unsigned int)(us / 1000));
+    xil_printf("Variant A - PS latency = %u us\r\n", (unsigned int)us);
+    xil_printf("Variant A - PS latency = %u ms\r\n", (unsigned int)(us / 1000));
 
 	xil_printf("Counts per second = %d\r\n", COUNTS_PER_SECOND);
 
