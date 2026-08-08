@@ -2,10 +2,7 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 #include <iostream>
-#include <chrono>
-#include "sgm_sw_core.hpp"
-#include "left_img.hpp"
-#include "right_img.hpp"
+#include <cmath>
 
 static inline bool file_exist(const std::string &p)
 {
@@ -97,10 +94,10 @@ int main(int argc, char** argv)
         return 3;
     }
 
-    /* Simulate AXI4-Stream interfaces */
-    hls::stream<pix_t> left_stream;
-    hls::stream<pix_t> right_stream;
-    hls::stream<pix_t> disp_stream;
+    /* Prepare memory-mapped input/output arrays */
+    static pix_t left_arr[IMG_H][IMG_W];
+    static pix_t right_arr[IMG_H][IMG_W];
+    static disp_t disp_arr[IMG_H][IMG_W];
 
     for (int r = 0; r < IMG_H; ++r)
     {
@@ -108,20 +105,17 @@ int main(int argc, char** argv)
         const uint8_t* rp = right.ptr<uint8_t>(r);
         for (int c = 0; c < IMG_W; ++c)
         {
-            left_stream.write(static_cast<pix_t>(lp[c]));
-            right_stream.write(static_cast<pix_t>(rp[c]));
+        	left_arr[r][c] = static_cast<pix_t>(lp[c]);
+        	right_arr[r][c] = static_cast<pix_t>(rp[c]);
         }
     }
 
     /* Run kernel */
-    sgm_kernel(left_stream, right_stream, disp_stream);
+    sgm_kernel(left_arr, right_arr, disp_arr);
 
     /* Retrieve output disparity */
     cv::Mat disp(IMG_H, IMG_W, CV_8U);
     using out_u_t = uint8_t;
-
-    const int expected = IMG_W * IMG_H;
-    int result = 0;
 
     for (int r = 0; r < IMG_H; ++r)
     {
@@ -130,66 +124,9 @@ int main(int argc, char** argv)
 
         for (int c = 0; c < IMG_W; ++c)
         {
-        	if (disp_stream.empty())
-        	{
-        		std::cerr << "ERROR: disp_stream underrun at pixel "
-        				<< result << "/" << expected << std::endl;
-        		return 4;
-        	}
-        	out_u_t v = static_cast<out_u_t>(disp_stream.read());
-            dp[c] = v;
-            result++;
+        	dp[c] = static_cast<out_u_t>(disp_arr[r][c]);
         }
     }
-
-    if (result != expected)
-    {
-        std::cerr << "ERROR: expected " << expected << " disparity pixels, resulted "
-        		<< result << std::endl;
-        return 5;
-    }
-
-    /* Run software SGM baseline */
-    cv::Mat disp_sw;
-    sgm_sw(left, right, disp_sw);
-
-    cv::imwrite("disp_sw_u8.png", disp_sw);
-    std::cout << "OK: Software disparity written to disp_sw_u8.png\n";
-
-    static uint8_t disp_core[IMG_H][IMG_W];
-    sgm_sw_core(left_img, right_img, disp_core);
-
-    /* Compare HW kernel output vs SW output */
-    int diff_count = 0;
-    for (int r = 0; r < IMG_H; ++r)
-    {
-        for (int c = 0; c < IMG_W; ++c)
-        {
-            int hw_v = int(disp.at<uint8_t>(r, c));
-            int sw_v = int(disp_sw.at<uint8_t>(r, c));
-
-            if (hw_v != sw_v)
-                diff_count++;
-        }
-    }
-    std::cout << "HW/SW different pixels = "
-              << diff_count << " / " << IMG_W * IMG_H << "\n";
-
-    /* Compare HW kernel output vs SW PS output */
-    int core_diff = 0;
-    for (int r = 0; r < IMG_H; ++r)
-    {
-        for (int c = 0; c < IMG_W; ++c)
-        {
-            int hw_v = int(disp.at<uint8_t>(r, c));
-            int core_v = int(disp_core[r][c]);
-
-            if (hw_v != core_v)
-            	core_diff++;
-        }
-    }
-    std::cout << "HW/PS-core different pixels = "
-              << core_diff << " / " << IMG_W * IMG_H << "\n";
 
     double disp_min = 0.0, disp_max = 0.0;
     cv::minMaxLoc(disp, &disp_min, &disp_max);

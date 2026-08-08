@@ -198,8 +198,8 @@ struct CostPacket
 };
 
 static CostPacket col_frontend(
-	    hls::stream<pix_t>& left,
-	    hls::stream<pix_t>& right,
+	    pix_t left[IMG_H][IMG_W],
+	    pix_t right[IMG_H][IMG_W],
 		pix_t bufL[WIN][IMG_W],
 		pix_t bufR[WIN][IMG_W],
 	    int r,
@@ -213,8 +213,8 @@ static CostPacket col_frontend(
 	CostPacket pkt;
 	pkt.valid = false;
 
-    pix_t pL = left.read();
-    pix_t pR = right.read();
+    pix_t pL = left[r][c];
+    pix_t pR = right[r][c];
 
 	update_line_buffers(bufL, bufR, c, pL, pR);
 	update_sliding_windows(bufL, bufR, c, leftWin, rightStripe, right_wr);
@@ -283,15 +283,18 @@ static pix_t col_backend(
 /* Top kernel                                                */
 /* --------------------------------------------------------- */
 
-void sgm_kernel(hls::stream<pix_t>& left,
-                hls::stream<pix_t>& right,
-                hls::stream<pix_t>& disp)
+void sgm_kernel(pix_t left[IMG_H][IMG_W],
+                pix_t right[IMG_H][IMG_W],
+				disp_t disp[IMG_H][IMG_W])
 {
-#pragma HLS INTERFACE axis         port=left   register
-#pragma HLS INTERFACE axis         port=right  register
-#pragma HLS INTERFACE axis         port=disp   register
-#pragma HLS INTERFACE ap_ctrl_none port=return
-//#pragma HLS DATAFLOW
+#pragma HLS INTERFACE mode=m_axi	port=left	offset=slave	bundle=gmem
+#pragma HLS INTERFACE mode=m_axi	port=right	offset=slave	bundle=gmem
+#pragma HLS INTERFACE mode=m_axi	port=disp	offset=slave	bundle=gmem
+
+#pragma HLS INTERFACE mode=s_axilite	port=left	bundle=control
+#pragma HLS INTERFACE mode=s_axilite	port=right 	bundle=control
+#pragma HLS INTERFACE mode=s_axilite	port=disp 	bundle=control
+#pragma HLS INTERFACE mode=s_axilite	port=return	bundle=control
 
     /* Line buffers for the left & right images */
     pix_t bufL[WIN][IMG_W];
@@ -417,12 +420,12 @@ Row:
 						minPrevLR,
 						minPrevT[out_c]);
 
-    				disp.write(outDisp);
+    			disp[r][out_c]=outDisp;
     		}
     	}
         for (int t = 0; t < cx; ++t)
         {
-            disp.write(0);
+        	disp[r][IMG_W - cx + t] = 0;
         }
     }
 }
