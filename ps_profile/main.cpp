@@ -79,8 +79,6 @@ int main()
 
 	XTime t_variant_b = t_input + t_cache_flush + t_pl + t_cache_invalidate;
 
-
-
 	/* Evaluation metrics */
     int eval_valid_count = 0;
     int bad1_b = 0, bad3_b = 0;
