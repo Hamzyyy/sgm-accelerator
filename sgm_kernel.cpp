@@ -255,8 +255,8 @@ struct CostPacket
 };
 
 static CostPacket col_frontend(
-	    pix_t left[IMG_H][IMG_W],
-	    pix_t right[IMG_H][IMG_W],
+	    pix_t left_local[IMG_H][IMG_W],
+	    pix_t right_local[IMG_H][IMG_W],
 		pix_t bufL[WIN][IMG_W],
 		pix_t bufR[WIN][IMG_W],
 	    int r,
@@ -270,8 +270,8 @@ static CostPacket col_frontend(
 	CostPacket pkt;
 	pkt.valid = false;
 
-    pix_t pL = left[r][c];
-    pix_t pR = right[r][c];
+    pix_t pL = left_local[r][c];
+    pix_t pR = right_local[r][c];
 
 	update_line_buffers(bufL, bufR, c, pL, pR);
 	update_sliding_windows(bufL, bufR, c, leftWin, rightStripe, right_wr);
@@ -344,20 +344,50 @@ void sgm_kernel(pix_t left[IMG_H][IMG_W],
                 pix_t right[IMG_H][IMG_W],
 				disp_t disp[IMG_H][IMG_W])
 {
-#pragma HLS INTERFACE mode=m_axi	port=left	offset=slave	bundle=gmem
-#pragma HLS INTERFACE mode=m_axi	port=right	offset=slave	bundle=gmem
-#pragma HLS INTERFACE mode=m_axi	port=disp	offset=slave	bundle=gmem
+#pragma HLS INTERFACE mode=m_axi	port=left	offset=slave	bundle=gmem0
+#pragma HLS INTERFACE mode=m_axi	port=right	offset=slave	bundle=gmem1
+#pragma HLS INTERFACE mode=m_axi	port=disp	offset=slave	bundle=gmem2
 
 #pragma HLS INTERFACE mode=s_axilite	port=left	bundle=control
 #pragma HLS INTERFACE mode=s_axilite	port=right 	bundle=control
 #pragma HLS INTERFACE mode=s_axilite	port=disp 	bundle=control
 #pragma HLS INTERFACE mode=s_axilite	port=return	bundle=control
 
+    /* Frame buffers for the left & right images */
+	pix_t left_local[IMG_H][IMG_W];
+	pix_t right_local[IMG_H][IMG_W];
+
+#pragma HLS BIND_STORAGE variable=left_local type=ram_2p impl=bram
+#pragma HLS BIND_STORAGE variable=right_local type=ram_2p impl=bram
+
+
+
     /* Line buffers for the left & right images */
     pix_t bufL[WIN][IMG_W];
     pix_t bufR[WIN][IMG_W];
 #pragma HLS ARRAY_PARTITION variable=bufL complete dim=1
 #pragma HLS ARRAY_PARTITION variable=bufR complete dim=1
+
+    /* BRAM preload */
+    PreloadLeft:
+    for(int r = 0; r < IMG_H; ++r)
+    {
+    	for(int c = 0; c < IMG_W; ++c)
+    	{
+		#pragma HLS PIPELINE II= 1
+    		left_local[r][c] = left[r][c];
+    	}
+    }
+
+    Preloadright:
+    for(int r = 0; r < IMG_H; ++r)
+    {
+    	for(int c = 0; c < IMG_W; ++c)
+    	{
+		#pragma HLS PIPELINE II= 1
+    		right_local[r][c] = right[r][c];
+    	}
+    }
 
 
     InitBuf:
@@ -453,8 +483,8 @@ Row:
     	#pragma HLS DEPENDENCE variable=bufR inter false
 
     		CostPacket pkt = col_frontend(
-    				left,
-					right,
+    				left_local,
+					right_local,
 					bufL,
 					bufR,
 					r,
