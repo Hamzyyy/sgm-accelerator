@@ -13,6 +13,12 @@ using wide_t = ap_uint<16>;
 const cost_t P1 = cost_t(3);
 const cost_t P2 = cost_t(15);
 
+
+typedef ap_uint<32> bram_word_t;
+static const int PIXEL_PER_WORD = 4;
+static const int FRAME_PIXELS = IMG_H * IMG_W;
+static const int FRAME_WORDS =(FRAME_PIXELS + PIXEL_PER_WORD - 1) / PIXEL_PER_WORD;
+
 /*---------------------------------------------------------------------------*/
 static inline pix_t absdiff(pix_t a, pix_t b)
 {

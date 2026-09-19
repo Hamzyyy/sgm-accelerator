@@ -1,264 +1,217 @@
+#include "xil_printf.h"
+#include "xil_io.h"
+#include "xsgm_kernel.h"
+#include "xparameters.h"
+#include "xstatus.h"
+#include <stdint.h>
+#include <math.h>
 #include "sgm_config.hpp"
 #include "left_img.hpp"
 #include "right_img.hpp"
 #include "gt_disp.hpp"
-#include "xil_printf.h"
 #include "xtime_l.h"
-#include "xsgm_kernel.h"
-#include "xparameters.h"
-#include "xil_cache.h"
-#include "xstatus.h"
 
+#define LEFT_BRAM_BASE 0x40010000U
+#define RIGHT_BRAM_BASE 0x40018000U
+#define DISP_BRAM_BASE 0x40020000U
 
-static uint8_t median(uint8_t v[MED_WIN*MED_WIN])
+int main ()
 {
-	for(int i = 1; i < (MED_WIN*MED_WIN); i++)
-	{
-		uint8_t key = v[i];
-		int j = i - 1;
-		while(j >= 0 && v[j] > key)
-		{
-			v[j+1] = v[j];
-			j--;
-		}
-		v[j+1] = key;
-	}
-	return v[(MED_WIN*MED_WIN)/2];
-}
+	XSgm_kernel sgm;
 
-static void median_filter(const uint8_t in[IMG_H][IMG_W],
-						uint8_t out[IMG_H][IMG_W])
-{
-	for(int r = 0; r < IMG_H; ++r)
-	{
-		for(int c = 0; c < IMG_W; ++c)
-		{
-			out[r][c] = in[r][c];
-		}
-	}
-	for(int r = MED_RAD; r < IMG_H - MED_RAD; ++r)
-	{
-		for(int c = MED_RAD; c < IMG_W - MED_RAD; ++c)
-		{
-			uint8_t window[MED_WIN*MED_WIN];
-			int k = 0;
+	int status = XSgm_kernel_Initialize(&sgm,
+			XPAR_SGM_KERNEL_0_DEVICE_ID);
 
-			for(int dy = -MED_RAD; dy <= MED_RAD; ++dy)
-			{
-				for(int dx = -MED_RAD; dx <= MED_RAD; ++dx)
-				{
-					window[k++] = in[r+dy][c+dx];
-				}
-			}
-			out[r][c] = median(window);
-		}
-	}
-}
-
-int main()
-{
-	xil_printf("Starting PL-PS Variant-C... \r\n");
-	XTime t0, t1;
-
-	XTime_GetTime(&t0);
-	static uint8_t left_buf[IMG_H][IMG_W] __attribute__((aligned(32)));
-	static uint8_t right_buf[IMG_H][IMG_W] __attribute__((aligned(32)));
-	static uint8_t disp_hw[IMG_H][IMG_W] __attribute__((aligned(32)));
-	static uint8_t disp_post[IMG_H][IMG_W] __attribute__((aligned(32)));
-
-	for(int r = 0; r < IMG_H; ++r)
-	{
-		for(int c = 0; c < IMG_W; ++c)
-		{
-			left_buf[r][c] = left_img[r][c];
-			right_buf[r][c] = right_img[r][c];
-			disp_hw[r][c] = 0;
-		}
-	}
-	XTime_GetTime(&t1);
-
-	XTime t_input = t1 - t0;
-
-	XSgm_kernel pl_accel;
-	int status = XSgm_kernel_Initialize(&pl_accel,XPAR_SGM_KERNEL_0_DEVICE_ID);
 	if(status != XST_SUCCESS)
 	{
-		xil_printf("SGM init failed...\r\n");
-		return -1;
+		xil_printf("SGM driver init failed\r\n");
+		while(1);
 	}
+	xil_printf("SGM driver init PASS\r\n");
 
-	XSgm_kernel_Set_left_r(&pl_accel, (UINTPTR)&left_buf[0][0]);
-	XSgm_kernel_Set_right_r(&pl_accel, (UINTPTR)&right_buf[0][0]);
-	XSgm_kernel_Set_disp(&pl_accel, (UINTPTR)&disp_hw[0][0]);
+	XTime t_total_start, t_total_end;
+	XTime t_input_end;
+	XTime t_pl_start, t_pl_end;
+	XTime t_output_end;
 
-	XTime_GetTime(&t0);
-	Xil_DCacheFlushRange((UINTPTR)&left_buf[0][0], IMG_H * IMG_W * sizeof(uint8_t));
-	Xil_DCacheFlushRange((UINTPTR)&right_buf[0][0], IMG_H * IMG_W * sizeof(uint8_t));
-	Xil_DCacheFlushRange((UINTPTR)&disp_hw[0][0], IMG_H * IMG_W * sizeof(uint8_t));
-	XTime_GetTime(&t1);
+	XTime_GetTime(&t_total_start);
 
-	XTime t_cache_flush = t1 - t0;
-
-	XTime_GetTime(&t0);
-	XSgm_kernel_Start(&pl_accel);
-	while(!XSgm_kernel_IsDone(&pl_accel));
-	XTime_GetTime(&t1);
-
-	XTime t_pl= t1 - t0;
-
-	XTime_GetTime(&t0);
-	Xil_DCacheInvalidateRange((UINTPTR)&disp_hw[0][0], IMG_H * IMG_W * sizeof(uint8_t));
-	XTime_GetTime(&t1);
-
-	XTime t_cache_invalidate = t1 - t0;
-
-	XTime_GetTime(&t0);
-	median_filter(disp_hw, disp_post);
-	XTime_GetTime(&t1);
-
-	XTime t_median = t1 - t0;
-
-	XTime_GetTime(&t0);
-	volatile uint32_t checksum = 0;
 	for(int r = 0; r < IMG_H; ++r)
 	{
-		for(int c = 0; c < IMG_W; ++c)
+		for(int c = 0; c < IMG_W; c += 4)
 		{
-			checksum += disp_post[r][c];
+			uint32_t left_word = ((uint32_t)left_img[r][c + 0])
+					| ((uint32_t)left_img[r][c + 1] << 8)
+					| ((uint32_t)left_img[r][c + 2] << 16)
+					| ((uint32_t)left_img[r][c + 3] << 24);
+
+			uint32_t right_word = ((uint32_t)right_img[r][c + 0])
+								| ((uint32_t)right_img[r][c + 1] << 8)
+								| ((uint32_t)right_img[r][c + 2] << 16)
+								| ((uint32_t)right_img[r][c + 3] << 24);
+
+			int word_idx = (r* IMG_W + c) >> 2;
+
+			Xil_Out32(LEFT_BRAM_BASE + word_idx * 4, left_word);
+			Xil_Out32(RIGHT_BRAM_BASE + word_idx * 4, right_word);
 		}
 	}
-	XTime_GetTime(&t1);
-	XTime t_checksum = t1 - t0;
+	XTime_GetTime(&t_input_end);
 
-	XTime t_variant_b = t_input + t_cache_flush + t_pl + t_cache_invalidate;
-	XTime t_variant_c = t_variant_b + t_median;
+	/* start kernel */
+	XTime_GetTime(&t_pl_start);
+	XSgm_kernel_Start(&sgm);
 
-	/* Evaluation metrics */
-	int total_pixels = 0;
-    int eval_valid_count = 0, eval_invalid_count = 0;
-    int zero_count_on_gt_valid_b= 0;
-    int nonzero_count_on_gt_valid_b= 0;
-    int out_of_range_on_gt_valid_b= 0;
-    int bad1_b = 0, bad3_b = 0;
-    double sum_abs_err_b = 0.0;
+	while(!XSgm_kernel_IsDone(&sgm));
 
-    int zero_count_on_gt_valid_c= 0;
-    int nonzero_count_on_gt_valid_c= 0;
-    int out_of_range_on_gt_valid_c= 0;
-    int bad1_c = 0, bad3_c = 0;
-    double sum_abs_err_c = 0.0;
+	XTime_GetTime(&t_pl_end);
 
-    const int cx = WIN >> 1;
+	static uint8_t disp_img[IMG_H][IMG_W];
 
-    const int valid_r_min = WIN - 1;
-    const int valid_c_min = (DISP - 1) + cx;
-    const int valid_c_max = IMG_W - cx;
+	for(int r = 0; r < IMG_H; ++r)
+	{
+		for(int c = 0; c < IMG_W; c += 4)
+		{
+			int word_idx = (r * IMG_W + c) >> 2;
 
-    for (int r = 0; r < IMG_H; ++r)
-    {
-    	for (int c = 0; c < IMG_W; ++c)
-    	{
-    		++total_pixels;
-    		float gt_val = gt_disp[r][c];
+			uint32_t word = Xil_In32(DISP_BRAM_BASE + word_idx * 4);
 
-            bool gt_valid = gt_val > 0.0f;
-            bool roi_valid =
-                (r >= valid_r_min) &&
-                (c >= valid_c_min) &&
-                (c < valid_c_max);
+			disp_img[r][c + 0] = (uint8_t)( word        & 0xFF);
+	        disp_img[r][c + 1] = (uint8_t)((word >>  8) & 0xFF);
+	        disp_img[r][c + 2] = (uint8_t)((word >> 16) & 0xFF);
+	        disp_img[r][c + 3] = (uint8_t)((word >> 24) & 0xFF);
+		}
+	}
+	XTime_GetTime(&t_output_end);
+	XTime_GetTime(&t_total_end);
 
-            bool disp_range_valid =
-                (gt_val >= 0.0f) &&
-                (gt_val < DISP);
+	xil_printf("SGM run completed \r\n");
 
-            bool eval_valid = gt_valid && roi_valid && disp_range_valid;
+	double total_time_ms = 1000.0 * (double)(t_total_end - t_total_start)
+			/ (double)COUNTS_PER_SECOND;
 
-    		if(!eval_valid)
-    			{
-    				++eval_invalid_count;
-    				continue;
-    			}
-    		++eval_valid_count;
+	double input_ms = 1000.0 * (double)(t_input_end - t_total_start)
+			/ (double)COUNTS_PER_SECOND;
 
-    		float est_disp_c = float(disp_post[r][c]);
-    		float est_disp_b = float(disp_hw[r][c]);
+	double pl_ms = 1000.0 * (double)(t_pl_end - t_pl_start)
+			/ (double)COUNTS_PER_SECOND;
 
-    		if(est_disp_b == 0.0f)
-    			++zero_count_on_gt_valid_b;
-    		else
-    			++nonzero_count_on_gt_valid_b;
+	double output_ms = 1000.0 * (double)(t_output_end - t_pl_end)
+			/ (double)COUNTS_PER_SECOND;
 
-    		if(est_disp_b < 0.0f || est_disp_b >= DISP)
-    			++out_of_range_on_gt_valid_b;
+	int fps_x100 = (int)((1000.0 / total_time_ms) * 100.0);
+
+	int total_us  = (int)(total_time_ms * 1000.0);
+	int input_us  = (int)(input_ms * 1000.0);
+	int pl_us     = (int)(pl_ms * 1000.0);
+	int output_us = (int)(output_ms * 1000.0);
+
+	xil_printf("Total frame time: %d.%03d ms\r\n", total_us / 1000,
+			total_us % 1000);
+	xil_printf("Frames input time: %d.%03d ms\r\n", input_us / 1000,
+			input_us % 1000);
+	xil_printf("PL accelerator time: %d.%03d ms\r\n", pl_us / 1000,
+			pl_us % 1000);
+	xil_printf("Disparity output time: %d.%03d ms\r\n", output_us / 1000,
+			output_us % 1000);
+
+	xil_printf("Throughput: %d.%02d FPS\r\n", fps_x100 / 100, fps_x100 % 100);
 
 
-    		if(est_disp_c == 0.0f)
-    			++zero_count_on_gt_valid_c;
-    		else
-    			++nonzero_count_on_gt_valid_c;
+	xil_printf("disp(48,160) = %d\r\n", (int)disp_img[48][160]);
 
-    		if(est_disp_c < 0.0f || est_disp_c >= DISP)
-    			++out_of_range_on_gt_valid_c;
+	xil_printf("disp(48,161) = %d\r\n", (int)disp_img[48][161]);
 
-    		float err_b= est_disp_b - gt_val;
-    		if(err_b < 0) err_b = -err_b;
+	xil_printf("disp(48,162) = %d\r\n", (int)disp_img[48][162]);
 
-    		float err_c= est_disp_c - gt_val;
-    		if(err_c < 0) err_c = -err_c;
+	xil_printf("disp(48,163) = %d\r\n", (int)disp_img[48][163]);
 
-    		sum_abs_err_b += err_b;
-    		if (err_b > 1.0f) bad1_b++;
-    		if (err_b > 3.0f) bad3_b++;
+	/* Accuracy evaluation */
+	int eval_valid_count = 0;
+	int eval_invalid_count = 0;
 
-    		sum_abs_err_c += err_c;
-    		if (err_c > 1.0f) bad1_c++;
-    		if (err_c > 3.0f) bad3_c++;
-    	}
-    }
+	int bad1 = 0;
+	int bad3 = 0;
 
-	xil_printf("SGM finished. \r\n");
-	xil_printf("checksum = %u\r\n", (unsigned int)checksum);
+	double sum_abs_err = 0.0;
 
-    xil_printf("data input time = %u us \r\n", (unsigned)((t_input * 1000000ULL) / COUNTS_PER_SECOND));
-    xil_printf("cache flush time = %u us \r\n", (unsigned)((t_cache_flush * 1000000ULL) / COUNTS_PER_SECOND));
-    xil_printf("PL accelerator time = %u us \r\n", (unsigned)((t_pl * 1000000ULL) / COUNTS_PER_SECOND));
-    xil_printf("cache invalidate time = %u us \r\n", (unsigned)((t_cache_invalidate * 1000000ULL) / COUNTS_PER_SECOND));
-    xil_printf("median time = %u us \r\n", (unsigned)((t_median * 1000000ULL) / COUNTS_PER_SECOND));
-    xil_printf("checksum time = %u us \r\n", (unsigned)((t_checksum * 1000000ULL) / COUNTS_PER_SECOND));
+	const int cx = WIN >> 1;
 
-    xil_printf("Variant-B latency = %u us\r\n", (unsigned int)((t_variant_b * 1000000ULL) / COUNTS_PER_SECOND));
-    xil_printf("Variant-B latency = %u ms\r\n", (unsigned int)((t_variant_b * 1000ULL) / COUNTS_PER_SECOND));
+	const int valid_r_min = WIN - 1;
+	const int valid_c_min = (DISP - 1) + cx;
+	const int valid_c_max = IMG_W - cx;
 
-    xil_printf("Variant-C latency = %u us\r\n", (unsigned int)((t_variant_c * 1000000ULL) / COUNTS_PER_SECOND));
-    xil_printf("Variant-C latency = %u ms\r\n", (unsigned int)((t_variant_c * 1000ULL) / COUNTS_PER_SECOND));
+	for (int r = 0; r < IMG_H; ++r)
+	{
+	    for (int c = 0; c < IMG_W; ++c)
+	    {
+	        float gt = gt_disp[r][c];
 
-	xil_printf("Counts per second = %d\r\n", COUNTS_PER_SECOND);
+	        bool gt_valid = (gt > 0.0f);
 
-	xil_printf("disp(48, 80) = %d\r\n", disp_post[48][80]);
-	xil_printf("disp(48, 160) = %d\r\n", disp_post[48][160]);
-	xil_printf("disp(48, 240) = %d\r\n", disp_post[48][240]);
+	        bool roi_valid =
+	            (r >= valid_r_min) &&
+	            (c >= valid_c_min) &&
+	            (c < valid_c_max);
 
-    if (eval_valid_count == 0)
-    {
-        xil_printf("ERROR: No valid GT pixels for comparison\n");
-        return 6;
-    }
+	        bool disp_range_valid =
+	            (gt >= 0.0f) &&
+	            (gt < DISP);
 
-    unsigned int mae_x1000_b  = (unsigned int)((sum_abs_err_b * 1000.0) / eval_valid_count);
-    unsigned int bad1_x100_b  = (unsigned int)((bad1_b * 10000.0) / eval_valid_count);
-    unsigned int bad3_x100_b  = (unsigned int)((bad3_b * 10000.0) / eval_valid_count);
+	        bool eval_valid =
+	            gt_valid &&
+	            roi_valid &&
+	            disp_range_valid;
 
-    unsigned int mae_x1000_c  = (unsigned int)((sum_abs_err_c * 1000.0) / eval_valid_count);
-    unsigned int bad1_x100_c  = (unsigned int)((bad1_c * 10000.0) / eval_valid_count);
-    unsigned int bad3_x100_c  = (unsigned int)((bad3_c * 10000.0) / eval_valid_count);
+	        if (!eval_valid)
+	        {
+	            ++eval_invalid_count;
+	            continue;
+	        }
 
-    xil_printf("Variant-B MAE = %u.%03u px\r\n", mae_x1000_b / 1000, mae_x1000_b % 1000);
-    xil_printf("Variant-B Bad >1 px = %u.%02u %%\r\n", bad1_x100_b / 100, bad1_x100_b % 100);
-    xil_printf("Variant-B Bad >3 px = %u.%02u %%\r\n", bad3_x100_b / 100, bad3_x100_b % 100);
+	        ++eval_valid_count;
 
-    xil_printf("Variant-C MAE = %u.%03u px\r\n", mae_x1000_c / 1000, mae_x1000_c % 1000);
-    xil_printf("Variant-C Bad >1 px = %u.%02u %%\r\n", bad1_x100_c / 100, bad1_x100_c % 100);
-    xil_printf("Variant-C Bad >3 px = %u.%02u %%\r\n", bad3_x100_c / 100, bad3_x100_c % 100);
+	        float est = (float)disp_img[r][c];
+
+	        float err = fabsf(est - gt);
+
+	        sum_abs_err += err;
+
+	        if (err > 1.0f)
+	            ++bad1;
+
+	        if (err > 3.0f)
+	            ++bad3;
+	    }
+	}
+
+	if (eval_valid_count == 0)
+	{
+	    xil_printf("ERROR: No valid GT pixels\r\n");
+	    while (1);
+	}
+
+	double mae = sum_abs_err / (double)eval_valid_count;
+
+	double bad1_pct = 100.0 * (double)bad1 / (double)eval_valid_count;
+
+	double bad3_pct = 100.0 * (double)bad3 / (double)eval_valid_count;
+
+	int mae_x1000  = (int)(mae * 1000.0);
+	int bad1_x100 = (int)(bad1_pct * 100.0);
+	int bad3_x100 = (int)(bad3_pct * 100.0);
+
+	xil_printf("Evaluation-valid pixels: %d\r\n", eval_valid_count);
+
+	xil_printf("Excluded pixels: %d\r\n", eval_invalid_count);
+
+	xil_printf("MAE: %d.%03d px\r\n", mae_x1000 / 1000, mae_x1000 % 1000);
+
+	xil_printf("Bad >1 px: %d.%02d%%\r\n", bad1_x100 / 100, bad1_x100 % 100);
+
+	xil_printf("Bad >3 px: %d.%02d%%\r\n", bad3_x100 / 100, bad3_x100 % 100);
 
 	while(1);
+
+	return 0;
 }

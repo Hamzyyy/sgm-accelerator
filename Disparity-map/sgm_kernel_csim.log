@@ -1,0 +1,28 @@
+INFO: [SIM 2] *************** CSIM start ***************
+INFO: [SIM 4] CSIM will launch GCC as the compiler.
+   Compiling ../../../sgm_kernel-tb.cpp in debug mode
+   Compiling ../../../sgm_kernel.cpp in debug mode
+   Generating csim.exe
+gt type = 2
+Pixel count on the original GT 
+Total pixels: 465750
+GT-valid pixels (>0): 87712
+GT-invalid pixels (<=0): 378038
+disp min=0 max=31
+nonzero disparity pixels: 26508 / 30720
+disp(48,80) = 5
+disp(48,160) = 1
+disp(48,240) = 4
+count0=4212 count1to3=8243 count4plus=18265
+OK: Disparity map written to disp_u8.png (320x96)
+Total pixels: 30720
+Evaluation-valid pixels (>0): 5616
+Excluded invalid pixels (<=0): 25104
+est == 0 on GT-valid pixels: 7
+est != 0 on GT-valid pixels: 5609
+est out of range on GT-valid pixels: 0
+MAE: 0.81633
+Bad >1 px: 22.3469%
+Bad >3 px: 4.8433%
+INFO: [SIM 1] CSim done with 0 errors.
+INFO: [SIM 3] *************** CSIM finish ***************
