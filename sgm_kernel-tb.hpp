@@ -6,8 +6,8 @@
 #include "sgm_params.hpp"
 #include "sgm_config.hpp"
 
-void sgm_kernel(pix_t left[IMG_H][IMG_W],
-                pix_t right[IMG_H][IMG_W],
-                disp_t disp[IMG_H][IMG_W]);
+void sgm_kernel(bram_word_t left[FRAME_WORDS],
+				bram_word_t right[FRAME_WORDS],
+				bram_word_t disp[FRAME_WORDS]);
 
 #endif // SGM_KERNEL_TB_HPP

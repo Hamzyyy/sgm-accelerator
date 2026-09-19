@@ -95,18 +95,33 @@ int main(int argc, char** argv)
     }
 
     /* Prepare memory-mapped input/output arrays */
-    static pix_t left_arr[IMG_H][IMG_W];
-    static pix_t right_arr[IMG_H][IMG_W];
-    static disp_t disp_arr[IMG_H][IMG_W];
+    static bram_word_t left_arr[FRAME_WORDS];
+    static bram_word_t right_arr[FRAME_WORDS];
+    static bram_word_t disp_arr[FRAME_WORDS];
+
+    for (int i = 0; i < FRAME_WORDS; ++i)
+    {
+        left_arr[i] = 0;
+        right_arr[i] = 0;
+        disp_arr[i] = 0;
+    }
 
     for (int r = 0; r < IMG_H; ++r)
     {
         const uint8_t* lp = left.ptr<uint8_t>(r);
         const uint8_t* rp = right.ptr<uint8_t>(r);
+
         for (int c = 0; c < IMG_W; ++c)
         {
-        	left_arr[r][c] = static_cast<pix_t>(lp[c]);
-        	right_arr[r][c] = static_cast<pix_t>(rp[c]);
+            int pixel_idx = r * IMG_W + c;
+            int word_idx  = pixel_idx >> 2;
+            int byte_idx  = pixel_idx & 3;
+
+            left_arr[word_idx].range(byte_idx * 8 + 7,
+                                     byte_idx * 8) = lp[c];
+
+            right_arr[word_idx].range(byte_idx * 8 + 7,
+                                      byte_idx * 8) = rp[c];
         }
     }
 
@@ -124,7 +139,15 @@ int main(int argc, char** argv)
 
         for (int c = 0; c < IMG_W; ++c)
         {
-            dp[c] = static_cast<out_u_t>(disp_arr[r][c]);
+            int pixel_idx = r * IMG_W + c;
+            int word_idx  = pixel_idx >> 2;
+            int byte_idx  = pixel_idx & 3;
+
+            bram_word_t word = disp_arr[word_idx];
+
+            dp[c] = static_cast<out_u_t>(
+                word.range(byte_idx * 8 + 7,
+                           byte_idx * 8));
         }
     }
 

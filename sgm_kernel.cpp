@@ -255,8 +255,8 @@ struct CostPacket
 };
 
 static CostPacket col_frontend(
-	    pix_t left_local[IMG_H][IMG_W],
-	    pix_t right_local[IMG_H][IMG_W],
+	    bram_word_t left[FRAME_WORDS],
+		bram_word_t right[FRAME_WORDS],
 		pix_t bufL[WIN][IMG_W],
 		pix_t bufR[WIN][IMG_W],
 	    int r,
@@ -270,8 +270,15 @@ static CostPacket col_frontend(
 	CostPacket pkt;
 	pkt.valid = false;
 
-    pix_t pL = left_local[r][c];
-    pix_t pR = right_local[r][c];
+    int pixel_idx = r * IMG_W + c;
+    int word_indx = pixel_idx >> 2;
+    int byte_idx = pixel_idx & 3;
+
+    bram_word_t left_word = left[word_indx];
+    pix_t pL = pix_t(left_word >> (byte_idx * 8));
+
+    bram_word_t right_word = right[word_indx];
+    pix_t pR = pix_t(right_word >> (byte_idx * 8));
 
 	update_line_buffers(bufL, bufR, c, pL, pR);
 	update_sliding_windows(bufL, bufR, c, leftWin, rightStripe, right_wr);
@@ -340,26 +347,15 @@ static disp_t col_backend(
 /* Top kernel                                                */
 /* --------------------------------------------------------- */
 
-void sgm_kernel(pix_t left[IMG_H][IMG_W],
-                pix_t right[IMG_H][IMG_W],
-				disp_t disp[IMG_H][IMG_W])
+void sgm_kernel(bram_word_t left[FRAME_WORDS],
+				bram_word_t right[FRAME_WORDS],
+				bram_word_t disp[FRAME_WORDS])
 {
-#pragma HLS INTERFACE mode=m_axi	port=left	offset=slave	bundle=gmem0
-#pragma HLS INTERFACE mode=m_axi	port=right	offset=slave	bundle=gmem1
-#pragma HLS INTERFACE mode=m_axi	port=disp	offset=slave	bundle=gmem2
+#pragma HLS INTERFACE mode=bram		port=left
+#pragma HLS INTERFACE mode=bram		port=right
+#pragma HLS INTERFACE mode=bram		port=disp
 
-#pragma HLS INTERFACE mode=s_axilite	port=left	bundle=control
-#pragma HLS INTERFACE mode=s_axilite	port=right 	bundle=control
-#pragma HLS INTERFACE mode=s_axilite	port=disp 	bundle=control
 #pragma HLS INTERFACE mode=s_axilite	port=return	bundle=control
-
-    /* Frame buffers for the left & right images */
-	pix_t left_local[IMG_H][IMG_W];
-	pix_t right_local[IMG_H][IMG_W];
-
-#pragma HLS BIND_STORAGE variable=left_local type=ram_2p impl=bram
-#pragma HLS BIND_STORAGE variable=right_local type=ram_2p impl=bram
-
 
 
     /* Line buffers for the left & right images */
@@ -367,28 +363,6 @@ void sgm_kernel(pix_t left[IMG_H][IMG_W],
     pix_t bufR[WIN][IMG_W];
 #pragma HLS ARRAY_PARTITION variable=bufL complete dim=1
 #pragma HLS ARRAY_PARTITION variable=bufR complete dim=1
-
-    /* BRAM preload */
-    PreloadLeft:
-    for(int r = 0; r < IMG_H; ++r)
-    {
-    	for(int c = 0; c < IMG_W; ++c)
-    	{
-		#pragma HLS PIPELINE II= 1
-    		left_local[r][c] = left[r][c];
-    	}
-    }
-
-    Preloadright:
-    for(int r = 0; r < IMG_H; ++r)
-    {
-    	for(int c = 0; c < IMG_W; ++c)
-    	{
-		#pragma HLS PIPELINE II= 1
-    		right_local[r][c] = right[r][c];
-    	}
-    }
-
 
     InitBuf:
     for (int wy = 0; wy < WIN; ++wy)
@@ -433,6 +407,8 @@ Row:
     	int right_wr = RIGHT_STRIPE_W - 1;
 
     	cost_t minPrevLR = 0;
+
+    	bram_word_t disp_word = 0;
 
         /* Reset aggregation for new row */
     ResetCosts:
@@ -483,8 +459,8 @@ Row:
     	#pragma HLS DEPENDENCE variable=bufR inter false
 
     		CostPacket pkt = col_frontend(
-    				left_local,
-					right_local,
+    				left,
+					right,
 					bufL,
 					bufR,
 					r,
@@ -497,7 +473,7 @@ Row:
     		int out_c = c - cx;
     		if(out_c >= 0)
     		{
-    			pix_t outDisp = col_backend(
+    			disp_t outDisp = col_backend(
     					pkt,
     					prevCostL,
 						prevCostT[out_c],
@@ -507,12 +483,24 @@ Row:
 						minPrevLR,
 						minPrevT[out_c]);
 
-    				disp[r][out_c]=outDisp;
+    				int disp_pixel_indx = r * IMG_W + out_c;
+    				int disp_word_indx = disp_pixel_indx >> 2;
+    				int disp_byte_indx = disp_pixel_indx & 3;
+
+    				disp_word.range(disp_byte_indx * 8 + 7,
+    						disp_byte_indx * 8) = outDisp;
+
+    				if(disp_byte_indx == 3)
+    				{
+    					disp[disp_word_indx] = disp_word;
+    					disp_word = 0;
+    				}
     		}
     	}
-        for (int t = 0; t < cx; ++t)
-        {
-            disp[r][IMG_W - cx + t] = 0;
-        }
+    	int last_pixel_idx = r * IMG_W + (IMG_W - 1);
+    	int last_word_idx  = last_pixel_idx >> 2;
+
+    	disp_word.range(31, 24) = 0;
+    	disp[last_word_idx] = disp_word;
     }
 }
