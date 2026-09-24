@@ -3,7 +3,7 @@
 ================================================================
 == Vitis HLS Report for 'sgm_kernel'
 ================================================================
-* Date:           Wed Jul  8 22:36:40 2026
+* Date:           Wed Sep 16 09:14:05 2026
 
 * Version:        2023.1 (Build 3854077 on May  4 2023)
 * Project:        sgm_kernel
@@ -20,7 +20,7 @@
     +--------+----------+----------+------------+
     |  Clock |  Target  | Estimated| Uncertainty|
     +--------+----------+----------+------------+
-    |ap_clk  |  10.00 ns|  7.300 ns|     2.70 ns|
+    |ap_clk  |  10.00 ns|  7.060 ns|     2.70 ns|
     +--------+----------+----------+------------+
 
 + Latency: 
@@ -29,7 +29,7 @@
     |  Latency (cycles) |  Latency (absolute)  |     Interval     | Pipeline|
     |   min   |   max   |    min   |    max    |   min  |   max   |   Type  |
     +---------+---------+----------+-----------+--------+---------+---------+
-    |   782020|  4099780|  7.820 ms|  40.998 ms|  782021|  4099781|       no|
+    |   504868|  3669028|  5.049 ms|  36.690 ms|  504869|  3669029|       no|
     +---------+---------+----------+-----------+--------+---------+---------+
 
     + Detail: 
@@ -38,13 +38,13 @@
         |                                                                  |                                                      |  Latency (cycles) |  Latency (absolute)  |  Interval | Pipeline|
         |                             Instance                             |                        Module                        |   min   |   max   |    min    |    max   | min | max |   Type  |
         +------------------------------------------------------------------+------------------------------------------------------+---------+---------+-----------+----------+-----+-----+---------+
-        |grp_sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_366_1_fu_1211          |sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_366_1          |      962|      962|   9.620 us|  9.620 us|  962|  962|       no|
-        |grp_sgm_kernel_Pipeline_ResetCosts_fu_1227                        |sgm_kernel_Pipeline_ResetCosts                        |       18|       18|   0.180 us|  0.180 us|   18|   18|       no|
-        |grp_sgm_kernel_Pipeline_InitTBRowD_fu_1295                        |sgm_kernel_Pipeline_InitTBRowD                        |       18|       18|   0.180 us|  0.180 us|   18|   18|       no|
-        |grp_sgm_kernel_Pipeline_InitLeftWin_VITIS_LOOP_434_2_fu_1365      |sgm_kernel_Pipeline_InitLeftWin_VITIS_LOOP_434_2      |       11|       11|   0.110 us|  0.110 us|   11|   11|       no|
-        |grp_sgm_kernel_Pipeline_InitRightStripe_VITIS_LOOP_443_3_fu_1381  |sgm_kernel_Pipeline_InitRightStripe_VITIS_LOOP_443_3  |      104|      104|   1.040 us|  1.040 us|  104|  104|       no|
-        |grp_col_frontend_fu_1388                                          |col_frontend                                          |       21|       60|   0.210 us|  0.600 us|   21|   60|       no|
-        |grp_col_backend_fu_1423                                           |col_backend                                           |        1|       41|  10.000 ns|  0.410 us|    1|   41|       no|
+        |grp_sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_370_1_fu_1206          |sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_370_1          |      962|      962|   9.620 us|  9.620 us|  962|  962|       no|
+        |grp_sgm_kernel_Pipeline_ResetCosts_fu_1222                        |sgm_kernel_Pipeline_ResetCosts                        |       18|       18|   0.180 us|  0.180 us|   18|   18|       no|
+        |grp_sgm_kernel_Pipeline_InitTBRowD_fu_1290                        |sgm_kernel_Pipeline_InitTBRowD                        |       18|       18|   0.180 us|  0.180 us|   18|   18|       no|
+        |grp_sgm_kernel_Pipeline_InitLeftWin_VITIS_LOOP_440_2_fu_1360      |sgm_kernel_Pipeline_InitLeftWin_VITIS_LOOP_440_2      |       11|       11|   0.110 us|  0.110 us|   11|   11|       no|
+        |grp_sgm_kernel_Pipeline_InitRightStripe_VITIS_LOOP_449_3_fu_1376  |sgm_kernel_Pipeline_InitRightStripe_VITIS_LOOP_449_3  |      104|      104|   1.040 us|  1.040 us|  104|  104|       no|
+        |grp_col_frontend_fu_1383                                          |col_frontend                                          |       12|       51|   0.120 us|  0.510 us|   12|   51|       no|
+        |grp_col_backend_fu_1418                                           |col_backend                                           |        1|       41|  10.000 ns|  0.410 us|    1|   41|       no|
         +------------------------------------------------------------------+------------------------------------------------------+---------+---------+-----------+----------+-----+-----+---------+
 
         * Loop: 
@@ -52,9 +52,9 @@
         |                     |  Latency (cycles) |   Iteration  |  Initiation Interval  | Trip |          |
         |      Loop Name      |   min   |   max   |    Latency   |  achieved |   target  | Count| Pipelined|
         +---------------------+---------+---------+--------------+-----------+-----------+------+----------+
-        |- Row                |   781056|  4098816|  8136 ~ 42696|          -|          -|    96|        no|
+        |- Row                |   503904|  3668064|  5249 ~ 38209|          -|          -|    96|        no|
         | + InitTBRow         |     6400|     6400|            20|          -|          -|   320|        no|
-        | + VITIS_LOOP_449_4  |     8001|    36161|      25 ~ 113|          -|          -|   320|        no|
+        | + VITIS_LOOP_455_4  |     5121|    31681|       16 ~ 99|          -|          -|   320|        no|
         +---------------------+---------+---------+--------------+-----------+-----------+------+----------+
 
 
@@ -67,18 +67,18 @@
 |       Name      | BRAM_18K| DSP|   FF  |  LUT  | URAM|
 +-----------------+---------+----+-------+-------+-----+
 |DSP              |        -|   -|      -|      -|    -|
-|Expression       |        -|   -|      0|    368|    -|
+|Expression       |        -|   -|      0|    532|    -|
 |FIFO             |        -|   -|      -|      -|    -|
-|Instance         |        2|   -|   3869|   6823|    -|
+|Instance         |        0|   -|   2733|   5499|    -|
 |Memory           |       39|   -|     76|     17|    0|
-|Multiplexer      |        -|   -|      -|   3024|    -|
-|Register         |        -|   -|   1771|      -|    -|
+|Multiplexer      |        -|   -|      -|   2965|    -|
+|Register         |        -|   -|   1537|      -|    -|
 +-----------------+---------+----+-------+-------+-----+
-|Total            |       41|   0|   5716|  10232|    0|
+|Total            |       39|   0|   4346|   9013|    0|
 +-----------------+---------+----+-------+-------+-----+
 |Available        |      120|  80|  35200|  17600|    0|
 +-----------------+---------+----+-------+-------+-----+
-|Utilization (%)  |       34|   0|     16|     58|    0|
+|Utilization (%)  |       32|   0|     12|     51|    0|
 +-----------------+---------+----+-------+-------+-----+
 
 + Detail: 
@@ -86,491 +86,495 @@
     +------------------------------------------------------------------+------------------------------------------------------+---------+----+------+------+-----+
     |                             Instance                             |                        Module                        | BRAM_18K| DSP|  FF  |  LUT | URAM|
     +------------------------------------------------------------------+------------------------------------------------------+---------+----+------+------+-----+
-    |grp_col_backend_fu_1423                                           |col_backend                                           |        0|   0|  1941|  3224|    0|
-    |grp_col_frontend_fu_1388                                          |col_frontend                                          |        0|   0|   690|  1764|    0|
-    |control_s_axi_U                                                   |control_s_axi                                         |        0|   0|   246|   424|    0|
-    |gmem_m_axi_U                                                      |gmem_m_axi                                            |        2|   0|   866|   854|    0|
-    |grp_sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_366_1_fu_1211          |sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_366_1          |        0|   0|    35|   149|    0|
-    |grp_sgm_kernel_Pipeline_InitLeftWin_VITIS_LOOP_434_2_fu_1365      |sgm_kernel_Pipeline_InitLeftWin_VITIS_LOOP_434_2      |        0|   0|    58|   189|    0|
-    |grp_sgm_kernel_Pipeline_InitRightStripe_VITIS_LOOP_443_3_fu_1381  |sgm_kernel_Pipeline_InitRightStripe_VITIS_LOOP_443_3  |        0|   0|    17|   137|    0|
-    |grp_sgm_kernel_Pipeline_InitTBRowD_fu_1295                        |sgm_kernel_Pipeline_InitTBRowD                        |        0|   0|     8|    41|    0|
-    |grp_sgm_kernel_Pipeline_ResetCosts_fu_1227                        |sgm_kernel_Pipeline_ResetCosts                        |        0|   0|     8|    41|    0|
+    |grp_col_backend_fu_1418                                           |col_backend                                           |        0|   0|  1941|  3224|    0|
+    |grp_col_frontend_fu_1383                                          |col_frontend                                          |        0|   0|   630|  1678|    0|
+    |control_s_axi_U                                                   |control_s_axi                                         |        0|   0|    36|    40|    0|
+    |grp_sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_370_1_fu_1206          |sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_370_1          |        0|   0|    35|   149|    0|
+    |grp_sgm_kernel_Pipeline_InitLeftWin_VITIS_LOOP_440_2_fu_1360      |sgm_kernel_Pipeline_InitLeftWin_VITIS_LOOP_440_2      |        0|   0|    58|   189|    0|
+    |grp_sgm_kernel_Pipeline_InitRightStripe_VITIS_LOOP_449_3_fu_1376  |sgm_kernel_Pipeline_InitRightStripe_VITIS_LOOP_449_3  |        0|   0|    17|   137|    0|
+    |grp_sgm_kernel_Pipeline_InitTBRowD_fu_1290                        |sgm_kernel_Pipeline_InitTBRowD                        |        0|   0|     8|    41|    0|
+    |grp_sgm_kernel_Pipeline_ResetCosts_fu_1222                        |sgm_kernel_Pipeline_ResetCosts                        |        0|   0|     8|    41|    0|
     +------------------------------------------------------------------+------------------------------------------------------+---------+----+------+------+-----+
-    |Total                                                             |                                                      |        2|   0|  3869|  6823|    0|
+    |Total                                                             |                                                      |        0|   0|  2733|  5499|    0|
     +------------------------------------------------------------------+------------------------------------------------------+---------+----+------+------+-----+
 
     * DSP: 
     N/A
 
     * Memory: 
-    +----------------------------------------------------------------+-------------------------------------------------------------------------------+---------+----+----+-----+------+-----+------+-------------+
-    |                             Memory                             |                                     Module                                    | BRAM_18K| FF | LUT| URAM| Words| Bits| Banks| W*Bits*Banks|
-    +----------------------------------------------------------------+-------------------------------------------------------------------------------+---------+----+----+-----+------+-----+------+-------------+
-    |bufL_U                                                          |bufL_RAM_AUTO_1R1W                                                             |        1|   0|   0|    0|   320|    8|     1|         2560|
-    |bufL_1_U                                                        |bufL_RAM_AUTO_1R1W                                                             |        1|   0|   0|    0|   320|    8|     1|         2560|
-    |bufL_2_U                                                        |bufL_RAM_AUTO_1R1W                                                             |        1|   0|   0|    0|   320|    8|     1|         2560|
-    |bufR_U                                                          |bufL_RAM_AUTO_1R1W                                                             |        1|   0|   0|    0|   320|    8|     1|         2560|
-    |bufR_1_U                                                        |bufL_RAM_AUTO_1R1W                                                             |        1|   0|   0|    0|   320|    8|     1|         2560|
-    |bufR_2_U                                                        |bufL_RAM_AUTO_1R1W                                                             |        1|   0|   0|    0|   320|    8|     1|         2560|
-    |minPrevT_U                                                      |minPrevT_RAM_AUTO_1R1W                                                         |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |pkt_curCost_U                                                   |pkt_curCost_RAM_AUTO_1R1W                                                      |        0|   4|   2|    0|    32|    4|     1|          128|
-    |rightStripe_U                                                   |rightStripe_RAM_1WNR_AUTO_1R1W                                                 |        0|  24|   5|    0|    34|    8|     1|          272|
-    |rightStripe_1_U                                                 |rightStripe_RAM_1WNR_AUTO_1R1W                                                 |        0|  24|   5|    0|    34|    8|     1|          272|
-    |rightStripe_2_U                                                 |rightStripe_RAM_1WNR_AUTO_1R1W                                                 |        0|  24|   5|    0|    34|    8|     1|          272|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_U  |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_8_U  |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_7_U  |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_6_U  |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_5_U  |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_4_U  |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_3_U  |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_2_U  |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_1_U  |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_U    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_10_U      |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_11_U      |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_12_U      |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_13_U      |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_14_U      |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_15_U      |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_16_U      |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_17_U      |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_18_U      |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_19_U      |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_20_U      |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_21_U      |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_22_U      |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_23_U      |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_24_U      |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_25_U      |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_26_U      |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_27_U      |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_28_U      |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_29_U      |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_30_U      |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_31_U      |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
-    +----------------------------------------------------------------+-------------------------------------------------------------------------------+---------+----+----+-----+------+-----+------+-------------+
-    |Total                                                           |                                                                               |       39|  76|  17|    0| 12614|  472|    43|       143024|
-    +----------------------------------------------------------------+-------------------------------------------------------------------------------+---------+----+----+-----+------+-----+------+-------------+
+    +------------------------------------------------------------+------------------------------------------------------------------------+---------+----+----+-----+------+-----+------+-------------+
+    |                           Memory                           |                                 Module                                 | BRAM_18K| FF | LUT| URAM| Words| Bits| Banks| W*Bits*Banks|
+    +------------------------------------------------------------+------------------------------------------------------------------------+---------+----+----+-----+------+-----+------+-------------+
+    |bufL_U                                                      |bufL_RAM_AUTO_1R1W                                                      |        1|   0|   0|    0|   320|    8|     1|         2560|
+    |bufL_1_U                                                    |bufL_RAM_AUTO_1R1W                                                      |        1|   0|   0|    0|   320|    8|     1|         2560|
+    |bufL_2_U                                                    |bufL_RAM_AUTO_1R1W                                                      |        1|   0|   0|    0|   320|    8|     1|         2560|
+    |bufR_U                                                      |bufL_RAM_AUTO_1R1W                                                      |        1|   0|   0|    0|   320|    8|     1|         2560|
+    |bufR_1_U                                                    |bufL_RAM_AUTO_1R1W                                                      |        1|   0|   0|    0|   320|    8|     1|         2560|
+    |bufR_2_U                                                    |bufL_RAM_AUTO_1R1W                                                      |        1|   0|   0|    0|   320|    8|     1|         2560|
+    |minPrevT_U                                                  |minPrevT_RAM_AUTO_1R1W                                                  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |pkt_curCost_U                                               |pkt_curCost_RAM_AUTO_1R1W                                               |        0|   4|   2|    0|    32|    4|     1|          128|
+    |rightStripe_U                                               |rightStripe_RAM_1WNR_AUTO_1R1W                                          |        0|  24|   5|    0|    34|    8|     1|          272|
+    |rightStripe_1_U                                             |rightStripe_RAM_1WNR_AUTO_1R1W                                          |        0|  24|   5|    0|    34|    8|     1|          272|
+    |rightStripe_2_U                                             |rightStripe_RAM_1WNR_AUTO_1R1W                                          |        0|  24|   5|    0|    34|    8|     1|          272|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_U     |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_10_U  |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_11_U  |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_12_U  |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_13_U  |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_14_U  |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_15_U  |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_16_U  |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_17_U  |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_18_U  |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_10_U      |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_11_U      |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_12_U      |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_13_U      |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_14_U      |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_15_U      |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_16_U      |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_17_U      |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_18_U      |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_19_U      |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_20_U      |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_21_U      |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_22_U      |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_23_U      |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_24_U      |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_25_U      |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_26_U      |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_27_U      |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_28_U      |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_29_U      |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_30_U      |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_31_U      |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_RAM_2P_BRAM_1R1W  |        1|   0|   0|    0|   320|   12|     1|         3840|
+    +------------------------------------------------------------+------------------------------------------------------------------------+---------+----+----+-----+------+-----+------+-------------+
+    |Total                                                       |                                                                        |       39|  76|  17|    0| 12614|  472|    43|       143024|
+    +------------------------------------------------------------+------------------------------------------------------------------------+---------+----+----+-----+------+-----+------+-------------+
 
     * FIFO: 
     N/A
 
     * Expression: 
-    +---------------------------------+----------+----+---+----+------------+------------+
-    |          Variable Name          | Operation| DSP| FF| LUT| Bitwidth P0| Bitwidth P1|
-    +---------------------------------+----------+----+---+----+------------+------------+
-    |add_ln401_fu_1670_p2             |         +|   0|  0|  14|           7|           1|
-    |add_ln418_fu_1687_p2             |         +|   0|  0|  14|           9|           1|
-    |add_ln449_fu_1774_p2             |         +|   0|  0|  14|           9|           1|
-    |add_ln467_fu_1876_p2             |         +|   0|  0|  13|          10|           2|
-    |add_ln480_1_fu_1923_p2           |         +|   0|  0|  64|          64|          64|
-    |add_ln480_2_fu_1918_p2           |         +|   0|  0|  64|          64|          64|
-    |add_ln480_fu_1758_p2             |         +|   0|  0|  20|          15|          15|
-    |add_ln485_1_fu_1799_p2           |         +|   0|  0|  71|          64|          64|
-    |add_ln485_fu_1790_p2             |         +|   0|  0|  20|          15|           9|
-    |ap_block_state20                 |       and|   0|  0|   2|           1|           1|
-    |icmp_ln401_fu_1664_p2            |      icmp|   0|  0|  14|           7|           7|
-    |icmp_ln415_fu_1676_p2            |      icmp|   0|  0|  14|           7|           1|
-    |icmp_ln418_fu_1681_p2            |      icmp|   0|  0|  14|           9|           9|
-    |icmp_ln449_fu_1768_p2            |      icmp|   0|  0|  14|           9|           9|
-    |icmp_ln468_fu_1784_p2            |      icmp|   0|  0|  14|           9|           1|
-    |ap_block_state7_on_subcall_done  |        or|   0|  0|   2|           1|           1|
-    +---------------------------------+----------+----+---+----+------------+------------+
-    |Total                            |          |   0|  0| 368|         300|         250|
-    +---------------------------------+----------+----+---+----+------------+------------+
+    +---------------------------------+----------+----+---+-----+------------+------------+
+    |          Variable Name          | Operation| DSP| FF| LUT | Bitwidth P0| Bitwidth P1|
+    +---------------------------------+----------+----+---+-----+------------+------------+
+    |add_ln405_fu_1665_p2             |         +|   0|  0|   14|           7|           1|
+    |add_ln424_fu_1682_p2             |         +|   0|  0|   14|           9|           1|
+    |add_ln455_fu_1761_p2             |         +|   0|  0|   14|           9|           1|
+    |add_ln473_fu_1879_p2             |         +|   0|  0|   14|           9|           2|
+    |add_ln487_1_fu_1928_p2           |         +|   0|  0|   14|          13|          13|
+    |add_ln487_2_fu_1749_p2           |         +|   0|  0|   20|          15|           2|
+    |add_ln487_fu_1941_p2             |         +|   0|  0|   20|          15|          15|
+    |add_ln500_1_fu_1767_p2           |         +|   0|  0|   14|          13|           9|
+    |add_ln500_fu_1776_p2             |         +|   0|  0|   20|          15|          15|
+    |disp_byte_indx_fu_2129_p2        |         +|   0|  0|   10|           2|           2|
+    |and_ln491_fu_2158_p2             |       and|   0|  0|   32|          32|          32|
+    |icmp_ln405_fu_1659_p2            |      icmp|   0|  0|   14|           7|           7|
+    |icmp_ln421_fu_1671_p2            |      icmp|   0|  0|   14|           7|           1|
+    |icmp_ln424_fu_1676_p2            |      icmp|   0|  0|   14|           9|           9|
+    |icmp_ln455_fu_1755_p2            |      icmp|   0|  0|   14|           9|           9|
+    |icmp_ln474_fu_1922_p2            |      icmp|   0|  0|   14|           9|           1|
+    |icmp_ln493_fu_2180_p2            |      icmp|   0|  0|   10|           2|           1|
+    |ap_block_state7_on_subcall_done  |        or|   0|  0|    2|           1|           1|
+    |disp_word_3_fu_2174_p2           |        or|   0|  0|   32|          32|          32|
+    |shl_ln491_1_fu_2168_p2           |       shl|   0|  0|  100|          32|          32|
+    |shl_ln491_fu_2146_p2             |       shl|   0|  0|  100|           8|          32|
+    |xor_ln491_fu_2152_p2             |       xor|   0|  0|   32|          32|           2|
+    +---------------------------------+----------+----+---+-----+------------+------------+
+    |Total                            |          |   0|  0|  532|         287|         220|
+    +---------------------------------+----------+----+---+-----+------------+------------+
 
     * Multiplexer: 
-    +-----------------------------------------------------------------------+-----+-----------+-----+-----------+
-    |                                  Name                                 | LUT | Input Size| Bits| Total Bits|
-    +-----------------------------------------------------------------------+-----+-----------+-----+-----------+
-    |ap_NS_fsm                                                              |  125|         28|    1|         28|
-    |ap_phi_mux_minPrevLR_1_phi_fu_1203_p4                                  |    9|          2|   12|         24|
-    |bufL_1_address0                                                        |   14|          3|    9|         27|
-    |bufL_1_ce0                                                             |   14|          3|    1|          3|
-    |bufL_1_d0                                                              |   14|          3|    8|         24|
-    |bufL_1_we0                                                             |   14|          3|    1|          3|
-    |bufL_2_address0                                                        |   14|          3|    9|         27|
-    |bufL_2_ce0                                                             |   14|          3|    1|          3|
-    |bufL_2_d0                                                              |   14|          3|    8|         24|
-    |bufL_2_we0                                                             |   14|          3|    1|          3|
-    |bufL_address0                                                          |   14|          3|    9|         27|
-    |bufL_ce0                                                               |   14|          3|    1|          3|
-    |bufL_d0                                                                |   14|          3|    8|         24|
-    |bufL_we0                                                               |   14|          3|    1|          3|
-    |bufR_1_address0                                                        |   14|          3|    9|         27|
-    |bufR_1_ce0                                                             |   14|          3|    1|          3|
-    |bufR_1_d0                                                              |   14|          3|    8|         24|
-    |bufR_1_we0                                                             |   14|          3|    1|          3|
-    |bufR_2_address0                                                        |   14|          3|    9|         27|
-    |bufR_2_ce0                                                             |   14|          3|    1|          3|
-    |bufR_2_d0                                                              |   14|          3|    8|         24|
-    |bufR_2_we0                                                             |   14|          3|    1|          3|
-    |bufR_address0                                                          |   14|          3|    9|         27|
-    |bufR_ce0                                                               |   14|          3|    1|          3|
-    |bufR_d0                                                                |   14|          3|    8|         24|
-    |bufR_we0                                                               |   14|          3|    1|          3|
-    |c_1_reg_1103                                                           |    9|          2|    9|         18|
-    |c_reg_1091                                                             |    9|          2|    9|         18|
-    |gmem_ARVALID                                                           |    9|          2|    1|          2|
-    |gmem_AWADDR                                                            |   14|          3|   64|        192|
-    |gmem_RREADY                                                            |    9|          2|    1|          2|
-    |gmem_WDATA                                                             |   14|          3|    8|         24|
-    |gmem_blk_n_AW                                                          |    9|          2|    1|          2|
-    |gmem_blk_n_B                                                           |    9|          2|    1|          2|
-    |gmem_blk_n_W                                                           |    9|          2|    1|          2|
-    |leftWin_1_1_reg_1189                                                   |    9|          2|    8|         16|
-    |leftWin_2_1_reg_1179                                                   |    9|          2|    8|         16|
-    |leftWin_4_1_reg_1169                                                   |    9|          2|    8|         16|
-    |leftWin_5_1_reg_1159                                                   |    9|          2|    8|         16|
-    |leftWin_7_1_reg_1149                                                   |    9|          2|    8|         16|
-    |leftWin_8_1_reg_1139                                                   |    9|          2|    8|         16|
-    |minPrevLR_0_reg_1115                                                   |    9|          2|   12|         24|
-    |minPrevLR_1_reg_1199                                                   |    9|          2|   12|         24|
-    |minPrevT_address0                                                      |   20|          4|    9|         36|
-    |minPrevT_d0                                                            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_10               |    9|          2|   12|         24|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_11               |    9|          2|   12|         24|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_12               |    9|          2|   12|         24|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_13               |    9|          2|   12|         24|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_14               |    9|          2|   12|         24|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_15               |    9|          2|   12|         24|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_16               |    9|          2|   12|         24|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_17               |    9|          2|   12|         24|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_18               |    9|          2|   12|         24|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_19               |    9|          2|   12|         24|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_20               |    9|          2|   12|         24|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_21               |    9|          2|   12|         24|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_22               |    9|          2|   12|         24|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_23               |    9|          2|   12|         24|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_24               |    9|          2|   12|         24|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_25               |    9|          2|   12|         24|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_26               |    9|          2|   12|         24|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_27               |    9|          2|   12|         24|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_28               |    9|          2|   12|         24|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_29               |    9|          2|   12|         24|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_30               |    9|          2|   12|         24|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_31               |    9|          2|   12|         24|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_10_address1      |   14|          3|    9|         27|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_10_ce1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_10_d1            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_10_we1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_11_address1      |   14|          3|    9|         27|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_11_ce1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_11_d1            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_11_we1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_12_address1      |   14|          3|    9|         27|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_12_ce1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_12_d1            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_12_we1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_13_address1      |   14|          3|    9|         27|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_13_ce1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_13_d1            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_13_we1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_14_address1      |   14|          3|    9|         27|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_14_ce1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_14_d1            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_14_we1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_15_address1      |   14|          3|    9|         27|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_15_ce1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_15_d1            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_15_we1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_16_address1      |   14|          3|    9|         27|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_16_ce1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_16_d1            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_16_we1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_17_address1      |   14|          3|    9|         27|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_17_ce1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_17_d1            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_17_we1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_18_address1      |   14|          3|    9|         27|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_18_ce1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_18_d1            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_18_we1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_19_address1      |   14|          3|    9|         27|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_19_ce1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_19_d1            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_19_we1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_20_address1      |   14|          3|    9|         27|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_20_ce1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_20_d1            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_20_we1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_21_address1      |   14|          3|    9|         27|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_21_ce1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_21_d1            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_21_we1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_22_address1      |   14|          3|    9|         27|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_22_ce1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_22_d1            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_22_we1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_23_address1      |   14|          3|    9|         27|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_23_ce1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_23_d1            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_23_we1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_24_address1      |   14|          3|    9|         27|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_24_ce1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_24_d1            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_24_we1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_25_address1      |   14|          3|    9|         27|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_25_ce1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_25_d1            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_25_we1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_26_address1      |   14|          3|    9|         27|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_26_ce1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_26_d1            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_26_we1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_27_address1      |   14|          3|    9|         27|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_27_ce1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_27_d1            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_27_we1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_28_address1      |   14|          3|    9|         27|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_28_ce1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_28_d1            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_28_we1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_29_address1      |   14|          3|    9|         27|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_29_ce1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_29_d1            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_29_we1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_30_address1      |   14|          3|    9|         27|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_30_ce1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_30_d1            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_30_we1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_31_address1      |   14|          3|    9|         27|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_31_ce1           |   14|          3|    1|          3|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_31_d1            |   14|          3|   12|         36|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_31_we1           |   14|          3|    1|          3|
-    |pkt_curCost_address0                                                   |   14|          3|    5|         15|
-    |pkt_curCost_ce0                                                        |   14|          3|    1|          3|
-    |pkt_curCost_we0                                                        |    9|          2|    1|          2|
-    |r_fu_382                                                               |    9|          2|    7|         14|
-    |rightStripe_1_address0                                                 |   14|          3|    6|         18|
-    |rightStripe_1_ce0                                                      |   14|          3|    1|          3|
-    |rightStripe_1_ce1                                                      |    9|          2|    1|          2|
-    |rightStripe_1_ce2                                                      |    9|          2|    1|          2|
-    |rightStripe_1_d0                                                       |   14|          3|    8|         24|
-    |rightStripe_1_we0                                                      |   14|          3|    1|          3|
-    |rightStripe_2_address0                                                 |   14|          3|    6|         18|
-    |rightStripe_2_ce0                                                      |   14|          3|    1|          3|
-    |rightStripe_2_ce1                                                      |    9|          2|    1|          2|
-    |rightStripe_2_ce2                                                      |    9|          2|    1|          2|
-    |rightStripe_2_d0                                                       |   14|          3|    8|         24|
-    |rightStripe_2_we0                                                      |   14|          3|    1|          3|
-    |rightStripe_address0                                                   |   14|          3|    6|         18|
-    |rightStripe_ce0                                                        |   14|          3|    1|          3|
-    |rightStripe_ce1                                                        |    9|          2|    1|          2|
-    |rightStripe_ce2                                                        |    9|          2|    1|          2|
-    |rightStripe_d0                                                         |   14|          3|    8|         24|
-    |rightStripe_we0                                                        |   14|          3|    1|          3|
-    |right_wr_0_reg_1127                                                    |    9|          2|   32|         64|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostL             |    9|          2|   12|         24|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostL_1           |    9|          2|   12|         24|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostL_2           |    9|          2|   12|         24|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostL_3           |    9|          2|   12|         24|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostL_4           |    9|          2|   12|         24|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostL_5           |    9|          2|   12|         24|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostL_6           |    9|          2|   12|         24|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostL_7           |    9|          2|   12|         24|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostL_8           |    9|          2|   12|         24|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostL_9           |    9|          2|   12|         24|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_1_address1  |   14|          3|    9|         27|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_1_ce1       |   14|          3|    1|          3|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_1_d1        |   14|          3|   12|         36|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_1_we1       |   14|          3|    1|          3|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_2_address1  |   14|          3|    9|         27|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_2_ce1       |   14|          3|    1|          3|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_2_d1        |   14|          3|   12|         36|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_2_we1       |   14|          3|    1|          3|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_3_address1  |   14|          3|    9|         27|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_3_ce1       |   14|          3|    1|          3|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_3_d1        |   14|          3|   12|         36|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_3_we1       |   14|          3|    1|          3|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_4_address1  |   14|          3|    9|         27|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_4_ce1       |   14|          3|    1|          3|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_4_d1        |   14|          3|   12|         36|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_4_we1       |   14|          3|    1|          3|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_5_address1  |   14|          3|    9|         27|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_5_ce1       |   14|          3|    1|          3|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_5_d1        |   14|          3|   12|         36|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_5_we1       |   14|          3|    1|          3|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_6_address1  |   14|          3|    9|         27|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_6_ce1       |   14|          3|    1|          3|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_6_d1        |   14|          3|   12|         36|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_6_we1       |   14|          3|    1|          3|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_7_address1  |   14|          3|    9|         27|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_7_ce1       |   14|          3|    1|          3|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_7_d1        |   14|          3|   12|         36|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_7_we1       |   14|          3|    1|          3|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_8_address1  |   14|          3|    9|         27|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_8_ce1       |   14|          3|    1|          3|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_8_d1        |   14|          3|   12|         36|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_8_we1       |   14|          3|    1|          3|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_address1  |   14|          3|    9|         27|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_ce1       |   14|          3|    1|          3|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_d1        |   14|          3|   12|         36|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_we1       |   14|          3|    1|          3|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_address1    |   14|          3|    9|         27|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_ce1         |   14|          3|    1|          3|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_d1          |   14|          3|   12|         36|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_we1         |   14|          3|    1|          3|
-    +-----------------------------------------------------------------------+-----+-----------+-----+-----------+
-    |Total                                                                  | 3024|        653| 1535|       4102|
-    +-----------------------------------------------------------------------+-----+-----------+-----+-----------+
+    +-------------------------------------------------------------------+----+-----------+-----+-----------+
+    |                                Name                               | LUT| Input Size| Bits| Total Bits|
+    +-------------------------------------------------------------------+----+-----------+-----+-----------+
+    |ap_NS_fsm                                                          |  65|         16|    1|         16|
+    |ap_phi_mux_disp_word_2_phi_fu_1195_p6                              |  14|          3|   32|         96|
+    |ap_phi_mux_minPrevLR_1_phi_fu_1181_p6                              |   9|          2|   12|         24|
+    |bufL_1_address0                                                    |  14|          3|    9|         27|
+    |bufL_1_ce0                                                         |  14|          3|    1|          3|
+    |bufL_1_d0                                                          |  14|          3|    8|         24|
+    |bufL_1_we0                                                         |  14|          3|    1|          3|
+    |bufL_2_address0                                                    |  14|          3|    9|         27|
+    |bufL_2_ce0                                                         |  14|          3|    1|          3|
+    |bufL_2_d0                                                          |  14|          3|    8|         24|
+    |bufL_2_we0                                                         |  14|          3|    1|          3|
+    |bufL_address0                                                      |  14|          3|    9|         27|
+    |bufL_ce0                                                           |  14|          3|    1|          3|
+    |bufL_d0                                                            |  14|          3|    8|         24|
+    |bufL_we0                                                           |  14|          3|    1|          3|
+    |bufR_1_address0                                                    |  14|          3|    9|         27|
+    |bufR_1_ce0                                                         |  14|          3|    1|          3|
+    |bufR_1_d0                                                          |  14|          3|    8|         24|
+    |bufR_1_we0                                                         |  14|          3|    1|          3|
+    |bufR_2_address0                                                    |  14|          3|    9|         27|
+    |bufR_2_ce0                                                         |  14|          3|    1|          3|
+    |bufR_2_d0                                                          |  14|          3|    8|         24|
+    |bufR_2_we0                                                         |  14|          3|    1|          3|
+    |bufR_address0                                                      |  14|          3|    9|         27|
+    |bufR_ce0                                                           |  14|          3|    1|          3|
+    |bufR_d0                                                            |  14|          3|    8|         24|
+    |bufR_we0                                                           |  14|          3|    1|          3|
+    |c_1_reg_1069                                                       |   9|          2|    9|         18|
+    |c_reg_1057                                                         |   9|          2|    9|         18|
+    |disp_Addr_A_orig                                                   |  14|          3|   32|         96|
+    |disp_Din_A                                                         |  14|          3|   32|         96|
+    |disp_WEN_A                                                         |   9|          2|    4|          8|
+    |disp_word_1_reg_1165                                               |   9|          2|   32|         64|
+    |disp_word_2_reg_1191                                               |  14|          3|   32|         96|
+    |leftWin_1_1_reg_1155                                               |   9|          2|    8|         16|
+    |leftWin_2_1_reg_1145                                               |   9|          2|    8|         16|
+    |leftWin_4_1_reg_1135                                               |   9|          2|    8|         16|
+    |leftWin_5_1_reg_1125                                               |   9|          2|    8|         16|
+    |leftWin_7_1_reg_1115                                               |   9|          2|    8|         16|
+    |leftWin_8_1_reg_1105                                               |   9|          2|    8|         16|
+    |minPrevLR_0_reg_1081                                               |   9|          2|   12|         24|
+    |minPrevLR_1_reg_1177                                               |   9|          2|   12|         24|
+    |minPrevT_address0                                                  |  20|          4|    9|         36|
+    |minPrevT_d0                                                        |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_10               |   9|          2|   12|         24|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_11               |   9|          2|   12|         24|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_12               |   9|          2|   12|         24|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_13               |   9|          2|   12|         24|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_14               |   9|          2|   12|         24|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_15               |   9|          2|   12|         24|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_16               |   9|          2|   12|         24|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_17               |   9|          2|   12|         24|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_18               |   9|          2|   12|         24|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_19               |   9|          2|   12|         24|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_20               |   9|          2|   12|         24|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_21               |   9|          2|   12|         24|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_22               |   9|          2|   12|         24|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_23               |   9|          2|   12|         24|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_24               |   9|          2|   12|         24|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_25               |   9|          2|   12|         24|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_26               |   9|          2|   12|         24|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_27               |   9|          2|   12|         24|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_28               |   9|          2|   12|         24|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_29               |   9|          2|   12|         24|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_30               |   9|          2|   12|         24|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_31               |   9|          2|   12|         24|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_10_address1      |  14|          3|    9|         27|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_10_ce1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_10_d1            |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_10_we1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_11_address1      |  14|          3|    9|         27|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_11_ce1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_11_d1            |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_11_we1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_12_address1      |  14|          3|    9|         27|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_12_ce1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_12_d1            |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_12_we1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_13_address1      |  14|          3|    9|         27|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_13_ce1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_13_d1            |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_13_we1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_14_address1      |  14|          3|    9|         27|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_14_ce1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_14_d1            |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_14_we1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_15_address1      |  14|          3|    9|         27|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_15_ce1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_15_d1            |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_15_we1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_16_address1      |  14|          3|    9|         27|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_16_ce1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_16_d1            |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_16_we1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_17_address1      |  14|          3|    9|         27|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_17_ce1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_17_d1            |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_17_we1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_18_address1      |  14|          3|    9|         27|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_18_ce1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_18_d1            |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_18_we1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_19_address1      |  14|          3|    9|         27|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_19_ce1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_19_d1            |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_19_we1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_20_address1      |  14|          3|    9|         27|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_20_ce1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_20_d1            |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_20_we1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_21_address1      |  14|          3|    9|         27|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_21_ce1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_21_d1            |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_21_we1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_22_address1      |  14|          3|    9|         27|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_22_ce1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_22_d1            |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_22_we1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_23_address1      |  14|          3|    9|         27|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_23_ce1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_23_d1            |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_23_we1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_24_address1      |  14|          3|    9|         27|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_24_ce1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_24_d1            |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_24_we1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_25_address1      |  14|          3|    9|         27|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_25_ce1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_25_d1            |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_25_we1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_26_address1      |  14|          3|    9|         27|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_26_ce1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_26_d1            |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_26_we1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_27_address1      |  14|          3|    9|         27|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_27_ce1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_27_d1            |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_27_we1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_28_address1      |  14|          3|    9|         27|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_28_ce1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_28_d1            |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_28_we1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_29_address1      |  14|          3|    9|         27|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_29_ce1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_29_d1            |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_29_we1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_30_address1      |  14|          3|    9|         27|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_30_ce1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_30_d1            |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_30_we1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_31_address1      |  14|          3|    9|         27|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_31_ce1           |  14|          3|    1|          3|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_31_d1            |  14|          3|   12|         36|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_31_we1           |  14|          3|    1|          3|
+    |pkt_curCost_address0                                               |  14|          3|    5|         15|
+    |pkt_curCost_ce0                                                    |  14|          3|    1|          3|
+    |pkt_curCost_we0                                                    |   9|          2|    1|          2|
+    |r_fu_378                                                           |   9|          2|    7|         14|
+    |rightStripe_1_address0                                             |  14|          3|    6|         18|
+    |rightStripe_1_ce0                                                  |  14|          3|    1|          3|
+    |rightStripe_1_ce1                                                  |   9|          2|    1|          2|
+    |rightStripe_1_ce2                                                  |   9|          2|    1|          2|
+    |rightStripe_1_d0                                                   |  14|          3|    8|         24|
+    |rightStripe_1_we0                                                  |  14|          3|    1|          3|
+    |rightStripe_2_address0                                             |  14|          3|    6|         18|
+    |rightStripe_2_ce0                                                  |  14|          3|    1|          3|
+    |rightStripe_2_ce1                                                  |   9|          2|    1|          2|
+    |rightStripe_2_ce2                                                  |   9|          2|    1|          2|
+    |rightStripe_2_d0                                                   |  14|          3|    8|         24|
+    |rightStripe_2_we0                                                  |  14|          3|    1|          3|
+    |rightStripe_address0                                               |  14|          3|    6|         18|
+    |rightStripe_ce0                                                    |  14|          3|    1|          3|
+    |rightStripe_ce1                                                    |   9|          2|    1|          2|
+    |rightStripe_ce2                                                    |   9|          2|    1|          2|
+    |rightStripe_d0                                                     |  14|          3|    8|         24|
+    |rightStripe_we0                                                    |  14|          3|    1|          3|
+    |right_wr_0_reg_1093                                                |   9|          2|   32|         64|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostL              |   9|          2|   12|         24|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostL_1            |   9|          2|   12|         24|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostL_2            |   9|          2|   12|         24|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostL_3            |   9|          2|   12|         24|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostL_4            |   9|          2|   12|         24|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostL_5            |   9|          2|   12|         24|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostL_6            |   9|          2|   12|         24|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostL_7            |   9|          2|   12|         24|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostL_8            |   9|          2|   12|         24|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostL_9            |   9|          2|   12|         24|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_10_address1  |  14|          3|    9|         27|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_10_ce1       |  14|          3|    1|          3|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_10_d1        |  14|          3|   12|         36|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_10_we1       |  14|          3|    1|          3|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_11_address1  |  14|          3|    9|         27|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_11_ce1       |  14|          3|    1|          3|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_11_d1        |  14|          3|   12|         36|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_11_we1       |  14|          3|    1|          3|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_12_address1  |  14|          3|    9|         27|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_12_ce1       |  14|          3|    1|          3|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_12_d1        |  14|          3|   12|         36|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_12_we1       |  14|          3|    1|          3|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_13_address1  |  14|          3|    9|         27|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_13_ce1       |  14|          3|    1|          3|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_13_d1        |  14|          3|   12|         36|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_13_we1       |  14|          3|    1|          3|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_14_address1  |  14|          3|    9|         27|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_14_ce1       |  14|          3|    1|          3|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_14_d1        |  14|          3|   12|         36|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_14_we1       |  14|          3|    1|          3|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_15_address1  |  14|          3|    9|         27|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_15_ce1       |  14|          3|    1|          3|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_15_d1        |  14|          3|   12|         36|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_15_we1       |  14|          3|    1|          3|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_16_address1  |  14|          3|    9|         27|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_16_ce1       |  14|          3|    1|          3|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_16_d1        |  14|          3|   12|         36|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_16_we1       |  14|          3|    1|          3|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_17_address1  |  14|          3|    9|         27|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_17_ce1       |  14|          3|    1|          3|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_17_d1        |  14|          3|   12|         36|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_17_we1       |  14|          3|    1|          3|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_18_address1  |  14|          3|    9|         27|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_18_ce1       |  14|          3|    1|          3|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_18_d1        |  14|          3|   12|         36|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_18_we1       |  14|          3|    1|          3|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_address1     |  14|          3|    9|         27|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_ce1          |  14|          3|    1|          3|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_d1           |  14|          3|   12|         36|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_we1          |  14|          3|    1|          3|
+    +-------------------------------------------------------------------+----+-----------+-----+-----------+
+    |Total                                                              |2965|        641| 1622|       4320|
+    +-------------------------------------------------------------------+----+-----------+-----+-----------+
 
     * Register: 
     +-------------------------------------------------------------------------------+----+----+-----+-----------+
     |                                      Name                                     | FF | LUT| Bits| Const Bits|
     +-------------------------------------------------------------------------------+----+----+-----+-----------+
-    |add_ln401_reg_2210                                                             |   7|   0|    7|          0|
-    |add_ln418_reg_2222                                                             |   9|   0|    9|          0|
-    |add_ln449_reg_2277                                                             |   9|   0|    9|          0|
-    |add_ln480_reg_2263                                                             |   9|   0|   15|          6|
-    |ap_CS_fsm                                                                      |  27|   0|   27|          0|
-    |c_1_reg_1103                                                                   |   9|   0|    9|          0|
-    |c_reg_1091                                                                     |   9|   0|    9|          0|
-    |disp_read_reg_2186                                                             |  64|   0|   64|          0|
-    |gmem_addr_1_reg_2534                                                           |  64|   0|   64|          0|
-    |gmem_addr_reg_2291                                                             |  64|   0|   64|          0|
-    |grp_col_backend_fu_1423_ap_start_reg                                           |   1|   0|    1|          0|
-    |grp_col_frontend_fu_1388_ap_start_reg                                          |   1|   0|    1|          0|
-    |grp_sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_366_1_fu_1211_ap_start_reg          |   1|   0|    1|          0|
-    |grp_sgm_kernel_Pipeline_InitLeftWin_VITIS_LOOP_434_2_fu_1365_ap_start_reg      |   1|   0|    1|          0|
-    |grp_sgm_kernel_Pipeline_InitRightStripe_VITIS_LOOP_443_3_fu_1381_ap_start_reg  |   1|   0|    1|          0|
-    |grp_sgm_kernel_Pipeline_InitTBRowD_fu_1295_ap_start_reg                        |   1|   0|    1|          0|
-    |grp_sgm_kernel_Pipeline_ResetCosts_fu_1227_ap_start_reg                        |   1|   0|    1|          0|
-    |icmp_ln415_reg_2215                                                            |   1|   0|    1|          0|
-    |icmp_ln449_reg_2273                                                            |   1|   0|    1|          0|
-    |icmp_ln468_reg_2287                                                            |   1|   0|    1|          0|
-    |leftWin_10_fu_402                                                              |   8|   0|    8|          0|
-    |leftWin_11_fu_406                                                              |   8|   0|    8|          0|
-    |leftWin_1_1_reg_1189                                                           |   8|   0|    8|          0|
-    |leftWin_1_reg_2327                                                             |   8|   0|    8|          0|
-    |leftWin_2_1_reg_1179                                                           |   8|   0|    8|          0|
-    |leftWin_2_reg_2307                                                             |   8|   0|    8|          0|
-    |leftWin_3_reg_2312                                                             |   8|   0|    8|          0|
-    |leftWin_4_1_reg_1169                                                           |   8|   0|    8|          0|
-    |leftWin_4_reg_2317                                                             |   8|   0|    8|          0|
-    |leftWin_5_1_reg_1159                                                           |   8|   0|    8|          0|
-    |leftWin_5_reg_2322                                                             |   8|   0|    8|          0|
-    |leftWin_6_fu_386                                                               |   8|   0|    8|          0|
-    |leftWin_7_1_reg_1149                                                           |   8|   0|    8|          0|
-    |leftWin_7_fu_390                                                               |   8|   0|    8|          0|
-    |leftWin_8_1_reg_1139                                                           |   8|   0|    8|          0|
-    |leftWin_8_fu_394                                                               |   8|   0|    8|          0|
-    |leftWin_9_fu_398                                                               |   8|   0|    8|          0|
-    |leftWin_reg_2302                                                               |   8|   0|    8|          0|
-    |left_r_read_reg_2197                                                           |  64|   0|   64|          0|
-    |minPrevLR_0_reg_1115                                                           |  12|   0|   12|          0|
-    |minPrevLR_1_reg_1199                                                           |  12|   0|   12|          0|
-    |minPrevLR_reg_2705                                                             |  12|   0|   12|          0|
-    |minPrevT_addr_1_reg_2337                                                       |   9|   0|    9|          0|
-    |minPrevT_load_reg_2540                                                         |  12|   0|   12|          0|
-    |outDisp_reg_2710                                                               |   8|   0|    8|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_10                       |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_11                       |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_12                       |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_13                       |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_14                       |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_15                       |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_16                       |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_17                       |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_18                       |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_19                       |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_20                       |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_21                       |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_22                       |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_23                       |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_24                       |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_25                       |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_26                       |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_27                       |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_28                       |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_29                       |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_30                       |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostL_31                       |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_10_addr_reg_2402         |   9|   0|    9|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_10_load_reg_2595         |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_11_addr_reg_2408         |   9|   0|    9|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_12_addr_reg_2414         |   9|   0|    9|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_13_addr_reg_2420         |   9|   0|    9|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_14_addr_reg_2426         |   9|   0|    9|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_16_addr_reg_2438         |   9|   0|    9|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_16_load_reg_2625         |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_17_addr_reg_2444         |   9|   0|    9|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_17_load_reg_2630         |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_18_addr_reg_2450         |   9|   0|    9|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_18_load_reg_2635         |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_19_addr_reg_2456         |   9|   0|    9|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_19_load_reg_2640         |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_20_addr_reg_2462         |   9|   0|    9|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_20_load_reg_2645         |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_21_addr_reg_2468         |   9|   0|    9|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_22_addr_reg_2474         |   9|   0|    9|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_23_addr_reg_2480         |   9|   0|    9|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_24_addr_reg_2486         |   9|   0|    9|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_26_addr_reg_2498         |   9|   0|    9|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_26_load_reg_2675         |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_27_addr_reg_2504         |   9|   0|    9|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_27_load_reg_2680         |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_28_addr_reg_2510         |   9|   0|    9|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_28_load_reg_2685         |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_29_addr_reg_2516         |   9|   0|    9|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_29_load_reg_2690         |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_30_addr_reg_2522         |   9|   0|    9|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_30_load_reg_2695         |  12|   0|   12|          0|
-    |p_ZZ10sgm_kernelPA320_7ap_uintILi8EES2_S2_E9prevCostT_31_addr_reg_2528         |   9|   0|    9|          0|
-    |pkt_valid_reg_2297                                                             |   1|   0|    1|          0|
-    |r_1_reg_2202                                                                   |   7|   0|    7|          0|
-    |r_fu_382                                                                       |   7|   0|    7|          0|
-    |right_r_read_reg_2192                                                          |  64|   0|   64|          0|
-    |right_wr_0_reg_1127                                                            |  32|   0|   32|          0|
-    |right_wr_reg_2332                                                              |  32|   0|   32|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostL                     |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostL_1                   |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostL_2                   |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostL_3                   |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostL_4                   |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostL_5                   |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostL_6                   |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostL_7                   |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostL_8                   |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostL_9                   |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_1_addr_reg_2390     |   9|   0|    9|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_1_load_reg_2585     |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_2_addr_reg_2384     |   9|   0|    9|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_2_load_reg_2580     |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_3_addr_reg_2378     |   9|   0|    9|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_3_load_reg_2575     |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_4_addr_reg_2372     |   9|   0|    9|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_4_load_reg_2570     |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_5_addr_reg_2366     |   9|   0|    9|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_5_load_reg_2565     |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_6_addr_reg_2360     |   9|   0|    9|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_6_load_reg_2560     |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_7_addr_reg_2354     |   9|   0|    9|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_7_load_reg_2555     |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_8_addr_reg_2348     |   9|   0|    9|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_8_load_reg_2550     |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_addr_reg_2342     |   9|   0|    9|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_9_load_reg_2545     |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_addr_reg_2396       |   9|   0|    9|          0|
-    |sgm_kernel_ap_uint_320_ap_uint_320_ap_uint_8_320_prevCostT_load_reg_2590       |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_8_320_ap_uint_8_320_ap_uint_8_320_prevCostT_45_reg_2492     |   9|   0|    9|          0|
-    |sgm_kernel_ap_uint_8_320_ap_uint_8_320_ap_uint_8_320_prevCostT_46_reg_2600     |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_8_320_ap_uint_8_320_ap_uint_8_320_prevCostT_47_reg_2605     |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_8_320_ap_uint_8_320_ap_uint_8_320_prevCostT_48_reg_2610     |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_8_320_ap_uint_8_320_ap_uint_8_320_prevCostT_49_reg_2615     |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_8_320_ap_uint_8_320_ap_uint_8_320_prevCostT_50_reg_2620     |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_8_320_ap_uint_8_320_ap_uint_8_320_prevCostT_51_reg_2650     |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_8_320_ap_uint_8_320_ap_uint_8_320_prevCostT_52_reg_2655     |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_8_320_ap_uint_8_320_ap_uint_8_320_prevCostT_53_reg_2660     |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_8_320_ap_uint_8_320_ap_uint_8_320_prevCostT_54_reg_2665     |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_8_320_ap_uint_8_320_ap_uint_8_320_prevCostT_55_reg_2670     |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_8_320_ap_uint_8_320_ap_uint_8_320_prevCostT_56_reg_2700     |  12|   0|   12|          0|
-    |sgm_kernel_ap_uint_8_320_ap_uint_8_320_ap_uint_8_320_prevCostT_reg_2432        |   9|   0|    9|          0|
-    |zext_ln449_1_reg_2282                                                          |   9|   0|   10|          1|
-    |zext_ln449_reg_2268                                                            |   9|   0|   64|         55|
+    |add_ln405_reg_2276                                                             |   7|   0|    7|          0|
+    |add_ln424_reg_2288                                                             |   9|   0|    9|          0|
+    |add_ln455_reg_2349                                                             |   9|   0|    9|          0|
+    |add_ln487_2_reg_2340                                                           |   7|   0|   15|          8|
+    |ap_CS_fsm                                                                      |  15|   0|   15|          0|
+    |c_1_reg_1069                                                                   |   9|   0|    9|          0|
+    |c_reg_1057                                                                     |   9|   0|    9|          0|
+    |disp_word_1_reg_1165                                                           |  32|   0|   32|          0|
+    |disp_word_2_reg_1191                                                           |  32|   0|   32|          0|
+    |disp_word_3_reg_2777                                                           |  32|   0|   32|          0|
+    |grp_col_backend_fu_1418_ap_start_reg                                           |   1|   0|    1|          0|
+    |grp_col_frontend_fu_1383_ap_start_reg                                          |   1|   0|    1|          0|
+    |grp_sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_370_1_fu_1206_ap_start_reg          |   1|   0|    1|          0|
+    |grp_sgm_kernel_Pipeline_InitLeftWin_VITIS_LOOP_440_2_fu_1360_ap_start_reg      |   1|   0|    1|          0|
+    |grp_sgm_kernel_Pipeline_InitRightStripe_VITIS_LOOP_449_3_fu_1376_ap_start_reg  |   1|   0|    1|          0|
+    |grp_sgm_kernel_Pipeline_InitTBRowD_fu_1290_ap_start_reg                        |   1|   0|    1|          0|
+    |grp_sgm_kernel_Pipeline_ResetCosts_fu_1222_ap_start_reg                        |   1|   0|    1|          0|
+    |icmp_ln421_reg_2281                                                            |   1|   0|    1|          0|
+    |icmp_ln455_reg_2345                                                            |   1|   0|    1|          0|
+    |icmp_ln474_reg_2394                                                            |   1|   0|    1|          0|
+    |icmp_ln493_reg_2783                                                            |   1|   0|    1|          0|
+    |leftWin_10_fu_398                                                              |   8|   0|    8|          0|
+    |leftWin_11_fu_402                                                              |   8|   0|    8|          0|
+    |leftWin_1_1_reg_1155                                                           |   8|   0|    8|          0|
+    |leftWin_1_reg_2384                                                             |   8|   0|    8|          0|
+    |leftWin_2_1_reg_1145                                                           |   8|   0|    8|          0|
+    |leftWin_2_reg_2364                                                             |   8|   0|    8|          0|
+    |leftWin_3_reg_2369                                                             |   8|   0|    8|          0|
+    |leftWin_4_1_reg_1135                                                           |   8|   0|    8|          0|
+    |leftWin_4_reg_2374                                                             |   8|   0|    8|          0|
+    |leftWin_5_1_reg_1125                                                           |   8|   0|    8|          0|
+    |leftWin_5_reg_2379                                                             |   8|   0|    8|          0|
+    |leftWin_6_fu_382                                                               |   8|   0|    8|          0|
+    |leftWin_7_1_reg_1115                                                           |   8|   0|    8|          0|
+    |leftWin_7_fu_386                                                               |   8|   0|    8|          0|
+    |leftWin_8_1_reg_1105                                                           |   8|   0|    8|          0|
+    |leftWin_8_fu_390                                                               |   8|   0|    8|          0|
+    |leftWin_9_fu_394                                                               |   8|   0|    8|          0|
+    |leftWin_reg_2359                                                               |   8|   0|    8|          0|
+    |lshr_ln1_reg_2601                                                              |  13|   0|   13|          0|
+    |minPrevLR_0_reg_1081                                                           |  12|   0|   12|          0|
+    |minPrevLR_1_reg_1177                                                           |  12|   0|   12|          0|
+    |minPrevLR_reg_2771                                                             |  12|   0|   12|          0|
+    |minPrevT_addr_1_reg_2398                                                       |   9|   0|    9|          0|
+    |minPrevT_load_reg_2606                                                         |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_10                           |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_11                           |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_12                           |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_13                           |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_14                           |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_15                           |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_16                           |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_17                           |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_18                           |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_19                           |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_20                           |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_21                           |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_22                           |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_23                           |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_24                           |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_25                           |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_26                           |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_27                           |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_28                           |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_29                           |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_30                           |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostL_31                           |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_10_addr_reg_2463             |   9|   0|    9|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_10_load_reg_2661             |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_11_addr_reg_2469             |   9|   0|    9|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_12_addr_reg_2475             |   9|   0|    9|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_13_addr_reg_2481             |   9|   0|    9|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_14_addr_reg_2487             |   9|   0|    9|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_16_addr_reg_2499             |   9|   0|    9|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_16_load_reg_2691             |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_17_addr_reg_2505             |   9|   0|    9|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_17_load_reg_2696             |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_18_addr_reg_2511             |   9|   0|    9|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_18_load_reg_2701             |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_19_addr_reg_2517             |   9|   0|    9|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_19_load_reg_2706             |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_20_addr_reg_2523             |   9|   0|    9|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_20_load_reg_2711             |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_21_addr_reg_2529             |   9|   0|    9|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_22_addr_reg_2535             |   9|   0|    9|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_23_addr_reg_2541             |   9|   0|    9|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_24_addr_reg_2547             |   9|   0|    9|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_26_addr_reg_2559             |   9|   0|    9|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_26_load_reg_2741             |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_27_addr_reg_2565             |   9|   0|    9|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_27_load_reg_2746             |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_28_addr_reg_2571             |   9|   0|    9|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_28_load_reg_2751             |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_29_addr_reg_2577             |   9|   0|    9|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_29_load_reg_2756             |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_30_addr_reg_2583             |   9|   0|    9|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_30_load_reg_2761             |  12|   0|   12|          0|
+    |p_ZZ10sgm_kernelP7ap_uintILi32EES1_S1_E9prevCostT_31_addr_reg_2589             |   9|   0|    9|          0|
+    |p_shl1_reg_2334                                                                |   7|   0|   13|          6|
+    |p_shl_reg_2329                                                                 |   7|   0|   15|          8|
+    |pkt_valid_reg_2354                                                             |   1|   0|    1|          0|
+    |r_1_reg_2268                                                                   |   7|   0|    7|          0|
+    |r_fu_378                                                                       |   7|   0|    7|          0|
+    |right_wr_0_reg_1093                                                            |  32|   0|   32|          0|
+    |right_wr_reg_2389                                                              |  32|   0|   32|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostL                          |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostL_1                        |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostL_2                        |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostL_3                        |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostL_4                        |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostL_5                        |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostL_6                        |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostL_7                        |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostL_8                        |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostL_9                        |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_10_addr_reg_2409         |   9|   0|    9|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_10_load_reg_2616         |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_11_addr_reg_2415         |   9|   0|    9|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_11_load_reg_2621         |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_12_addr_reg_2421         |   9|   0|    9|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_12_load_reg_2626         |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_13_addr_reg_2427         |   9|   0|    9|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_13_load_reg_2631         |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_14_addr_reg_2433         |   9|   0|    9|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_14_load_reg_2636         |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_15_addr_reg_2439         |   9|   0|    9|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_15_load_reg_2641         |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_16_addr_reg_2445         |   9|   0|    9|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_16_load_reg_2646         |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_17_addr_reg_2451         |   9|   0|    9|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_17_load_reg_2651         |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_18_addr_reg_2457         |   9|   0|    9|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_18_load_reg_2656         |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_43_reg_2553              |   9|   0|    9|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_44_reg_2666              |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_45_reg_2671              |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_46_reg_2676              |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_47_reg_2681              |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_48_reg_2686              |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_49_reg_2716              |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_50_reg_2721              |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_51_reg_2726              |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_52_reg_2731              |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_53_reg_2736              |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_54_reg_2766              |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_addr_reg_2403            |   9|   0|    9|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_load_reg_2611            |  12|   0|   12|          0|
+    |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_reg_2493                 |   9|   0|    9|          0|
+    |trunc_ln487_reg_2595                                                           |   2|   0|    2|          0|
     +-------------------------------------------------------------------------------+----+----+-----+-----------+
-    |Total                                                                          |1771|   0| 1833|         62|
+    |Total                                                                          |1537|   0| 1559|         22|
     +-------------------------------------------------------------------------------+----+----+-----+-----------+
 
 
@@ -582,70 +586,46 @@
 +-----------------------+-----+-----+------------+--------------+--------------+
 |       RTL Ports       | Dir | Bits|  Protocol  | Source Object|    C Type    |
 +-----------------------+-----+-----+------------+--------------+--------------+
-|s_axi_control_AWVALID  |   in|    1|       s_axi|       control|        scalar|
-|s_axi_control_AWREADY  |  out|    1|       s_axi|       control|        scalar|
-|s_axi_control_AWADDR   |   in|    6|       s_axi|       control|        scalar|
-|s_axi_control_WVALID   |   in|    1|       s_axi|       control|        scalar|
-|s_axi_control_WREADY   |  out|    1|       s_axi|       control|        scalar|
-|s_axi_control_WDATA    |   in|   32|       s_axi|       control|        scalar|
-|s_axi_control_WSTRB    |   in|    4|       s_axi|       control|        scalar|
-|s_axi_control_ARVALID  |   in|    1|       s_axi|       control|        scalar|
-|s_axi_control_ARREADY  |  out|    1|       s_axi|       control|        scalar|
-|s_axi_control_ARADDR   |   in|    6|       s_axi|       control|        scalar|
-|s_axi_control_RVALID   |  out|    1|       s_axi|       control|        scalar|
-|s_axi_control_RREADY   |   in|    1|       s_axi|       control|        scalar|
-|s_axi_control_RDATA    |  out|   32|       s_axi|       control|        scalar|
-|s_axi_control_RRESP    |  out|    2|       s_axi|       control|        scalar|
-|s_axi_control_BVALID   |  out|    1|       s_axi|       control|        scalar|
-|s_axi_control_BREADY   |   in|    1|       s_axi|       control|        scalar|
-|s_axi_control_BRESP    |  out|    2|       s_axi|       control|        scalar|
+|s_axi_control_AWVALID  |   in|    1|       s_axi|       control|   return void|
+|s_axi_control_AWREADY  |  out|    1|       s_axi|       control|   return void|
+|s_axi_control_AWADDR   |   in|    4|       s_axi|       control|   return void|
+|s_axi_control_WVALID   |   in|    1|       s_axi|       control|   return void|
+|s_axi_control_WREADY   |  out|    1|       s_axi|       control|   return void|
+|s_axi_control_WDATA    |   in|   32|       s_axi|       control|   return void|
+|s_axi_control_WSTRB    |   in|    4|       s_axi|       control|   return void|
+|s_axi_control_ARVALID  |   in|    1|       s_axi|       control|   return void|
+|s_axi_control_ARREADY  |  out|    1|       s_axi|       control|   return void|
+|s_axi_control_ARADDR   |   in|    4|       s_axi|       control|   return void|
+|s_axi_control_RVALID   |  out|    1|       s_axi|       control|   return void|
+|s_axi_control_RREADY   |   in|    1|       s_axi|       control|   return void|
+|s_axi_control_RDATA    |  out|   32|       s_axi|       control|   return void|
+|s_axi_control_RRESP    |  out|    2|       s_axi|       control|   return void|
+|s_axi_control_BVALID   |  out|    1|       s_axi|       control|   return void|
+|s_axi_control_BREADY   |   in|    1|       s_axi|       control|   return void|
+|s_axi_control_BRESP    |  out|    2|       s_axi|       control|   return void|
 |ap_clk                 |   in|    1|  ap_ctrl_hs|    sgm_kernel|  return value|
 |ap_rst_n               |   in|    1|  ap_ctrl_hs|    sgm_kernel|  return value|
 |interrupt              |  out|    1|  ap_ctrl_hs|    sgm_kernel|  return value|
-|m_axi_gmem_AWVALID     |  out|    1|       m_axi|          gmem|       pointer|
-|m_axi_gmem_AWREADY     |   in|    1|       m_axi|          gmem|       pointer|
-|m_axi_gmem_AWADDR      |  out|   64|       m_axi|          gmem|       pointer|
-|m_axi_gmem_AWID        |  out|    1|       m_axi|          gmem|       pointer|
-|m_axi_gmem_AWLEN       |  out|    8|       m_axi|          gmem|       pointer|
-|m_axi_gmem_AWSIZE      |  out|    3|       m_axi|          gmem|       pointer|
-|m_axi_gmem_AWBURST     |  out|    2|       m_axi|          gmem|       pointer|
-|m_axi_gmem_AWLOCK      |  out|    2|       m_axi|          gmem|       pointer|
-|m_axi_gmem_AWCACHE     |  out|    4|       m_axi|          gmem|       pointer|
-|m_axi_gmem_AWPROT      |  out|    3|       m_axi|          gmem|       pointer|
-|m_axi_gmem_AWQOS       |  out|    4|       m_axi|          gmem|       pointer|
-|m_axi_gmem_AWREGION    |  out|    4|       m_axi|          gmem|       pointer|
-|m_axi_gmem_AWUSER      |  out|    1|       m_axi|          gmem|       pointer|
-|m_axi_gmem_WVALID      |  out|    1|       m_axi|          gmem|       pointer|
-|m_axi_gmem_WREADY      |   in|    1|       m_axi|          gmem|       pointer|
-|m_axi_gmem_WDATA       |  out|   32|       m_axi|          gmem|       pointer|
-|m_axi_gmem_WSTRB       |  out|    4|       m_axi|          gmem|       pointer|
-|m_axi_gmem_WLAST       |  out|    1|       m_axi|          gmem|       pointer|
-|m_axi_gmem_WID         |  out|    1|       m_axi|          gmem|       pointer|
-|m_axi_gmem_WUSER       |  out|    1|       m_axi|          gmem|       pointer|
-|m_axi_gmem_ARVALID     |  out|    1|       m_axi|          gmem|       pointer|
-|m_axi_gmem_ARREADY     |   in|    1|       m_axi|          gmem|       pointer|
-|m_axi_gmem_ARADDR      |  out|   64|       m_axi|          gmem|       pointer|
-|m_axi_gmem_ARID        |  out|    1|       m_axi|          gmem|       pointer|
-|m_axi_gmem_ARLEN       |  out|    8|       m_axi|          gmem|       pointer|
-|m_axi_gmem_ARSIZE      |  out|    3|       m_axi|          gmem|       pointer|
-|m_axi_gmem_ARBURST     |  out|    2|       m_axi|          gmem|       pointer|
-|m_axi_gmem_ARLOCK      |  out|    2|       m_axi|          gmem|       pointer|
-|m_axi_gmem_ARCACHE     |  out|    4|       m_axi|          gmem|       pointer|
-|m_axi_gmem_ARPROT      |  out|    3|       m_axi|          gmem|       pointer|
-|m_axi_gmem_ARQOS       |  out|    4|       m_axi|          gmem|       pointer|
-|m_axi_gmem_ARREGION    |  out|    4|       m_axi|          gmem|       pointer|
-|m_axi_gmem_ARUSER      |  out|    1|       m_axi|          gmem|       pointer|
-|m_axi_gmem_RVALID      |   in|    1|       m_axi|          gmem|       pointer|
-|m_axi_gmem_RREADY      |  out|    1|       m_axi|          gmem|       pointer|
-|m_axi_gmem_RDATA       |   in|   32|       m_axi|          gmem|       pointer|
-|m_axi_gmem_RLAST       |   in|    1|       m_axi|          gmem|       pointer|
-|m_axi_gmem_RID         |   in|    1|       m_axi|          gmem|       pointer|
-|m_axi_gmem_RUSER       |   in|    1|       m_axi|          gmem|       pointer|
-|m_axi_gmem_RRESP       |   in|    2|       m_axi|          gmem|       pointer|
-|m_axi_gmem_BVALID      |   in|    1|       m_axi|          gmem|       pointer|
-|m_axi_gmem_BREADY      |  out|    1|       m_axi|          gmem|       pointer|
-|m_axi_gmem_BRESP       |   in|    2|       m_axi|          gmem|       pointer|
-|m_axi_gmem_BID         |   in|    1|       m_axi|          gmem|       pointer|
-|m_axi_gmem_BUSER       |   in|    1|       m_axi|          gmem|       pointer|
+|left_r_Addr_A          |  out|   32|        bram|        left_r|         array|
+|left_r_EN_A            |  out|    1|        bram|        left_r|         array|
+|left_r_WEN_A           |  out|    4|        bram|        left_r|         array|
+|left_r_Din_A           |  out|   32|        bram|        left_r|         array|
+|left_r_Dout_A          |   in|   32|        bram|        left_r|         array|
+|left_r_Clk_A           |  out|    1|        bram|        left_r|         array|
+|left_r_Rst_A           |  out|    1|        bram|        left_r|         array|
+|right_r_Addr_A         |  out|   32|        bram|       right_r|         array|
+|right_r_EN_A           |  out|    1|        bram|       right_r|         array|
+|right_r_WEN_A          |  out|    4|        bram|       right_r|         array|
+|right_r_Din_A          |  out|   32|        bram|       right_r|         array|
+|right_r_Dout_A         |   in|   32|        bram|       right_r|         array|
+|right_r_Clk_A          |  out|    1|        bram|       right_r|         array|
+|right_r_Rst_A          |  out|    1|        bram|       right_r|         array|
+|disp_Addr_A            |  out|   32|        bram|          disp|         array|
+|disp_EN_A              |  out|    1|        bram|          disp|         array|
+|disp_WEN_A             |  out|    4|        bram|          disp|         array|
+|disp_Din_A             |  out|   32|        bram|          disp|         array|
+|disp_Dout_A            |   in|   32|        bram|          disp|         array|
+|disp_Clk_A             |  out|    1|        bram|          disp|         array|
+|disp_Rst_A             |  out|    1|        bram|          disp|         array|
 +-----------------------+-----+-----+------------+--------------+--------------+
 
