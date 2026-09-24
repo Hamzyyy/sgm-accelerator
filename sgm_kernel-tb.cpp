@@ -166,11 +166,11 @@ int main()
 						continue;
 					}
 					++kitti_valid_count;
-					float err = std::abs(est_disp - gt_disp);
+					float err = (std::abs(est_disp - gt_disp)) / scale_x;
 
 					/* Kitt-style D1 */
 					bool abs_error_gt3 = err > 3.0f;
-					bool rel_error_gt5 = ((err / gt_disp) > 0.05f);
+					bool rel_error_gt5 = ((err / (gt_disp/scale_x)) > 0.05f);
 
 					if(abs_error_gt3 && rel_error_gt5)
 					{
