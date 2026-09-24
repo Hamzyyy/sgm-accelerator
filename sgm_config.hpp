@@ -1,9 +1,9 @@
 #pragma once
 
 /* Thesis evaluation parameters*/
-constexpr int IMG_H   = 96;
-constexpr int IMG_W   = 320;
-constexpr int DISP    = 32;
+constexpr int IMG_H   = 192;
+constexpr int IMG_W   = 640;
+constexpr int DISP    = 64;
 constexpr int WIN     = 3;
 constexpr int MED_WIN = 3;
 constexpr int MED_RAD = MED_WIN/2;
