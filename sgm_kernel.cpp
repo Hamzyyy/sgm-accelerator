@@ -68,66 +68,10 @@ static void update_sliding_windows(
 		}
 }
 
-static void compute_sad_cost_vector(
-		pix_t leftWin[WIN][WIN],
-		pix_t rightStripe[WIN][RIGHT_STRIPE_W],
-		int right_wr,
-	    cost_t curCost[DISP])
+census_t compute_census_descriptor(pix_t leftWin[WIN][WIN])
 {
-#pragma HLS INLINE off
-
-	SAD_Disparity:
-	for (int d = 0; d < DISP; ++d)
-	{
-	#pragma HLS PIPELINE II=1
-		cost_t sum = 0;
-
-    SAD_WinY:
-        for (int wy = 0; wy < WIN; ++wy)
-        {
-		#pragma HLS UNROLL
-
-        SAD_WinX:
-            for (int wx = 0; wx < WIN; ++wx)
-            {
-			#pragma HLS UNROLL
-            	int logicalIndex = RIGHT_STRIPE_W - WIN - d + wx;
-
-            	int physIndex = right_wr + 1 + logicalIndex;
-            	if (physIndex >= RIGHT_STRIPE_W)
-            			physIndex -= RIGHT_STRIPE_W;
-
-                pix_t lpx = leftWin[wy][wx];
-                pix_t rpx = rightStripe[wy][physIndex];
-
-                sum += absdiff(lpx, rpx);
-            }
-        }
-        curCost[d] = sum;
-	}
-}
-
-static void compute_census_cost_vector(
-		pix_t leftWin[WIN][WIN],
-		pix_t rightStripe[WIN][RIGHT_STRIPE_W],
-		int right_wr,
-	    cost_t curCost[DISP])
-{
-#pragma HLS INLINE off
-
-	CENSUS_Disparity:
-	for (int d = 0; d < DISP; ++d)
-	{
-	#pragma HLS PIPELINE II=1
-		cost_t sum = 0;
-
-    	int logicalIndex_center = RIGHT_STRIPE_W - WIN - d + CENSUS_CX;
-    	int physIndex_center= right_wr + 1 + logicalIndex_center;
-    	if (physIndex_center >= RIGHT_STRIPE_W)
-    		physIndex_center -= RIGHT_STRIPE_W;
-
-		pix_t centerL = leftWin[CENSUS_CY][CENSUS_CX];
-		pix_t centerR = rightStripe[CENSUS_CY][physIndex_center];
+	census_t descriptor = 0;
+	pix_t centerL = leftWin[CENSUS_CY][CENSUS_CX];
 
     CENSUS_WinY:
         for (int wy = 0; wy < WIN; ++wy)
@@ -139,27 +83,70 @@ static void compute_census_cost_vector(
             {
 			#pragma HLS UNROLL
             	if (wy == CENSUS_CY && wx == CENSUS_CX)
-            	{
             	    continue;
-            	}
-            	else
-            	{
-					int logicalIndex = RIGHT_STRIPE_W - WIN - d + wx;
 
-					int physIndex = right_wr + 1 + logicalIndex;
-					if (physIndex >= RIGHT_STRIPE_W)
-							physIndex -= RIGHT_STRIPE_W;
-
-					pix_t lpx = leftWin[wy][wx];
-					pix_t rpx = rightStripe[wy][physIndex];
-
-					bool bitL = (lpx < centerL);
-					bool bitR = (rpx < centerR);
-
-					sum += (bitL ^ bitR);
-            	}
+            	descriptor <<= 1;
+				descriptor[0] = leftWin[wy][wx] < centerL;
             }
         }
+        return descriptor;
+}
+
+census_t compute_right_census_descriptor(pix_t rightStripe
+		[WIN][RIGHT_STRIPE_W], int right_wr)
+{
+	census_t descriptor = 0;
+
+	int center_idx = right_wr - CENSUS_CX;
+	if(center_idx < 0)
+		center_idx += RIGHT_STRIPE_W;
+
+	pix_t centerR = rightStripe[CENSUS_CY][center_idx];
+
+    CENSUS_WinY:
+        for (int wy = 0; wy < WIN; ++wy)
+        {
+		#pragma HLS UNROLL
+
+        CENSUS_WinX:
+            for (int wx = 0; wx < WIN; ++wx)
+            {
+			#pragma HLS UNROLL
+            	if (wy == CENSUS_CY && wx == CENSUS_CX)
+            	    continue;
+
+					int physIndex = right_wr - (WIN - 1 - wx);
+
+					if (physIndex < 0)
+							physIndex += RIGHT_STRIPE_W;
+
+					descriptor <<= 1;
+
+					descriptor[0] = rightStripe[wy][physIndex] < centerR;
+            }
+        }
+        return descriptor;
+}
+
+static void compute_census_cost_vector(
+		census_t leftDesc,
+		census_t rightCensusHistory[DISP],
+	    cost_t curCost[DISP])
+{
+#pragma HLS INLINE off
+
+	CENSUS_Disparity:
+	for (int d = 0; d < DISP; ++d)
+	{
+	#pragma HLS PIPELINE II=1
+		census_t diff = leftDesc ^ rightCensusHistory[d];
+		cost_t sum  = 0;
+
+		for(int b = 0; b < 8; ++b)
+		{
+		#pragma HLS UNROLL
+			sum += diff[b];
+		}
         curCost[d] = sum;
 	}
 }
@@ -264,6 +251,7 @@ static CostPacket col_frontend(
 	    int cx,
 		pix_t leftWin[WIN][WIN],
 		pix_t rightStripe[WIN][RIGHT_STRIPE_W],
+		census_t rightCensusHistory[DISP],
 		int& right_wr)
 {
 #pragma HLS INLINE off
@@ -281,7 +269,21 @@ static CostPacket col_frontend(
     pix_t pR = pix_t(right_word >> (byte_idx * 8));
 
 	update_line_buffers(bufL, bufR, c, pL, pR);
-	update_sliding_windows(bufL, bufR, c, leftWin, rightStripe, right_wr);
+	update_sliding_windows(bufL, bufR, c, leftWin, rightStripe,
+			right_wr);
+
+	census_t leftDesc = compute_census_descriptor(leftWin);
+	census_t newRightDesc = compute_right_census_descriptor
+	(rightStripe, right_wr);
+
+	for (int d = DISP - 1; d > 0; --d)
+	{
+	#pragma HLS UNROLL
+	    rightCensusHistory[d] =
+	        rightCensusHistory[d - 1];
+	}
+
+	rightCensusHistory[0] = newRightDesc;
 
 	const bool interior =
 	    (r >= WIN - 1) &&
@@ -290,7 +292,8 @@ static CostPacket col_frontend(
 
     if (interior)
     {
-    	compute_census_cost_vector(leftWin, rightStripe, right_wr, pkt.curCost);
+    	compute_census_cost_vector(leftDesc, rightCensusHistory,
+    			pkt.curCost);
     	pkt.valid = true;
     }
     else
@@ -396,6 +399,9 @@ void sgm_kernel(bram_word_t left[FRAME_WORDS],
 #pragma HLS ARRAY_PARTITION variable=leftWin complete dim=0
 #pragma HLS ARRAY_PARTITION variable=rightStripe complete dim=1
 
+    census_t rightCensusHistory[DISP];
+#pragma HLS ARRAY_PARTITION variable=rightCensusHistory complete
+
     static cost_t minPrevT[IMG_W];
 
     /* center offset */
@@ -409,6 +415,12 @@ Row:
     	cost_t minPrevLR = 0;
 
     	bram_word_t disp_word = 0;
+
+    	for (int d = 0; d < DISP; ++d)
+    	{
+		#pragma HLS UNROLL factor=2
+    	    rightCensusHistory[d] = 0;
+    	}
 
         /* Reset aggregation for new row */
     ResetCosts:
@@ -468,6 +480,7 @@ Row:
 					cx,
     				leftWin,
 					rightStripe,
+					rightCensusHistory,
 					right_wr);
 
     		int out_c = c - cx;

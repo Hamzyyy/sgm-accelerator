@@ -3,6 +3,8 @@ INFO: [SIM 4] CSIM will launch GCC as the compiler.
    Compiling ../../../sgm_kernel-tb.cpp in debug mode
    Compiling ../../../sgm_kernel.cpp in debug mode
    Generating csim.exe
+Descriptor decimal = 240
+Descriptor binary  = 11110000
 Frame 000000, D1 = 32.338 %, MAE = 3.16838 px, Bad1 = 69.5869 %, Bad3 = 29.0064 %
 Frame 000001, D1 = 34.4151 %, MAE = 2.98937 px, Bad1 = 69.119 %, Bad3 = 29.2138 %
 Frame 000002, D1 = 44.4179 %, MAE = 4.2681 px, Bad1 = 74.6756 %, Bad3 = 41.7227 %

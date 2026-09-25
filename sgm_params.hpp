@@ -6,6 +6,7 @@
 /*---------------------------------------------------------------------------*/
 using pix_t  = ap_uint<8>;
 using disp_t = ap_uint<8>;
+using census_t = ap_uint<8>;
 using cost_t = ap_uint<12>;
 using wide_t = ap_uint<16>;
 
