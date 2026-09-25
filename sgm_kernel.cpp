@@ -139,6 +139,7 @@ static void compute_census_cost_vector(
 	for (int d = 0; d < DISP; ++d)
 	{
 	#pragma HLS PIPELINE II=1
+	#pragma HLS UNROLL factor=4
 		census_t diff = leftDesc ^ rightCensusHistory[d];
 		cost_t sum  = 0;
 
