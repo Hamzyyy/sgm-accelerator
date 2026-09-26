@@ -3,7 +3,7 @@
 ================================================================
 == Vitis HLS Report for 'sgm_kernel'
 ================================================================
-* Date:           Fri Sep 25 11:15:35 2026
+* Date:           Sat Sep 26 10:00:39 2026
 
 * Version:        2023.1 (Build 3854077 on May  4 2023)
 * Project:        sgm_kernel
@@ -20,7 +20,7 @@
     +--------+----------+----------+------------+
     |  Clock |  Target  | Estimated| Uncertainty|
     +--------+----------+----------+------------+
-    |ap_clk  |  10.00 ns|  6.996 ns|     2.70 ns|
+    |ap_clk  |  10.00 ns|  7.017 ns|     2.70 ns|
     +--------+----------+----------+------------+
 
 + Latency: 
@@ -29,7 +29,7 @@
     |  Latency (cycles) |  Latency (absolute)  |     Interval     | Pipeline|
     |   min   |   max   |    min   |    max    |   min  |   max   |   Type  |
     +---------+---------+----------+-----------+--------+---------+---------+
-    |   597124|  2901124|  5.971 ms|  29.011 ms|  597125|  2901125|       no|
+    |   597124|  2409604|  5.971 ms|  24.096 ms|  597125|  2409605|       no|
     +---------+---------+----------+-----------+--------+---------+---------+
 
     + Detail: 
@@ -38,14 +38,14 @@
         |                                                                  |                                                      |  Latency (cycles) |  Latency (absolute)  |  Interval | Pipeline|
         |                             Instance                             |                        Module                        |   min   |   max   |    min    |    max   | min | max |   Type  |
         +------------------------------------------------------------------+------------------------------------------------------+---------+---------+-----------+----------+-----+-----+---------+
-        |grp_sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_374_1_fu_1770          |sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_374_1          |      962|      962|   9.620 us|  9.620 us|  962|  962|       no|
-        |grp_sgm_kernel_Pipeline_VITIS_LOOP_420_2_fu_1786                  |sgm_kernel_Pipeline_VITIS_LOOP_420_2                  |       18|       18|   0.180 us|  0.180 us|   18|   18|       no|
+        |grp_sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_403_1_fu_1770          |sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_403_1          |      962|      962|   9.620 us|  9.620 us|  962|  962|       no|
+        |grp_sgm_kernel_Pipeline_VITIS_LOOP_446_2_fu_1786                  |sgm_kernel_Pipeline_VITIS_LOOP_446_2                  |       18|       18|   0.180 us|  0.180 us|   18|   18|       no|
         |grp_sgm_kernel_Pipeline_ResetCosts_fu_1852                        |sgm_kernel_Pipeline_ResetCosts                        |       18|       18|   0.180 us|  0.180 us|   18|   18|       no|
         |grp_sgm_kernel_Pipeline_InitTBRowD_fu_1920                        |sgm_kernel_Pipeline_InitTBRowD                        |       18|       18|   0.180 us|  0.180 us|   18|   18|       no|
-        |grp_sgm_kernel_Pipeline_InitLeftWin_VITIS_LOOP_453_3_fu_1990      |sgm_kernel_Pipeline_InitLeftWin_VITIS_LOOP_453_3      |       11|       11|   0.110 us|  0.110 us|   11|   11|       no|
-        |grp_sgm_kernel_Pipeline_InitRightStripe_VITIS_LOOP_462_4_fu_2006  |sgm_kernel_Pipeline_InitRightStripe_VITIS_LOOP_462_4  |      104|      104|   1.040 us|  1.040 us|  104|  104|       no|
+        |grp_sgm_kernel_Pipeline_InitLeftWin_VITIS_LOOP_479_3_fu_1990      |sgm_kernel_Pipeline_InitLeftWin_VITIS_LOOP_479_3      |       11|       11|   0.110 us|  0.110 us|   11|   11|       no|
+        |grp_sgm_kernel_Pipeline_InitRightStripe_VITIS_LOOP_488_4_fu_2006  |sgm_kernel_Pipeline_InitRightStripe_VITIS_LOOP_488_4  |      104|      104|   1.040 us|  1.040 us|  104|  104|       no|
         |grp_col_frontend_fu_2013                                          |col_frontend                                          |       15|       26|   0.150 us|  0.260 us|   15|   26|       no|
-        |grp_col_backend_fu_2111                                           |col_backend                                           |        1|       41|  10.000 ns|  0.410 us|    1|   41|       no|
+        |grp_col_backend_fu_2111                                           |col_backend                                           |        1|       25|  10.000 ns|  0.250 us|    1|   25|       no|
         +------------------------------------------------------------------+------------------------------------------------------+---------+---------+-----------+----------+-----+-----+---------+
 
         * Loop: 
@@ -53,9 +53,9 @@
         |                     |  Latency (cycles) |   Iteration  |  Initiation Interval  | Trip |          |
         |      Loop Name      |   min   |   max   |    Latency   |  achieved |   target  | Count| Pipelined|
         +---------------------+---------+---------+--------------+-----------+-----------+------+----------+
-        |- Row                |   596160|  2900160|  6210 ~ 30210|          -|          -|    96|        no|
+        |- Row                |   596160|  2408640|  6210 ~ 25090|          -|          -|    96|        no|
         | + InitTBRow         |     6400|     6400|            20|          -|          -|   320|        no|
-        | + VITIS_LOOP_468_5  |     6081|    23681|       19 ~ 74|          -|          -|   320|        no|
+        | + VITIS_LOOP_494_5  |     6081|    18561|       19 ~ 58|          -|          -|   320|        no|
         +---------------------+---------+---------+--------------+-----------+-----------+------+----------+
 
 
@@ -70,16 +70,16 @@
 |DSP              |        -|   -|      -|      -|    -|
 |Expression       |        -|   -|      0|    534|    -|
 |FIFO             |        -|   -|      -|      -|    -|
-|Instance         |        0|   -|   3090|   6538|    -|
+|Instance         |        0|   -|   3228|   6742|    -|
 |Memory           |       39|   -|     64|     17|    0|
 |Multiplexer      |        -|   -|      -|   3306|    -|
 |Register         |        -|   -|   2283|      -|    -|
 +-----------------+---------+----+-------+-------+-----+
-|Total            |       39|   0|   5437|  10395|    0|
+|Total            |       39|   0|   5575|  10599|    0|
 +-----------------+---------+----+-------+-------+-----+
 |Available        |      120|  80|  35200|  17600|    0|
 +-----------------+---------+----+-------+-------+-----+
-|Utilization (%)  |       32|   0|     15|     59|    0|
+|Utilization (%)  |       32|   0|     15|     60|    0|
 +-----------------+---------+----+-------+-------+-----+
 
 + Detail: 
@@ -87,17 +87,17 @@
     +------------------------------------------------------------------+------------------------------------------------------+---------+----+------+------+-----+
     |                             Instance                             |                        Module                        | BRAM_18K| DSP|  FF  |  LUT | URAM|
     +------------------------------------------------------------------+------------------------------------------------------+---------+----+------+------+-----+
-    |grp_col_backend_fu_2111                                           |col_backend                                           |        0|   0|  1942|  3233|    0|
+    |grp_col_backend_fu_2111                                           |col_backend                                           |        0|   0|  2080|  3437|    0|
     |grp_col_frontend_fu_2013                                          |col_frontend                                          |        0|   0|   730|  2386|    0|
     |control_s_axi_U                                                   |control_s_axi                                         |        0|   0|    36|    40|    0|
-    |grp_sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_374_1_fu_1770          |sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_374_1          |        0|   0|    35|   149|    0|
-    |grp_sgm_kernel_Pipeline_InitLeftWin_VITIS_LOOP_453_3_fu_1990      |sgm_kernel_Pipeline_InitLeftWin_VITIS_LOOP_453_3      |        0|   0|    58|   189|    0|
-    |grp_sgm_kernel_Pipeline_InitRightStripe_VITIS_LOOP_462_4_fu_2006  |sgm_kernel_Pipeline_InitRightStripe_VITIS_LOOP_462_4  |        0|   0|    17|   137|    0|
+    |grp_sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_403_1_fu_1770          |sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_403_1          |        0|   0|    35|   149|    0|
+    |grp_sgm_kernel_Pipeline_InitLeftWin_VITIS_LOOP_479_3_fu_1990      |sgm_kernel_Pipeline_InitLeftWin_VITIS_LOOP_479_3      |        0|   0|    58|   189|    0|
+    |grp_sgm_kernel_Pipeline_InitRightStripe_VITIS_LOOP_488_4_fu_2006  |sgm_kernel_Pipeline_InitRightStripe_VITIS_LOOP_488_4  |        0|   0|    17|   137|    0|
     |grp_sgm_kernel_Pipeline_InitTBRowD_fu_1920                        |sgm_kernel_Pipeline_InitTBRowD                        |        0|   0|     8|    41|    0|
     |grp_sgm_kernel_Pipeline_ResetCosts_fu_1852                        |sgm_kernel_Pipeline_ResetCosts                        |        0|   0|     8|    41|    0|
-    |grp_sgm_kernel_Pipeline_VITIS_LOOP_420_2_fu_1786                  |sgm_kernel_Pipeline_VITIS_LOOP_420_2                  |        0|   0|   256|   322|    0|
+    |grp_sgm_kernel_Pipeline_VITIS_LOOP_446_2_fu_1786                  |sgm_kernel_Pipeline_VITIS_LOOP_446_2                  |        0|   0|   256|   322|    0|
     +------------------------------------------------------------------+------------------------------------------------------+---------+----+------+------+-----+
-    |Total                                                             |                                                      |        0|   0|  3090|  6538|    0|
+    |Total                                                             |                                                      |        0|   0|  3228|  6742|    0|
     +------------------------------------------------------------------+------------------------------------------------------+---------+----+------+------+-----+
 
     * DSP: 
@@ -162,29 +162,29 @@
     +---------------------------------+----------+----+---+-----+------------+------------+
     |          Variable Name          | Operation| DSP| FF| LUT | Bitwidth P0| Bitwidth P1|
     +---------------------------------+----------+----+---+-----+------------+------------+
-    |add_ln412_fu_2359_p2             |         +|   0|  0|   14|           7|           1|
-    |add_ln437_fu_2593_p2             |         +|   0|  0|   14|           9|           1|
-    |add_ln468_fu_2672_p2             |         +|   0|  0|   14|           9|           1|
-    |add_ln487_fu_3069_p2             |         +|   0|  0|   14|           9|           2|
-    |add_ln501_1_fu_3118_p2           |         +|   0|  0|   14|          13|          13|
-    |add_ln501_2_fu_2660_p2           |         +|   0|  0|   20|          15|           2|
-    |add_ln501_fu_3131_p2             |         +|   0|  0|   20|          15|          15|
-    |add_ln514_1_fu_2678_p2           |         +|   0|  0|   14|          13|           9|
-    |add_ln514_fu_2687_p2             |         +|   0|  0|   20|          15|          15|
+    |add_ln438_fu_2359_p2             |         +|   0|  0|   14|           7|           1|
+    |add_ln463_fu_2593_p2             |         +|   0|  0|   14|           9|           1|
+    |add_ln494_fu_2672_p2             |         +|   0|  0|   14|           9|           1|
+    |add_ln513_fu_3069_p2             |         +|   0|  0|   14|           9|           2|
+    |add_ln526_1_fu_3118_p2           |         +|   0|  0|   14|          13|          13|
+    |add_ln526_2_fu_2660_p2           |         +|   0|  0|   20|          15|           2|
+    |add_ln526_fu_3131_p2             |         +|   0|  0|   20|          15|          15|
+    |add_ln539_1_fu_2678_p2           |         +|   0|  0|   14|          13|           9|
+    |add_ln539_fu_2687_p2             |         +|   0|  0|   20|          15|          15|
     |disp_byte_indx_fu_3319_p2        |         +|   0|  0|   10|           2|           2|
-    |and_ln505_fu_3348_p2             |       and|   0|  0|   32|          32|          32|
-    |icmp_ln412_fu_2353_p2            |      icmp|   0|  0|   14|           7|           7|
-    |icmp_ln434_fu_2582_p2            |      icmp|   0|  0|   14|           7|           1|
-    |icmp_ln437_fu_2587_p2            |      icmp|   0|  0|   14|           9|           9|
-    |icmp_ln468_fu_2666_p2            |      icmp|   0|  0|   14|           9|           9|
-    |icmp_ln488_fu_3112_p2            |      icmp|   0|  0|   14|           9|           1|
-    |icmp_ln507_fu_3370_p2            |      icmp|   0|  0|   10|           2|           1|
+    |and_ln530_fu_3348_p2             |       and|   0|  0|   32|          32|          32|
+    |icmp_ln438_fu_2353_p2            |      icmp|   0|  0|   14|           7|           7|
+    |icmp_ln460_fu_2582_p2            |      icmp|   0|  0|   14|           7|           1|
+    |icmp_ln463_fu_2587_p2            |      icmp|   0|  0|   14|           9|           9|
+    |icmp_ln494_fu_2666_p2            |      icmp|   0|  0|   14|           9|           9|
+    |icmp_ln514_fu_3112_p2            |      icmp|   0|  0|   14|           9|           1|
+    |icmp_ln532_fu_3370_p2            |      icmp|   0|  0|   10|           2|           1|
     |ap_block_state4_on_subcall_done  |        or|   0|  0|    2|           1|           1|
     |ap_block_state8_on_subcall_done  |        or|   0|  0|    2|           1|           1|
     |disp_word_3_fu_3364_p2           |        or|   0|  0|   32|          32|          32|
-    |shl_ln505_1_fu_3358_p2           |       shl|   0|  0|  100|          32|          32|
-    |shl_ln505_fu_3336_p2             |       shl|   0|  0|  100|           8|          32|
-    |xor_ln505_fu_3342_p2             |       xor|   0|  0|   32|          32|           2|
+    |shl_ln530_1_fu_3358_p2           |       shl|   0|  0|  100|          32|          32|
+    |shl_ln530_fu_3336_p2             |       shl|   0|  0|  100|           8|          32|
+    |xor_ln530_fu_3342_p2             |       xor|   0|  0|   32|          32|           2|
     +---------------------------------+----------+----+---+-----+------------+------------+
     |Total                            |          |   0|  0|  534|         288|         221|
     +---------------------------------+----------+----+---+-----+------------+------------+
@@ -463,10 +463,10 @@
     +-------------------------------------------------------------------------------+----+----+-----+-----------+
     |                                      Name                                     | FF | LUT| Bits| Const Bits|
     +-------------------------------------------------------------------------------+----+----+-----+-----------+
-    |add_ln412_reg_3838                                                             |   7|   0|    7|          0|
-    |add_ln437_reg_4036                                                             |   9|   0|    9|          0|
-    |add_ln468_reg_4097                                                             |   9|   0|    9|          0|
-    |add_ln501_2_reg_4088                                                           |   7|   0|   15|          8|
+    |add_ln438_reg_3838                                                             |   7|   0|    7|          0|
+    |add_ln463_reg_4036                                                             |   9|   0|    9|          0|
+    |add_ln494_reg_4097                                                             |   9|   0|    9|          0|
+    |add_ln526_2_reg_4088                                                           |   7|   0|   15|          8|
     |ap_CS_fsm                                                                      |  16|   0|   16|          0|
     |c_1_reg_1323                                                                   |   9|   0|    9|          0|
     |c_reg_1311                                                                     |   9|   0|    9|          0|
@@ -475,16 +475,16 @@
     |disp_word_3_reg_4680                                                           |  32|   0|   32|          0|
     |grp_col_backend_fu_2111_ap_start_reg                                           |   1|   0|    1|          0|
     |grp_col_frontend_fu_2013_ap_start_reg                                          |   1|   0|    1|          0|
-    |grp_sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_374_1_fu_1770_ap_start_reg          |   1|   0|    1|          0|
-    |grp_sgm_kernel_Pipeline_InitLeftWin_VITIS_LOOP_453_3_fu_1990_ap_start_reg      |   1|   0|    1|          0|
-    |grp_sgm_kernel_Pipeline_InitRightStripe_VITIS_LOOP_462_4_fu_2006_ap_start_reg  |   1|   0|    1|          0|
+    |grp_sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_403_1_fu_1770_ap_start_reg          |   1|   0|    1|          0|
+    |grp_sgm_kernel_Pipeline_InitLeftWin_VITIS_LOOP_479_3_fu_1990_ap_start_reg      |   1|   0|    1|          0|
+    |grp_sgm_kernel_Pipeline_InitRightStripe_VITIS_LOOP_488_4_fu_2006_ap_start_reg  |   1|   0|    1|          0|
     |grp_sgm_kernel_Pipeline_InitTBRowD_fu_1920_ap_start_reg                        |   1|   0|    1|          0|
     |grp_sgm_kernel_Pipeline_ResetCosts_fu_1852_ap_start_reg                        |   1|   0|    1|          0|
-    |grp_sgm_kernel_Pipeline_VITIS_LOOP_420_2_fu_1786_ap_start_reg                  |   1|   0|    1|          0|
-    |icmp_ln434_reg_4029                                                            |   1|   0|    1|          0|
-    |icmp_ln468_reg_4093                                                            |   1|   0|    1|          0|
-    |icmp_ln488_reg_4297                                                            |   1|   0|    1|          0|
-    |icmp_ln507_reg_4686                                                            |   1|   0|    1|          0|
+    |grp_sgm_kernel_Pipeline_VITIS_LOOP_446_2_fu_1786_ap_start_reg                  |   1|   0|    1|          0|
+    |icmp_ln460_reg_4029                                                            |   1|   0|    1|          0|
+    |icmp_ln494_reg_4093                                                            |   1|   0|    1|          0|
+    |icmp_ln514_reg_4297                                                            |   1|   0|    1|          0|
+    |icmp_ln532_reg_4686                                                            |   1|   0|    1|          0|
     |leftWin_10_fu_400                                                              |   8|   0|    8|          0|
     |leftWin_11_fu_404                                                              |   8|   0|    8|          0|
     |leftWin_1_1_reg_1719                                                           |   8|   0|    8|          0|
@@ -705,7 +705,7 @@
     |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_addr_reg_4306            |   9|   0|    9|          0|
     |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_load_reg_4514            |  12|   0|   12|          0|
     |sgm_kernel_ap_uint_32_ap_uint_32_ap_uint_32_prevCostT_reg_4396                 |   9|   0|    9|          0|
-    |trunc_ln501_reg_4498                                                           |   2|   0|    2|          0|
+    |trunc_ln526_reg_4498                                                           |   2|   0|    2|          0|
     +-------------------------------------------------------------------------------+----+----+-----+-----------+
     |Total                                                                          |2283|   0| 2305|         22|
     +-------------------------------------------------------------------------------+----+----+-----+-----------+

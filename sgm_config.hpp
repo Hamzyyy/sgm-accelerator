@@ -9,6 +9,10 @@ constexpr int MED_WIN = 3;
 constexpr int MED_RAD = MED_WIN/2;
 static_assert(MED_WIN % 2 == 1, "MED_WIN must be odd");
 
+constexpr int PAR   = 2;
+constexpr int GROUPS   = DISP/PAR;
+static_assert(DISP % PAR == 0, "DISP must be divisible by PAR");
+
 
 constexpr int CENSUS_WIN = WIN;
 constexpr int CENSUS_CX = CENSUS_WIN >> 1;

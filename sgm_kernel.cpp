@@ -171,50 +171,83 @@ static disp_t aggregate_paths_and_select(
     cost_t runMinLR = INF_COST;
     cost_t runMinTB = INF_COST;
 
-AggregationLoop:
-    for (int d = 0; d < DISP; d++)
+    cost_t laneAggLR[PAR];
+    cost_t laneAggTB[PAR];
+    cost_t laneSum[PAR];
+
+#pragma HLS ARRAY_PARTITION variable=laneAggLR type=complete
+#pragma HLS ARRAY_PARTITION variable=laneAggTB type=complete
+#pragma HLS ARRAY_PARTITION variable=laneSum type=complete
+
+GroupLoop:
+    for (int g = 0; g < GROUPS; g++)
     {
 	#pragma HLS PIPELINE II = 1
-        cost_t p0_LR = prevCostL[d];
-        cost_t p1_LR = (d > 0) ? sat12(prevCostL[d - 1] + P1) : INF_COST;
-        cost_t p2_LR = (d < DISP - 1) ? sat12(prevCostL[d + 1] + P1) : INF_COST;
-        cost_t p3_LR = sat12(minPrevLR + P2);
+    	LaneLoop:
+    	for(int lane = 0; lane < PAR; lane++)
+    	{
+		#pragma HLS UNROLL
+    		int d = g * PAR + lane;
 
-        cost_t minLR = p0_LR;
-        if (p1_LR < minLR) minLR = p1_LR;
-        if (p2_LR < minLR) minLR = p2_LR;
-        if (p3_LR < minLR) minLR = p3_LR;
+			cost_t p0_LR = prevCostL[d];
+			cost_t p1_LR = (d > 0) ? sat12(prevCostL[d - 1] + P1) : INF_COST;
+			cost_t p2_LR = (d < DISP - 1) ? sat12(prevCostL[d + 1] + P1) : INF_COST;
+			cost_t p3_LR = sat12(minPrevLR + P2);
 
-        cost_t aggLR = sat12(curCost[d] + minLR - minPrevLR);
-        aggLR_arr[d] = aggLR;
+			cost_t minLR = p0_LR;
+			if (p1_LR < minLR) minLR = p1_LR;
+			if (p2_LR < minLR) minLR = p2_LR;
+			if (p3_LR < minLR) minLR = p3_LR;
 
-        cost_t p0_TB = prevCostT_col[d];
-        cost_t p1_TB = (d > 0) ? sat12(prevCostT_col[d - 1] + P1) : INF_COST;
-        cost_t p2_TB = (d < DISP - 1) ? sat12(prevCostT_col[d + 1] + P1) : INF_COST;
-        cost_t p3_TB = sat12(minPrevTB + P2);
+			cost_t aggLR = sat12(curCost[d] + minLR - minPrevLR);
+			aggLR_arr[d] = aggLR;
+			laneAggLR[lane] = aggLR;
 
-        cost_t minTB = p0_TB;
-        if (p1_TB < minTB) minTB = p1_TB;
-        if (p2_TB < minTB) minTB = p2_TB;
-        if (p3_TB < minTB) minTB = p3_TB;
+			cost_t p0_TB = prevCostT_col[d];
+			cost_t p1_TB = (d > 0) ? sat12(prevCostT_col[d - 1] + P1) : INF_COST;
+			cost_t p2_TB = (d < DISP - 1) ? sat12(prevCostT_col[d + 1] + P1) : INF_COST;
+			cost_t p3_TB = sat12(minPrevTB + P2);
 
-        cost_t aggTB = sat12(curCost[d] + minTB - minPrevTB);
-        aggTB_arr[d] = aggTB;
+			cost_t minTB = p0_TB;
+			if (p1_TB < minTB) minTB = p1_TB;
+			if (p2_TB < minTB) minTB = p2_TB;
+			if (p3_TB < minTB) minTB = p3_TB;
 
-        if(aggLR < runMinLR) runMinLR = aggLR;
-        if(aggTB < runMinTB) runMinTB = aggTB;
+			cost_t aggTB = sat12(curCost[d] + minTB - minPrevTB);
+			aggTB_arr[d] = aggTB;
+			laneAggTB[lane] = aggTB;
 
-        cost_t sum2 = sat12(aggLR + aggTB);
+			cost_t sum2 = sat12(aggLR + aggTB);
+			laneSum[lane]   = sum2;
+    	}
+    	////////////////////////////
+    	cost_t groupMinLR = laneAggLR[1] < laneAggLR[0] ? laneAggLR[1]: laneAggLR[0];
+    	cost_t groupMinTB = laneAggTB[1] < laneAggTB[0] ? laneAggTB[1]: laneAggTB[0];
 
-        if (sum2 < bestCost)
-        {
-            bestCost = sum2;
-            bestDisp = disp_t(d);
-        }
+		if(groupMinLR < runMinLR) runMinLR = groupMinLR;
+		if(groupMinTB < runMinTB) runMinTB = groupMinTB;
+
+		cost_t groupBestCost;
+		disp_t groupBestDisp;
+
+		if (laneSum[1] < laneSum[0])
+		{
+		    groupBestCost = laneSum[1];
+		    groupBestDisp = disp_t(g * PAR + 1);
+		}
+		else
+		{
+		    groupBestCost = laneSum[0];
+		    groupBestDisp = disp_t(g * PAR);
+		}
+		if (groupBestCost < bestCost)
+		{
+		    bestCost = groupBestCost;
+		    bestDisp = groupBestDisp;
+		}
     }
     newMinLR = runMinLR;
     newMinTB = runMinTB;
-
     return bestDisp;
 }
 
