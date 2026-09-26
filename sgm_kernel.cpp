@@ -160,7 +160,6 @@ static disp_t aggregate_paths_and_select(
     cost_t minPrevTB,
     cost_t aggLR_arr[DISP],
     cost_t aggTB_arr[DISP],
-    cost_t aggCost[DISP],
 	cost_t& newMinLR,
 	cost_t& newMinTB)
 {
@@ -206,7 +205,6 @@ AggregationLoop:
         if(aggTB < runMinTB) runMinTB = aggTB;
 
         cost_t sum2 = sat12(aggLR + aggTB);
-        aggCost[d] = sum2;
 
         if (sum2 < bestCost)
         {
@@ -310,7 +308,6 @@ static disp_t col_backend(
 		cost_t prevCostT_col[DISP],
 		cost_t aggLR_arr[DISP],
 		cost_t aggTB_arr[DISP],
-		cost_t aggCost[DISP],
 		cost_t& minPrevLR,
 		cost_t& minPrevTB)
 {
@@ -330,7 +327,6 @@ static disp_t col_backend(
             minPrevTB,
             aggLR_arr,
             aggTB_arr,
-            aggCost,
 			newMinLR,
 			newMinTB);
 
@@ -385,9 +381,6 @@ void sgm_kernel(bram_word_t left[FRAME_WORDS],
     static cost_t prevCostT[IMG_W][DISP];
 #pragma HLS bind_storage variable=prevCostT type=RAM_2P impl=BRAM
 #pragma HLS ARRAY_PARTITION variable=prevCostT complete dim=2
-
-    static cost_t aggCost[DISP];
-#pragma HLS ARRAY_PARTITION variable=aggCost complete dim=1
 
     static cost_t aggLR_arr[DISP];
     static cost_t aggTB_arr[DISP];
@@ -493,7 +486,6 @@ Row:
 						prevCostT[out_c],
 						aggLR_arr,
 						aggTB_arr,
-						aggCost,
 						minPrevLR,
 						minPrevT[out_c]);
 
