@@ -1,4 +1,5 @@
 #include "sgm_params.hpp"
+#include <hls_stream.h>
 
 #ifndef __SYNTHESIS__
 #include <iostream>
@@ -190,7 +191,8 @@ static void aggregate_group(
 
 				cost_t p0_LR = prevCostL[d];
 				cost_t p1_LR = (d > 0) ? sat12(prevCostL[d - 1] + P1) : INF_COST;
-				cost_t p2_LR = (d < DISP - 1) ? sat12(prevCostL[d + 1] + P1) : INF_COST;
+				cost_t p2_LR = (d < DISP - 1) ? sat12(prevCostL[d + 1] + P1)
+						: INF_COST;
 				cost_t p3_LR = sat12(minPrevLR + P2);
 
 				cost_t minLR = p0_LR;
@@ -203,8 +205,10 @@ static void aggregate_group(
 				laneAggLR[lane] = aggLR;
 
 				cost_t p0_TB = prevCostT_col[d];
-				cost_t p1_TB = (d > 0) ? sat12(prevCostT_col[d - 1] + P1) : INF_COST;
-				cost_t p2_TB = (d < DISP - 1) ? sat12(prevCostT_col[d + 1] + P1) : INF_COST;
+				cost_t p1_TB = (d > 0) ? sat12(prevCostT_col[d - 1] + P1)
+						: INF_COST;
+				cost_t p2_TB = (d < DISP - 1) ? sat12(prevCostT_col[d + 1] + P1)
+						: INF_COST;
 				cost_t p3_TB = sat12(minPrevTB + P2);
 
 				cost_t minTB = p0_TB;
@@ -219,12 +223,16 @@ static void aggregate_group(
 				cost_t sum2 = sat12(aggLR + aggTB);
 				laneSum[lane]   = sum2;
 	    	}
-	    	cost_t minLR01 = (laneAggLR[1] < laneAggLR[0]) ? laneAggLR[1] : laneAggLR[0];
-	    	cost_t minLR23 = (laneAggLR[3] < laneAggLR[2]) ? laneAggLR[3] : laneAggLR[2];
+	    	cost_t minLR01 = (laneAggLR[1] < laneAggLR[0]) ? laneAggLR[1]
+							: laneAggLR[0];
+	    	cost_t minLR23 = (laneAggLR[3] < laneAggLR[2]) ? laneAggLR[3]
+							: laneAggLR[2];
 	    	groupMinLR = (minLR23 < minLR01) ? minLR23 : minLR01;
 
-	    	cost_t minTB01 = (laneAggTB[1] < laneAggTB[0]) ? laneAggTB[1] : laneAggTB[0];
-	    	cost_t minTB23 = (laneAggTB[3] < laneAggTB[2]) ? laneAggTB[3] : laneAggTB[2];
+	    	cost_t minTB01 = (laneAggTB[1] < laneAggTB[0]) ? laneAggTB[1]
+							: laneAggTB[0];
+	    	cost_t minTB23 = (laneAggTB[3] < laneAggTB[2]) ? laneAggTB[3]
+							: laneAggTB[2];
 	    	groupMinTB = (minTB23 < minTB01) ? minTB23 : minTB01;
 
 	    	cost_t bestCost01;
@@ -317,7 +325,8 @@ static bool prepare_census_column(
 			right_wr);
 
 	leftDesc = compute_census_descriptor(leftWin);
-	census_t newRightDesc = compute_right_census_descriptor(rightStripe, right_wr);
+	census_t newRightDesc = compute_right_census_descriptor(rightStripe,
+			right_wr);
 
 	for (int d = DISP - 1; d > 0; --d)
 	{
@@ -336,7 +345,7 @@ static bool prepare_census_column(
 
 
 static void col_frontend(
-		CostPacket packets[GROUPS],
+		hls::stream<CostPacket>& coststream,
 		bool interior,
 	    census_t leftDesc,
 		census_t rightCensusHistory[DISP])
@@ -346,7 +355,8 @@ static void col_frontend(
 	    for (int g = 0; g < GROUPS; ++g)
 	    {
 		#pragma HLS PIPELINE II=1
-	        packets[g].valid = interior;
+	    	CostPacket pkt;
+	        pkt.valid = interior;
 
 	        if (interior)
 	        {
@@ -354,15 +364,16 @@ static void col_frontend(
 	                leftDesc,
 	                rightCensusHistory,
 	                g,
-	                packets[g].curCost);
+	                pkt.curCost);
 	        }
+	        coststream.write(pkt);
 	    }
 }
 
 
 
 static disp_t col_backend(
-		const CostPacket packets[GROUPS],
+		hls::stream<CostPacket>& coststream,
 		cost_t prevCostL[DISP],
 		cost_t prevCostT_col[DISP],
 		cost_t aggLR_arr[DISP],
@@ -372,58 +383,97 @@ static disp_t col_backend(
 {
 #pragma HLS INLINE off
 
-	if(!packets[0].valid)
-		return 0;
-
     cost_t runMinLR = INF_COST;
     cost_t runMinTB = INF_COST;
 
     cost_t bestCost = INF_COST;
     disp_t bestDisp = 0;
 
+    bool validPixel = false;
+
     BackendGroups:
         for (int g = 0; g < GROUPS; ++g)
         {
 		#pragma HLS PIPELINE II=1
+        	CostPacket pkt = coststream.read();
 
             cost_t groupMinLR;
             cost_t groupMinTB;
             cost_t groupBestCost;
             disp_t groupBestDisp;
 
-            aggregate_group(
-                packets[g],
-                g,
-                prevCostL,
-                prevCostT_col,
-                minPrevLR,
-                minPrevTB,
-                aggLR_arr,
-                aggTB_arr,
-                groupMinLR,
-                groupMinTB,
-                groupBestCost,
-                groupBestDisp);
-
-            if (groupMinLR < runMinLR)
-                runMinLR = groupMinLR;
-
-            if (groupMinTB < runMinTB)
-                runMinTB = groupMinTB;
-
-            if (groupBestCost < bestCost)
+            if(pkt.valid)
             {
-                bestCost = groupBestCost;
-                bestDisp = groupBestDisp;
+            	validPixel = true;
+                aggregate_group(
+                    pkt,
+                    g,
+                    prevCostL,
+                    prevCostT_col,
+                    minPrevLR,
+                    minPrevTB,
+                    aggLR_arr,
+                    aggTB_arr,
+                    groupMinLR,
+                    groupMinTB,
+                    groupBestCost,
+                    groupBestDisp);
+
+                if (groupMinLR < runMinLR)
+                    runMinLR = groupMinLR;
+
+                if (groupMinTB < runMinTB)
+                    runMinTB = groupMinTB;
+
+                if (groupBestCost < bestCost)
+                {
+                    bestCost = groupBestCost;
+                    bestDisp = groupBestDisp;
+                }
             }
         }
+        if(validPixel)
+        {
+            commit_prev_costs(prevCostL, prevCostT_col, aggLR_arr, aggTB_arr);
 
-        commit_prev_costs(prevCostL, prevCostT_col, aggLR_arr, aggTB_arr);
-
-        minPrevLR = runMinLR;
-        minPrevTB = runMinTB;
-
+            minPrevLR = runMinLR;
+            minPrevTB = runMinTB;
+        }
         return bestDisp;
+}
+
+
+
+static disp_t process_cost_groups(
+    bool interior,
+    census_t leftDesc,
+    census_t rightCensusHistory[DISP],
+    cost_t prevCostL[DISP],
+    cost_t prevCostT_col[DISP],
+    cost_t aggLR_arr[DISP],
+    cost_t aggTB_arr[DISP],
+    cost_t& minPrevLR,
+    cost_t& minPrevTB)
+{
+#pragma HLS DATAFLOW
+
+    hls::stream<CostPacket> coststream;
+#pragma HLS STREAM variable=coststream depth=2
+
+    col_frontend(
+        coststream,
+        interior,
+        leftDesc,
+        rightCensusHistory);
+
+    return col_backend(
+        coststream,
+        prevCostL,
+        prevCostT_col,
+        aggLR_arr,
+        aggTB_arr,
+        minPrevLR,
+        minPrevTB);
 }
 
 /* --------------------------------------------------------- */
@@ -542,7 +592,6 @@ Row:
     	}
 
     	census_t leftDesc;
-    	CostPacket packets[GROUPS];
 
     	for (int c = 0; c < IMG_W; ++c)
     	{
@@ -564,13 +613,13 @@ Row:
     		        rightCensusHistory,
     		        right_wr);
 
-    		col_frontend(packets, interior, leftDesc, rightCensusHistory);
-
     		int out_c = c - cx;
     		if(out_c >= 0)
     		{
-    			disp_t outDisp = col_backend(
-    			        packets,
+    			disp_t outDisp = process_cost_groups(
+    			        interior,
+    			        leftDesc,
+    			        rightCensusHistory,
     			        prevCostL,
     			        prevCostT[out_c],
     			        aggLR_arr,
@@ -578,12 +627,12 @@ Row:
     			        minPrevLR,
     			        minPrevT[out_c]);
 
-    				int disp_pixel_indx = r * IMG_W + out_c;
-    				int disp_word_indx = disp_pixel_indx >> 2;
-    				int disp_byte_indx = disp_pixel_indx & 3;
+    			int disp_pixel_indx = r * IMG_W + out_c;
+    			int disp_word_indx = disp_pixel_indx >> 2;
+    			int disp_byte_indx = disp_pixel_indx & 3;
 
-    				disp_word.range(disp_byte_indx * 8 + 7,
-    						disp_byte_indx * 8) = outDisp;
+    			disp_word.range(disp_byte_indx * 8 + 7, disp_byte_indx * 8) =
+    					outDisp;
 
     				if(disp_byte_indx == 3)
     				{
