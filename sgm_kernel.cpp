@@ -140,6 +140,7 @@ static void compute_census_cost_vector(
 		census_t leftDesc,
 		census_t rightCensusHistory[DISP],
 		int g,
+		int out_c,
 	    cost_t curCost[PAR])
 {
 #pragma HLS INLINE
@@ -147,15 +148,23 @@ static void compute_census_cost_vector(
 		{
 		#pragma HLS UNROLL
 			int d = g * PAR + lane;
-			census_t diff = leftDesc ^ rightCensusHistory[d];
-			cost_t sum  = 0;
 
-			for(int b = 0; b < 8; ++b)
+			if(out_c >= d)
 			{
-			#pragma HLS UNROLL
-				sum += diff[b];
+				census_t diff = leftDesc ^ rightCensusHistory[d];
+				cost_t sum  = 0;
+
+				for(int b = 0; b < 8; ++b)
+				{
+				#pragma HLS UNROLL
+					sum += diff[b];
+				}
+		        curCost[lane] = sum;
 			}
-	        curCost[lane] = sum;
+			else
+			{
+				curCost[lane] = INF_COST;
+			}
 		}
 }
 //////////////////////////////////////////////////////
@@ -336,8 +345,7 @@ static bool prepare_census_column(
 	}
 
 	rightCensusHistory[0] = newRightDesc;
-	const bool interior = (r >= WIN - 1) && (c >= (DISP - 1) + 2* cx) &&
-			(c < IMG_W);
+	const bool interior = (r >= WIN - 1) && (c < IMG_W);
 
 	return interior;
 }
@@ -347,6 +355,7 @@ static bool prepare_census_column(
 static void col_frontend(
 		hls::stream<CostPacket>& coststream,
 		bool interior,
+		int out_c,
 	    census_t leftDesc,
 		census_t rightCensusHistory[DISP])
 {
@@ -364,6 +373,7 @@ static void col_frontend(
 	                leftDesc,
 	                rightCensusHistory,
 	                g,
+					out_c,
 	                pkt.curCost);
 	        }
 	        coststream.write(pkt);
@@ -453,7 +463,8 @@ static disp_t process_cost_groups(
     cost_t aggLR_arr[DISP],
     cost_t aggTB_arr[DISP],
     cost_t& minPrevLR,
-    cost_t& minPrevTB)
+    cost_t& minPrevTB,
+	int out_c)
 {
 #pragma HLS DATAFLOW
 
@@ -463,6 +474,7 @@ static disp_t process_cost_groups(
     col_frontend(
         coststream,
         interior,
+		out_c,
         leftDesc,
         rightCensusHistory);
 
@@ -533,6 +545,7 @@ void sgm_kernel(bram_word_t left[FRAME_WORDS],
 
     /* center offset */
     const int cx = WIN >> 1;
+    const int cy = WIN >> 1;
 
 Row:
     for (int r = 0; r < IMG_H; r++)
@@ -542,6 +555,8 @@ Row:
     	cost_t minPrevLR = 0;
 
     	bram_word_t disp_word = 0;
+
+    	int out_r = r - cy;
 
     	for (int d = 0; d < DISP; ++d)
     	{
@@ -614,7 +629,7 @@ Row:
     		        right_wr);
 
     		int out_c = c - cx;
-    		if(out_c >= 0)
+    		if(out_r >= 0 && out_c >= 0)
     		{
     			disp_t outDisp = process_cost_groups(
     			        interior,
@@ -625,9 +640,10 @@ Row:
     			        aggLR_arr,
     			        aggTB_arr,
     			        minPrevLR,
-    			        minPrevT[out_c]);
+    			        minPrevT[out_c],
+						out_c);
 
-    			int disp_pixel_indx = r * IMG_W + out_c;
+    			int disp_pixel_indx = out_r * IMG_W + out_c;
     			int disp_word_indx = disp_pixel_indx >> 2;
     			int disp_byte_indx = disp_pixel_indx & 3;
 
@@ -641,10 +657,13 @@ Row:
     				}
     		}
     	}
-    	int last_pixel_idx = r * IMG_W + (IMG_W - 1);
-    	int last_word_idx  = last_pixel_idx >> 2;
+    	if(out_r >= 0)
+    	{
+            int last_pixel_idx = out_r * IMG_W + (IMG_W - 1);
+            int last_word_idx  = last_pixel_idx >> 2;
 
-    	disp_word.range(31, 24) = 0;
-    	disp[last_word_idx] = disp_word;
+           	disp_word.range(31, 24) = 0;
+           	disp[last_word_idx] = disp_word;
+    	}
     }
 }

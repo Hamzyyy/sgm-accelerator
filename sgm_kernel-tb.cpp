@@ -18,12 +18,17 @@ int main()
 	double total_kitti_d1_error = 0;
 	double total_mae = 0;
 	double total_Bad1_error = 0, total_Bad3_error = 0;
+	int invalid_selected_count = 0;
 
 	double d1_per_frame[200];
 	double mae_per_frame[200];
 	double bad1_per_frame[200];
 	double bad3_per_frame[200];
 
+    double img_out_scale = 255.0f / (DISP - 1);
+
+    const int cx = WIN >> 1;
+    const int cy = WIN >> 1;
 
 	for(int i = 0; i < 200; ++i)
 	{
@@ -119,7 +124,6 @@ int main()
 
 		for (int r = 0; r < IMG_H; ++r)
 		{
-
 		uint8_t *dp = disp.ptr<uint8_t>(r);
 
 			for (int c = 0; c < IMG_W; ++c)
@@ -135,6 +139,219 @@ int main()
 							   byte_idx * 8));
 			}
 		}
+
+		if(i == 0)
+		{
+	        cv::imwrite("left_0.png", left);
+
+			cv::Mat gt_vis = gt_f.clone();
+			cv::Mat invalid_mask(IMG_H, IMG_W, CV_8U, cv::Scalar(0));
+			cv::Mat out_of_range_mask(IMG_H, IMG_W, CV_8U, cv::Scalar(0));
+			cv::Mat out_of_border_mask(IMG_H, IMG_W, CV_8U, cv::Scalar(0));
+			cv::Mat err_map(IMG_H, IMG_W, CV_32F, cv::Scalar(0));
+
+			for(int r = 0; r < IMG_H; ++r)
+			{
+				for(int c = 0; c < IMG_W; ++c)
+				{
+					float gt_disp = gt_vis.at<float>(r,c);
+					float est_disp = disp.at<uint8_t>(r,c);
+
+					if(r < WIN -1 || c >= IMG_W-cx)
+					{
+						out_of_border_mask.at<uint8_t>(r, c) = 255;
+					}
+					if(gt_disp <= 0.0f)
+					{
+						gt_vis.at<float>(r,c) = 0.0f;
+						invalid_mask.at<uint8_t>(r, c) = 255;
+					}
+					if(gt_disp >= DISP)
+					{
+						gt_vis.at<float>(r,c) = 0.0f;
+						out_of_range_mask.at<uint8_t>(r, c) = 255;
+					}
+
+					if(r >= WIN -1 && c < IMG_W-cx
+							&& gt_disp > 0.0f && gt_disp < DISP)
+					{
+		        		float err = std::abs((est_disp - gt_disp)/scale_x);
+		        		err_map.at<float>(r,c) = err;
+					}
+				}
+			}
+	        cv::Mat gt_8u_0;
+	        gt_vis.convertTo(gt_8u_0, CV_8U, img_out_scale);
+	        cv::imwrite("gt_8u_0.png", gt_8u_0);
+
+	        cv::Mat gt_color_0;
+	        cv::applyColorMap(gt_8u_0, gt_color_0, cv::COLORMAP_JET);
+	        gt_color_0.setTo(cv::Scalar(0,0,0), invalid_mask);
+	        gt_color_0.setTo(cv::Scalar(128,128,128), out_of_range_mask);
+	        cv::imwrite("gt_color_0.png", gt_color_0);
+
+	        cv::Mat err_map_0;
+	        err_map.convertTo(err_map_0, CV_8U, 255.0f/10);
+	        cv::imwrite("err_map_0.png", err_map_0);
+
+	        cv::Mat err_map_color_0;
+	        cv::applyColorMap(err_map_0, err_map_color_0, cv::COLORMAP_JET);
+	        err_map_color_0.setTo(cv::Scalar(0,0,0), invalid_mask);
+	        err_map_color_0.setTo(cv::Scalar(128,128,128), out_of_range_mask);
+	        err_map_color_0.setTo(cv::Scalar(0,0,0), out_of_border_mask);
+	        cv::imwrite("err_map_color_0.png", err_map_color_0);
+
+
+	        cv::Mat disp_vis_8u_0;
+	        disp.convertTo(disp_vis_8u_0, CV_8U, img_out_scale);
+	        cv::imwrite("disp_vis_8u_0.png", disp_vis_8u_0);
+
+	        cv::Mat disp_color_0;
+	        cv::applyColorMap(disp_vis_8u_0, disp_color_0, cv::COLORMAP_JET);
+	        cv::imwrite("disp_color_0.png", disp_color_0);
+		}
+
+		if(i == 104)
+		{
+	        cv::imwrite("left_104.png", left);
+
+			cv::Mat gt_vis = gt_f.clone();
+			cv::Mat invalid_mask(IMG_H, IMG_W, CV_8U, cv::Scalar(0));
+			cv::Mat out_of_range_mask(IMG_H, IMG_W, CV_8U, cv::Scalar(0));
+			cv::Mat out_of_border_mask(IMG_H, IMG_W, CV_8U, cv::Scalar(0));
+			cv::Mat err_map(IMG_H, IMG_W, CV_32F, cv::Scalar(0));
+
+			for(int r = 0; r < IMG_H; ++r)
+			{
+				for(int c = 0; c < IMG_W; ++c)
+				{
+					float gt_disp = gt_vis.at<float>(r,c);
+					float est_disp = disp.at<uint8_t>(r,c);
+
+					if(r < WIN -1 || c >= IMG_W-cx)
+					{
+						out_of_border_mask.at<uint8_t>(r, c) = 255;
+					}
+					if(gt_disp <= 0.0f)
+					{
+						gt_vis.at<float>(r,c) = 0.0f;
+						invalid_mask.at<uint8_t>(r, c) = 255;
+					}
+					if(gt_disp >= DISP)
+					{
+						gt_vis.at<float>(r,c) = 0.0f;
+						out_of_range_mask.at<uint8_t>(r, c) = 255;
+					}
+
+					if(r >= WIN -1 && c < IMG_W-cx
+							&& gt_disp > 0.0f && gt_disp < DISP)
+					{
+		        		float err = std::abs((est_disp - gt_disp)/scale_x);
+		        		err_map.at<float>(r,c) = err;
+					}
+				}
+			}
+	        cv::Mat gt_8u_104;
+	        gt_vis.convertTo(gt_8u_104, CV_8U, img_out_scale);
+	        cv::imwrite("gt_8u_104.png", gt_8u_104);
+
+	        cv::Mat gt_color_104;
+	        cv::applyColorMap(gt_8u_104, gt_color_104, cv::COLORMAP_JET);
+	        gt_color_104.setTo(cv::Scalar(0,0,0), invalid_mask);
+	        gt_color_104.setTo(cv::Scalar(128,128,128), out_of_range_mask);
+	        cv::imwrite("gt_color_104.png", gt_color_104);
+
+	        cv::Mat err_map_104;
+	        err_map.convertTo(err_map_104, CV_8U, 255.0f/10);
+	        cv::imwrite("err_map_104.png", err_map_104);
+
+	        cv::Mat err_map_color_104;
+	        cv::applyColorMap(err_map_104, err_map_color_104, cv::COLORMAP_JET);
+	        err_map_color_104.setTo(cv::Scalar(0,0,0), invalid_mask);
+	        err_map_color_104.setTo(cv::Scalar(128,128,128), out_of_range_mask);
+	        err_map_color_104.setTo(cv::Scalar(0,0,0), out_of_border_mask);
+	        cv::imwrite("err_map_color_104.png", err_map_color_104);
+
+	        cv::Mat disp_vis_8u_104;
+	        disp.convertTo(disp_vis_8u_104, CV_8U, img_out_scale);
+	        cv::imwrite("disp_vis_8u_104.png", disp_vis_8u_104);
+
+	        cv::Mat disp_color_104;
+	        cv::applyColorMap(disp_vis_8u_104, disp_color_104, cv::COLORMAP_JET);
+	        cv::imwrite("disp_color_104.png", disp_color_104);
+		}
+
+		if(i == 128)
+		{
+	        cv::imwrite("left_128.png", left);
+
+			cv::Mat gt_vis = gt_f.clone();
+			cv::Mat invalid_mask(IMG_H, IMG_W, CV_8U, cv::Scalar(0));
+			cv::Mat out_of_range_mask(IMG_H, IMG_W, CV_8U, cv::Scalar(0));
+			cv::Mat out_of_border_mask(IMG_H, IMG_W, CV_8U, cv::Scalar(0));
+			cv::Mat err_map(IMG_H, IMG_W, CV_32F, cv::Scalar(0));
+
+			for(int r = 0; r < IMG_H; ++r)
+			{
+				for(int c = 0; c < IMG_W; ++c)
+				{
+					float gt_disp = gt_vis.at<float>(r,c);
+					float est_disp = disp.at<uint8_t>(r,c);
+
+					if(r < WIN -1 || c >= IMG_W-cx)
+					{
+						out_of_border_mask.at<uint8_t>(r, c) = 255;
+					}
+					if(gt_disp <= 0.0f)
+					{
+						gt_vis.at<float>(r,c) = 0.0f;
+						invalid_mask.at<uint8_t>(r, c) = 255;
+					}
+					if(gt_disp >= DISP)
+					{
+						gt_vis.at<float>(r,c) = 0.0f;
+						out_of_range_mask.at<uint8_t>(r, c) = 255;
+					}
+
+					if(r >= WIN -1 && c < IMG_W-cx
+							&& gt_disp > 0.0f && gt_disp < DISP)
+					{
+		        		float err = std::abs((est_disp - gt_disp)/scale_x);
+		        		err_map.at<float>(r,c) = err;
+					}
+				}
+			}
+	        cv::Mat gt_8u_128;
+	        gt_vis.convertTo(gt_8u_128, CV_8U, img_out_scale);
+	        cv::imwrite("gt_8u_128.png", gt_8u_128);
+
+	        cv::Mat gt_color_128;
+	        cv::applyColorMap(gt_8u_128, gt_color_128, cv::COLORMAP_JET);
+	        gt_color_128.setTo(cv::Scalar(0,0,0), invalid_mask);
+	        gt_color_128.setTo(cv::Scalar(128,128,128), out_of_range_mask);
+	        cv::imwrite("gt_color_128.png", gt_color_128);
+
+
+	        cv::Mat err_map_128;
+	        err_map.convertTo(err_map_128, CV_8U, 255.0f/10);
+	        cv::imwrite("err_map_128.png", err_map_128);
+
+	        cv::Mat err_map_color_128;
+	        cv::applyColorMap(err_map_128, err_map_color_128, cv::COLORMAP_JET);
+	        err_map_color_128.setTo(cv::Scalar(0,0,0), invalid_mask);
+	        err_map_color_128.setTo(cv::Scalar(128,128,128), out_of_range_mask);
+	        err_map_color_128.setTo(cv::Scalar(0,0,0), out_of_border_mask);
+	        cv::imwrite("err_map_color_128.png", err_map_color_128);
+
+	        cv::Mat disp_vis_8u_128;
+	        disp.convertTo(disp_vis_8u_128, CV_8U, img_out_scale);
+	        cv::imwrite("disp_vis_8u_128.png", disp_vis_8u_128);
+
+	        cv::Mat disp_color_128;
+	        cv::applyColorMap(disp_vis_8u_128, disp_color_128, cv::COLORMAP_JET);
+	        cv::imwrite("disp_color_128.png", disp_color_128);
+		}
+
 		/* Evaluation metrics */
 			int kitti_d1_err = 0;
 			int kitti_valid_count = 0;
@@ -145,10 +362,8 @@ int main()
 			int bad1 = 0, bad3 = 0;
 			double sum_abs_err = 0.0;
 
-			const int cx = WIN >> 1;
-
-			const int valid_r_min = WIN - 1;
-			const int valid_c_min = (DISP - 1) + cx;
+			const int valid_r_min = WIN - 1 - cy;
+			const int valid_r_max = IMG_H - 1 - cy;
 			const int valid_c_max = IMG_W - cx;
 
 			for (int r = 0; r < IMG_H; ++r)
@@ -157,6 +372,9 @@ int main()
 				{
 					float est_disp = float(disp.at<out_u_t>(r,c));
 					float gt_disp = gt_f.at<float>(r,c);
+
+					if(r>= valid_r_min && est_disp > c)
+						++invalid_selected_count;
 
 					bool gt_valid = gt_disp > 0.0f;
 					if(!gt_valid)
@@ -177,25 +395,25 @@ int main()
 						++kitti_d1_err;
 					}
 
-					bool roi_valid =
-						(r >= valid_r_min) &&
-						(c >= valid_c_min) &&
-						(c < valid_c_max);
+					bool roi_valid = (r >= valid_r_min) && (r <= valid_r_max)
+							&& (c < valid_c_max);
 
-					bool disp_range_valid = (gt_disp < DISP);
+					bool disp_range_valid = (gt_disp < DISP) && (gt_disp <= c);
 
 					bool hw_valid = roi_valid && disp_range_valid;
 
 					if(!hw_valid)
 						{
 							++hw_invalid_count;
-							continue;
 						}
-					++hw_valid_count;
+					else
+					{
+						++hw_valid_count;
 
-					sum_abs_err += err;
-					if (err > 1.0f) bad1++;
-					if (err > 3.0f) bad3++;
+						sum_abs_err += err;
+						if (err > 1.0f) bad1++;
+						if (err > 3.0f) bad3++;
+					}
 				}
 			}
 			////////////////////////////////
@@ -318,6 +536,8 @@ int main()
 			max_bad3_id = i;
 		}
 	}
+
+	std::cout << "Invalid Selected disparity count: " << invalid_selected_count << " \n\n";
 
 	if(kitti_valid_frame > 0)
 	{
