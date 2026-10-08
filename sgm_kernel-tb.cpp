@@ -486,7 +486,7 @@ int main()
 	int max_d1_id = 0 , max_mae_id = 0, max_bad1_id = 0, max_bad3_id = 0;
 	int min_d1_id = 0, min_mae_id = 0, min_bad1_id = 0, min_bad3_id = 0;
 	/////////////////////////////////////////////////////////////////////////////
-	for(int i  = 0; i < 200; ++i)
+	for(int i  = 0; i < 20; ++i)
 	{
 		if(min_d1 > d1_per_frame[i])
 		{

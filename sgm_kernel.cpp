@@ -6,6 +6,7 @@
 #endif
 
 static const cost_t INF_COST = cost_t(4095);
+static const wide_t INF_WIDE = wide_t(16383);
 
 struct CostPacket
 {
@@ -168,28 +169,39 @@ static void compute_census_cost_vector(
 		}
 }
 //////////////////////////////////////////////////////
-static void aggregate_group(
-	    const CostPacket& pkt,
-	    int g,
-	    const cost_t prevCostL[DISP],
-	    const cost_t prevCostT_col[DISP],
-	    cost_t minPrevLR,
-	    cost_t minPrevTB,
-	    cost_t aggLR_arr[DISP],
-	    cost_t aggTB_arr[DISP],
-	    cost_t& groupMinLR,
-	    cost_t& groupMinTB,
-	    cost_t& groupBestCost,
-	    disp_t& groupBestDisp)
+static void aggregate_group(const CostPacket& pkt,
+							int g,
+							const cost_t prevCostL[DISP],
+							const cost_t prevCostT_col[DISP],
+							const cost_t carryTL[DISP],
+							const cost_t prevCostTR_col_pred[DISP],
+							cost_t minPrevLR,
+							cost_t minPrevTB,
+							cost_t carryMinTL,
+							cost_t minPrevTR_pred,
+							cost_t aggLR_arr[DISP],
+							cost_t aggTB_arr[DISP],
+							cost_t aggTL_arr[DISP],
+							cost_t aggTR_arr[DISP],
+							cost_t& groupMinLR,
+							cost_t& groupMinTB,
+							cost_t& groupMinTL,
+							cost_t& groupMinTR,
+							wide_t& groupBestCost,
+							disp_t& groupBestDisp)
 {
 #pragma HLS INLINE
 
     cost_t laneAggLR[PAR];
     cost_t laneAggTB[PAR];
-    cost_t laneSum[PAR];
+    cost_t laneAggTL[PAR];
+    cost_t laneAggTR[PAR];
+    wide_t laneSum[PAR];
 
 #pragma HLS ARRAY_PARTITION variable=laneAggLR type=complete
 #pragma HLS ARRAY_PARTITION variable=laneAggTB type=complete
+#pragma HLS ARRAY_PARTITION variable=laneAggTL type=complete
+#pragma HLS ARRAY_PARTITION variable=laneAggTR type=complete
 #pragma HLS ARRAY_PARTITION variable=laneSum type=complete
 
 	LaneLoop:
@@ -213,6 +225,9 @@ static void aggregate_group(
 				aggLR_arr[d] = aggLR;
 				laneAggLR[lane] = aggLR;
 
+
+
+
 				cost_t p0_TB = prevCostT_col[d];
 				cost_t p1_TB = (d > 0) ? sat12(prevCostT_col[d - 1] + P1)
 						: INF_COST;
@@ -229,14 +244,65 @@ static void aggregate_group(
 				aggTB_arr[d] = aggTB;
 				laneAggTB[lane] = aggTB;
 
-				cost_t sum2 = sat12(aggLR + aggTB);
-				laneSum[lane]   = sum2;
+
+
+
+
+
+				cost_t p0_TL = carryTL[d];
+				cost_t p1_TL = (d > 0) ? sat12(carryTL[d - 1] + P1)
+						: INF_COST;
+				cost_t p2_TL = (d < DISP - 1) ? sat12(carryTL[d + 1] + P1)
+						: INF_COST;
+				cost_t p3_TL = sat12(carryMinTL + P2);
+
+				cost_t minTL = p0_TL;
+				if (p1_TL < minTL) minTL = p1_TL;
+				if (p2_TL < minTL) minTL = p2_TL;
+				if (p3_TL < minTL) minTL = p3_TL;
+
+				cost_t aggTL = sat12(pkt.curCost[lane] + minTL - carryMinTL);
+				aggTL_arr[d] = aggTL;
+				laneAggTL[lane] = aggTL;
+
+
+
+
+
+				cost_t p0_TR = prevCostTR_col_pred[d];
+				cost_t p1_TR = (d > 0) ? sat12(prevCostTR_col_pred[d - 1] + P1)
+						: INF_COST;
+				cost_t p2_TR = (d < DISP - 1) ? sat12(prevCostTR_col_pred[d + 1] + P1)
+						: INF_COST;
+				cost_t p3_TR = sat12(minPrevTR_pred + P2);
+
+				cost_t minTR = p0_TR;
+				if (p1_TR < minTR) minTR = p1_TR;
+				if (p2_TR < minTR) minTR = p2_TR;
+				if (p3_TR < minTR) minTR = p3_TR;
+
+				cost_t aggTR = sat12(pkt.curCost[lane] + minTR - minPrevTR_pred);
+				aggTR_arr[d] = aggTR;
+				laneAggTR[lane] = aggTR;
+
+
+				pair_t sum1 = pair_t(aggLR) + pair_t(aggTB);
+				pair_t sum2 = pair_t(aggTL) + pair_t(aggTR);
+
+				wide_t sum = wide_t(sum1) + wide_t(sum2);
+
+				laneSum[lane]   = sum;
 	    	}
+
+
 	    	cost_t minLR01 = (laneAggLR[1] < laneAggLR[0]) ? laneAggLR[1]
 							: laneAggLR[0];
 	    	cost_t minLR23 = (laneAggLR[3] < laneAggLR[2]) ? laneAggLR[3]
 							: laneAggLR[2];
 	    	groupMinLR = (minLR23 < minLR01) ? minLR23 : minLR01;
+
+
+
 
 	    	cost_t minTB01 = (laneAggTB[1] < laneAggTB[0]) ? laneAggTB[1]
 							: laneAggTB[0];
@@ -244,7 +310,32 @@ static void aggregate_group(
 							: laneAggTB[2];
 	    	groupMinTB = (minTB23 < minTB01) ? minTB23 : minTB01;
 
-	    	cost_t bestCost01;
+
+
+
+
+
+	    	cost_t minTL01 = (laneAggTL[1] < laneAggTL[0]) ? laneAggTL[1]
+							: laneAggTL[0];
+	    	cost_t minTL23 = (laneAggTL[3] < laneAggTL[2]) ? laneAggTL[3]
+							: laneAggTL[2];
+	    	groupMinTL = (minTL23 < minTL01) ? minTL23 : minTL01;
+
+
+
+
+	    	cost_t minTR01 = (laneAggTR[1] < laneAggTR[0]) ? laneAggTR[1]
+							: laneAggTR[0];
+	    	cost_t minTR23 = (laneAggTR[3] < laneAggTR[2]) ? laneAggTR[3]
+							: laneAggTR[2];
+	    	groupMinTR = (minTR23 < minTR01) ? minTR23 : minTR01;
+
+
+
+
+
+
+	    	wide_t bestCost01;
 	    	disp_t bestDisp01;
 
 	    	if (laneSum[1] < laneSum[0])
@@ -258,7 +349,7 @@ static void aggregate_group(
 	    	    bestDisp01 = disp_t(g * PAR);
 	    	}
 
-	    	cost_t bestCost23;
+	    	wide_t bestCost23;
 	    	disp_t bestDisp23;
 
 	    	if (laneSum[3] < laneSum[2])
@@ -285,11 +376,15 @@ static void aggregate_group(
 }
 //////////////////////////////////////////////////////
 
-static void commit_prev_costs(
-    cost_t prevCostL[DISP],
-    cost_t prevCostT_col[DISP],
-    const cost_t aggLR_arr[DISP],
-    const cost_t aggTB_arr[DISP])
+static void commit_prev_costs(cost_t prevCostL[DISP],
+							cost_t prevCostT_col[DISP],
+							cost_t prevCostTL_col[DISP],
+							cost_t prevCostTR_col[DISP],
+							const cost_t aggLR_arr[DISP],
+							const cost_t aggTB_arr[DISP],
+							const cost_t aggTL_arr[DISP],
+							const cost_t aggTR_arr[DISP],
+							cost_t carryTL[DISP])
 {
 #pragma HLS INLINE off
 
@@ -299,6 +394,9 @@ CopyPrevLR:
 	#pragma HLS UNROLL
         prevCostL[d]    = aggLR_arr[d];
         prevCostT_col[d] = aggTB_arr[d];
+        prevCostTR_col[d] = aggTR_arr[d];
+        carryTL[d] = prevCostTL_col[d];
+        prevCostTL_col[d] = aggTL_arr[d];
     }
 }
 
@@ -382,21 +480,32 @@ static void col_frontend(
 
 
 
-static disp_t col_backend(
-		hls::stream<CostPacket>& coststream,
-		cost_t prevCostL[DISP],
-		cost_t prevCostT_col[DISP],
-		cost_t aggLR_arr[DISP],
-		cost_t aggTB_arr[DISP],
-		cost_t& minPrevLR,
-		cost_t& minPrevTB)
+static disp_t col_backend(hls::stream<CostPacket>& coststream,
+						cost_t prevCostL[DISP],
+						cost_t prevCostT_col[DISP],
+						cost_t prevCostTL_col[DISP],
+						cost_t prevCostTR_col_pred[DISP],
+						cost_t prevCostTR_col_cur[DISP],
+						cost_t aggLR_arr[DISP],
+						cost_t aggTB_arr[DISP],
+						cost_t aggTL_arr[DISP],
+						cost_t aggTR_arr[DISP],
+						cost_t carryTL[DISP],
+						cost_t& minPrevLR,
+						cost_t& minPrevTB,
+						cost_t& minPrevTL,
+						cost_t& minPrevTR_pred,
+						cost_t& minPrevTR_cur,
+						cost_t& carryMinTL)
 {
 #pragma HLS INLINE off
 
     cost_t runMinLR = INF_COST;
     cost_t runMinTB = INF_COST;
+    cost_t runMinTL = INF_COST;
+    cost_t runMinTR = INF_COST;
 
-    cost_t bestCost = INF_COST;
+    wide_t bestCost = INF_WIDE;
     disp_t bestDisp = 0;
 
     bool validPixel = false;
@@ -409,31 +518,46 @@ static disp_t col_backend(
 
             cost_t groupMinLR;
             cost_t groupMinTB;
-            cost_t groupBestCost;
+            cost_t groupMinTL;
+            cost_t groupMinTR;
+            wide_t groupBestCost;
             disp_t groupBestDisp;
 
             if(pkt.valid)
             {
             	validPixel = true;
-                aggregate_group(
-                    pkt,
-                    g,
-                    prevCostL,
-                    prevCostT_col,
-                    minPrevLR,
-                    minPrevTB,
-                    aggLR_arr,
-                    aggTB_arr,
-                    groupMinLR,
-                    groupMinTB,
-                    groupBestCost,
-                    groupBestDisp);
+                aggregate_group(pkt,
+								g,
+								prevCostL,
+								prevCostT_col,
+								carryTL,
+								prevCostTR_col_pred,
+								minPrevLR,
+								minPrevTB,
+								carryMinTL,
+								minPrevTR_pred,
+								aggLR_arr,
+								aggTB_arr,
+								aggTL_arr,
+								aggTR_arr,
+								groupMinLR,
+								groupMinTB,
+								groupMinTL,
+								groupMinTR,
+								groupBestCost,
+								groupBestDisp);
 
                 if (groupMinLR < runMinLR)
                     runMinLR = groupMinLR;
 
                 if (groupMinTB < runMinTB)
                     runMinTB = groupMinTB;
+
+                if (groupMinTL < runMinTL)
+                    runMinTL = groupMinTL;
+
+                if (groupMinTR < runMinTR)
+                    runMinTR = groupMinTR;
 
                 if (groupBestCost < bestCost)
                 {
@@ -444,10 +568,15 @@ static disp_t col_backend(
         }
         if(validPixel)
         {
-            commit_prev_costs(prevCostL, prevCostT_col, aggLR_arr, aggTB_arr);
+            commit_prev_costs(prevCostL, prevCostT_col, prevCostTL_col,
+            		prevCostTR_col_cur, aggLR_arr, aggTB_arr,
+					aggTL_arr, aggTR_arr, carryTL);
 
             minPrevLR = runMinLR;
             minPrevTB = runMinTB;
+            minPrevTR_cur = runMinTR;
+            carryMinTL = minPrevTL;
+            minPrevTL = runMinTL;
         }
         return bestDisp;
 }
@@ -460,10 +589,20 @@ static disp_t process_cost_groups(
     census_t rightCensusHistory[DISP],
     cost_t prevCostL[DISP],
     cost_t prevCostT_col[DISP],
+	cost_t prevCostTL_col[DISP],
+	cost_t prevCostTR_col_pred[DISP],
+	cost_t prevCostTR_col_cur[DISP],
     cost_t aggLR_arr[DISP],
     cost_t aggTB_arr[DISP],
+    cost_t aggTL_arr[DISP],
+    cost_t aggTR_arr[DISP],
+    cost_t carryTL[DISP],
     cost_t& minPrevLR,
     cost_t& minPrevTB,
+    cost_t& minPrevTL,
+	cost_t& minPrevTR_pred,
+	cost_t& minPrevTR_cur,
+	cost_t& carryMinTL,
 	int out_c)
 {
 #pragma HLS DATAFLOW
@@ -478,14 +617,23 @@ static disp_t process_cost_groups(
         leftDesc,
         rightCensusHistory);
 
-    return col_backend(
-        coststream,
-        prevCostL,
-        prevCostT_col,
-        aggLR_arr,
-        aggTB_arr,
-        minPrevLR,
-        minPrevTB);
+    return col_backend(coststream,
+					prevCostL,
+					prevCostT_col,
+					prevCostTL_col,
+					prevCostTR_col_pred,
+					prevCostTR_col_cur,
+					aggLR_arr,
+					aggTB_arr,
+					aggTL_arr,
+					aggTR_arr,
+					carryTL,
+					minPrevLR,
+					minPrevTB,
+					minPrevTL,
+					minPrevTR_pred,
+					minPrevTR_cur,
+					carryMinTL);
 }
 
 /* --------------------------------------------------------- */
@@ -501,7 +649,6 @@ void sgm_kernel(bram_word_t left[FRAME_WORDS],
 #pragma HLS INTERFACE mode=bram		port=disp
 
 #pragma HLS INTERFACE mode=s_axilite	port=return	bundle=control
-
 
     /* Line buffers for the left & right images */
     pix_t bufL[WIN][IMG_W];
@@ -527,10 +674,25 @@ void sgm_kernel(bram_word_t left[FRAME_WORDS],
 #pragma HLS bind_storage variable=prevCostT type=RAM_2P impl=BRAM
 #pragma HLS ARRAY_PARTITION variable=prevCostT complete dim=2
 
+    static cost_t prevCostTL[IMG_W][DISP];
+#pragma HLS bind_storage variable=prevCostTL type=RAM_2P impl=BRAM
+#pragma HLS ARRAY_PARTITION variable=prevCostTL complete dim=2
+
+    static cost_t carryTL[DISP];
+#pragma HLS ARRAY_PARTITION variable=carryTL complete dim=1
+
+    static cost_t prevCostTR[IMG_W][DISP];
+#pragma HLS bind_storage variable=prevCostTR type=RAM_2P impl=BRAM
+#pragma HLS ARRAY_PARTITION variable=prevCostTR complete dim=2
+
     static cost_t aggLR_arr[DISP];
     static cost_t aggTB_arr[DISP];
+    static cost_t aggTL_arr[DISP];
+    static cost_t aggTR_arr[DISP];
 #pragma HLS ARRAY_PARTITION variable=aggLR_arr complete dim=1
 #pragma HLS ARRAY_PARTITION variable=aggTB_arr complete dim=1
+#pragma HLS ARRAY_PARTITION variable=aggTL_arr complete dim=1
+#pragma HLS ARRAY_PARTITION variable=aggTR_arr complete dim=1
 
     pix_t leftWin[WIN][WIN];
     pix_t rightStripe[WIN][RIGHT_STRIPE_W];
@@ -542,6 +704,10 @@ void sgm_kernel(bram_word_t left[FRAME_WORDS],
 #pragma HLS ARRAY_PARTITION variable=rightCensusHistory complete
 
     static cost_t minPrevT[IMG_W];
+    static cost_t minPrevTL[IMG_W];
+    static cost_t minPrevTR[IMG_W];
+
+    static cost_t carryMinTL;
 
     /* center offset */
     const int cx = WIN >> 1;
@@ -555,6 +721,8 @@ Row:
     	cost_t minPrevLR = 0;
 
     	bram_word_t disp_word = 0;
+
+    	carryMinTL = 0;
 
     	int out_r = r - cy;
 
@@ -570,20 +738,25 @@ Row:
         {
 		#pragma HLS UNROLL factor=2
             prevCostL[d] = cost_t(0);
+            carryTL[d] = cost_t(0);
         }
 
         if(r == 0)
         {
-        InitTBRow:
+        InitTRow:
 			for (int c = 0; c < IMG_W; ++c)
 			{
 			#pragma HLS LOOP_TRIPCOUNT min=IMG_W max=IMG_W
 		        minPrevT[c] = cost_t(0);
+		        minPrevTL[c] = cost_t(0);
+		        minPrevTR[c] = cost_t(0);
 				InitTBRowD:
 				for (int d = 0; d < DISP; ++d)
 				{
 				#pragma HLS UNROLL factor=2
 					prevCostT[c][d] = cost_t(0);
+					prevCostTL[c][d] = cost_t(0);
+					prevCostTR[c][d] = cost_t(0);
 				}
 			}
         }
@@ -631,17 +804,27 @@ Row:
     		int out_c = c - cx;
     		if(out_r >= 0 && out_c >= 0)
     		{
-    			disp_t outDisp = process_cost_groups(
-    			        interior,
-    			        leftDesc,
-    			        rightCensusHistory,
-    			        prevCostL,
-    			        prevCostT[out_c],
-    			        aggLR_arr,
-    			        aggTB_arr,
-    			        minPrevLR,
-    			        minPrevT[out_c],
-						out_c);
+    			disp_t outDisp = process_cost_groups(interior,
+													leftDesc,
+													rightCensusHistory,
+													prevCostL,
+													prevCostT[out_c],
+													prevCostTL[out_c],
+													prevCostTR[out_c+1],
+													prevCostTR[out_c],
+													aggLR_arr,
+													aggTB_arr,
+													aggTL_arr,
+													aggTR_arr,
+													carryTL,
+													minPrevLR,
+													minPrevT[out_c],
+													minPrevTL[out_c],
+													minPrevTR[out_c+1],
+													minPrevTR[out_c],
+													carryMinTL,
+													out_c);
+
 
     			int disp_pixel_indx = out_r * IMG_W + out_c;
     			int disp_word_indx = disp_pixel_indx >> 2;

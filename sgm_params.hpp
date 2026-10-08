@@ -8,11 +8,12 @@ using pix_t  = ap_uint<8>;
 using disp_t = ap_uint<8>;
 using census_t = ap_uint<8>;
 using cost_t = ap_uint<12>;
-using wide_t = ap_uint<16>;
+using pair_t = ap_uint<13>;
+using wide_t = ap_uint<14>;
 
 /* Penalties */
-const cost_t P1 = cost_t(3);
-const cost_t P2 = cost_t(15);
+const cost_t P1 = cost_t(2);
+const cost_t P2 = cost_t(10);
 
 
 typedef ap_uint<32> bram_word_t;
@@ -31,6 +32,12 @@ static inline cost_t sat12(unsigned val)
 {
 #pragma HLS INLINE
     return (val > 4095u) ? cost_t(4095) : cost_t(val);
+}
+
+static inline wide_t sat14(unsigned val)
+{
+#pragma HLS INLINE
+    return (val > 16383u) ? wide_t(16383) : wide_t(val);
 }
 
 #include <hls_stream.h>
