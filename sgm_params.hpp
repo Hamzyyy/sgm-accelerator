@@ -7,8 +7,10 @@
 using pix_t  = ap_uint<8>;
 using disp_t = ap_uint<8>;
 using census_t = ap_uint<8>;
-using cost_t = ap_uint<12>;
-using wide_t = ap_uint<16>;
+using cost_t = ap_uint<6>;
+using wide_t = ap_uint<8>;
+static const int COST_BITS = 6;
+using group_t = ap_uint<PAR * COST_BITS>;
 
 /* Penalties */
 const cost_t P1 = cost_t(3);
@@ -27,10 +29,10 @@ static inline pix_t absdiff(pix_t a, pix_t b)
     return (a > b) ? a - b : b - a;
 }
 
-static inline cost_t sat12(unsigned val)
+static inline cost_t sat12(wide_t val)
 {
 #pragma HLS INLINE
-    return (val > 4095u) ? cost_t(4095) : cost_t(val);
+    return (val > 63u) ? cost_t(63) : cost_t(val);
 }
 
 #include <hls_stream.h>

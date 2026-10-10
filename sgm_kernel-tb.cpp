@@ -12,6 +12,8 @@ int main()
 	std::string right_dir = "/home/hamzy/SGM/Kitti-Data/training/image_3";
 	std::string disp_dir = "/home/hamzy/SGM/Kitti-Data/training/disp_noc_0";
 
+	const int NUM_FRAME = 20;
+
 	int kitti_valid_frame = 0;
 	int hw_valid_frame = 0;
 
@@ -20,17 +22,17 @@ int main()
 	double total_Bad1_error = 0, total_Bad3_error = 0;
 	int invalid_selected_count = 0;
 
-	double d1_per_frame[200];
-	double mae_per_frame[200];
-	double bad1_per_frame[200];
-	double bad3_per_frame[200];
+	double d1_per_frame[NUM_FRAME];
+	double mae_per_frame[NUM_FRAME];
+	double bad1_per_frame[NUM_FRAME];
+	double bad3_per_frame[NUM_FRAME];
 
     double img_out_scale = 255.0f / (DISP - 1);
 
     const int cx = WIN >> 1;
     const int cy = WIN >> 1;
 
-	for(int i = 0; i < 200; ++i)
+	for(int i = 0; i < NUM_FRAME; ++i)
 	{
 		std::ostringstream ss;
 		ss << std::setw(6) << std::setfill('0') << i;
@@ -486,7 +488,7 @@ int main()
 	int max_d1_id = 0 , max_mae_id = 0, max_bad1_id = 0, max_bad3_id = 0;
 	int min_d1_id = 0, min_mae_id = 0, min_bad1_id = 0, min_bad3_id = 0;
 	/////////////////////////////////////////////////////////////////////////////
-	for(int i  = 0; i < 200; ++i)
+	for(int i  = 0; i < NUM_FRAME; ++i)
 	{
 		if(min_d1 > d1_per_frame[i])
 		{
@@ -546,7 +548,7 @@ int main()
 		double mean_d1 = total_kitti_d1_error / kitti_valid_frame;
 		double squared_diff_sum = 0.0;
 
-		for(int i = 0; i < 200; ++i)
+		for(int i = 0; i < NUM_FRAME; ++i)
 		{
 			double diff = d1_per_frame[i] - mean_d1;
 			squared_diff_sum += diff * diff;
@@ -579,7 +581,7 @@ int main()
 		double mean_bad3 = total_Bad3_error / hw_valid_frame;
 		double bad3_squared_diff_sum = 0.0;
 
-		for(int i = 0; i < 200; ++i)
+		for(int i = 0; i < NUM_FRAME; ++i)
 		{
 			double mae_diff = mae_per_frame[i] - mean_mae;
 			mae_squared_diff_sum += mae_diff * mae_diff;
