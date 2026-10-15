@@ -12,7 +12,7 @@ int main()
 	std::string right_dir = "/home/hamzy/SGM/Kitti-Data/training/image_3";
 	std::string disp_dir = "/home/hamzy/SGM/Kitti-Data/training/disp_noc_0";
 
-	const int NUM_FRAME = 20;
+	const int NUM_FRAME = 200;
 
 	int kitti_valid_frame = 0;
 	int hw_valid_frame = 0;

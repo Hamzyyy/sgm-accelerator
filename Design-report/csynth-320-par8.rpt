@@ -1,0 +1,607 @@
+
+
+================================================================
+== Synthesis Summary Report of 'sgm_kernel'
+================================================================
++ General Information: 
+    * Date:           Sun Nov  1 07:24:51 2026
+    * Version:        2023.1 (Build 3854077 on May  4 2023)
+    * Project:        sgm_kernel
+    * Solution:       solution1 (Vivado IP Flow Target)
+    * Product family: zynq
+    * Target device:  xc7z010-clg400-1
+    
+
++ Performance & Resource Estimates: 
+    
+    PS: '+' for module; 'o' for loop; '*' for dataflow
+    +--------------------------------------------------------------+------+------+---------+-----------+----------+---------+------+----------+----------+----+------------+-------------+-----+
+    |                            Modules                           | Issue|      | Latency |  Latency  | Iteration|         | Trip |          |          |    |            |             |     |
+    |                            & Loops                           | Type | Slack| (cycles)|    (ns)   |  Latency | Interval| Count| Pipelined|   BRAM   | DSP|     FF     |     LUT     | URAM|
+    +--------------------------------------------------------------+------+------+---------+-----------+----------+---------+------+----------+----------+----+------------+-------------+-----+
+    |+ sgm_kernel                                                  |     -|  0.02|   812805|  8.128e+06|         -|   812806|     -|        no|  20 (16%)|   -|  6304 (17%)|  14002 (79%)|    -|
+    | + sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_1022_1              |     -|  1.10|      962|  9.620e+03|         -|      962|     -|        no|         -|   -|    35 (~0%)|    149 (~0%)|    -|
+    |  o InitBuf_VITIS_LOOP_1022_1                                 |     -|  7.30|      960|  9.600e+03|         2|        1|   960|       yes|         -|   -|           -|            -|    -|
+    | o InitTBRow                                                  |     -|  7.30|     2560|  2.560e+04|         8|        -|   320|        no|         -|   -|           -|            -|    -|
+    |  + sgm_kernel_Pipeline_InitTBRowD                            |     -|  2.41|        6|     60.000|         -|        6|     -|        no|         -|   -|     9 (~0%)|     94 (~0%)|    -|
+    |   o InitTBRowD                                               |    II|  7.30|        4|     40.000|         2|        2|     2|       yes|         -|   -|           -|            -|    -|
+    | o Row                                                        |     -|  7.30|   809280|  8.093e+06|      8430|        -|    96|        no|         -|   -|           -|            -|    -|
+    |  + process_row*                                              |     -|  0.02|     8427|  8.427e+04|         -|     8428|     -|  dataflow|         -|   -|  4922 (13%)|  11701 (66%)|    -|
+    |   + process_row_Block_entry2_proc                            |     -|  3.67|        0|      0.000|         -|        0|     -|        no|         -|   -|     4 (~0%)|     54 (~0%)|    -|
+    |   + row_frontend                                             |     -|  0.42|     8427|  8.427e+04|         -|     8427|     -|        no|         -|   -|   2256 (6%)|   4281 (24%)|    -|
+    |    + row_frontend_Pipeline_VITIS_LOOP_735_1                  |     -|  3.89|       18|    180.000|         -|       18|     -|        no|         -|   -|     8 (~0%)|     477 (2%)|    -|
+    |     o VITIS_LOOP_735_1                                       |     -|  7.30|       16|    160.000|         1|        1|    16|       yes|         -|   -|           -|            -|    -|
+    |    + row_frontend_Pipeline_InitLeftWin_VITIS_LOOP_744_2      |     -|  1.59|       11|    110.000|         -|       11|     -|        no|         -|   -|    10 (~0%)|     219 (1%)|    -|
+    |     o InitLeftWin_VITIS_LOOP_744_2                           |     -|  7.30|        9|     90.000|         1|        1|     9|       yes|         -|   -|           -|            -|    -|
+    |    + row_frontend_Pipeline_InitRightStripe_VITIS_LOOP_753_3  |     -|  0.87|      104|  1.040e+03|         -|      104|     -|        no|         -|   -|    17 (~0%)|    137 (~0%)|    -|
+    |     o InitRightStripe_VITIS_LOOP_753_3                       |     -|  7.30|      102|  1.020e+03|         1|        1|   102|       yes|         -|   -|           -|            -|    -|
+    |    o VITIS_LOOP_759_4                                        |     -|  7.30|     8321|  8.321e+04|        26|        -|   320|        no|         -|   -|           -|            -|    -|
+    |     + prepare_census_column                                  |     -|  0.42|       14|    140.000|         -|       14|     -|        no|         -|   -|    697 (1%)|    1393 (7%)|    -|
+    |      o VITIS_LOOP_30_1                                       |     -|  7.30|        8|     80.000|         4|        -|     2|        no|         -|   -|           -|            -|    -|
+    |     + row_frontend_Pipeline_VITIS_LOOP_778_5                 |     -|  0.80|        7|     70.000|         -|        7|     -|        no|         -|   -|   157 (~0%)|     942 (5%)|    -|
+    |      o VITIS_LOOP_778_5                                      |     -|  7.30|        5|     50.000|         3|        1|     4|       yes|         -|   -|           -|            -|    -|
+    |   + row_backend                                              |     -|  0.02|     7019|  7.019e+04|         -|     7019|     -|        no|         -|   -|   2002 (5%)|   6385 (36%)|    -|
+    |    o RowBackendCols                                          |     -|  7.30|     7018|  7.018e+04|        22|        -|   319|        no|         -|   -|           -|            -|    -|
+    |     + col_backend*                                           |     -|  0.02|       17|    170.000|         -|       12|     -|  dataflow|         -|   -|   1522 (4%)|   5113 (29%)|    -|
+    |      + prepare_stage                                         |     -|  0.02|       10|    100.000|         -|       10|     -|        no|         -|   -|   267 (~0%)|     530 (3%)|    -|
+    |       + prepare_stage_Pipeline_PrepareGroups                 |     -|  0.02|        7|     70.000|         -|        7|     -|        no|         -|   -|   155 (~0%)|     428 (2%)|    -|
+    |        o PrepareGroups                                       |     -|  7.30|        5|     50.000|         2|        1|     4|       yes|         -|   -|           -|            -|    -|
+    |      + aggregate_stage                                       |     -|  0.65|        9|     90.000|         -|        9|     -|        no|         -|   -|    745 (2%)|   3320 (18%)|    -|
+    |       o AggregateGroups                                      |     -|  7.30|        7|     70.000|         5|        1|     4|       yes|         -|   -|           -|            -|    -|
+    |      + entry_proc                                            |     -|  3.67|        0|      0.000|         -|        0|     -|        no|         -|   -|     3 (~0%)|     29 (~0%)|    -|
+    |      + reduce_stage                                          |     -|  0.41|       11|    110.000|         -|       11|     -|        no|         -|   -|   208 (~0%)|    1000 (5%)|    -|
+    |       + reduce_stage_Pipeline_ReduceGroups                   |     -|  0.41|        8|     80.000|         -|        8|     -|        no|         -|   -|   172 (~0%)|     905 (5%)|    -|
+    |        o ReduceGroups                                        |     -|  7.30|        6|     60.000|         4|        1|     4|       yes|         -|   -|           -|            -|    -|
+    |   + row_output                                               |     -|  0.52|      325|  3.250e+03|         -|      325|     -|        no|         -|   -|   160 (~0%)|     566 (3%)|    -|
+    |    + row_output_Pipeline_RowOutputCols                       |     -|  0.52|      322|  3.220e+03|         -|      322|     -|        no|         -|   -|   130 (~0%)|     421 (2%)|    -|
+    |     o RowOutputCols                                          |     -|  7.30|      320|  3.200e+03|         3|        1|   319|       yes|         -|   -|           -|            -|    -|
+    +--------------------------------------------------------------+------+------+---------+-----------+----------+---------+------+----------+----------+----+------------+-------------+-----+
+
+
+================================================================
+== HW Interfaces
+================================================================
+* S_AXILITE Interfaces
++---------------+------------+---------------+
+| Interface     | Data Width | Address Width |
++---------------+------------+---------------+
+| s_axi_control | 32         | 4             |
++---------------+------------+---------------+
+
+* S_AXILITE Registers
++---------------+----------+--------+-------+--------+----------------------------------+----------------------------------------------------------------------+
+| Interface     | Register | Offset | Width | Access | Description                      | Bit Fields                                                           |
++---------------+----------+--------+-------+--------+----------------------------------+----------------------------------------------------------------------+
+| s_axi_control | CTRL     | 0x00   | 32    | RW     | Control signals                  | 0=AP_START 1=AP_DONE 2=AP_IDLE 3=AP_READY 7=AUTO_RESTART 9=INTERRUPT |
+| s_axi_control | GIER     | 0x04   | 32    | RW     | Global Interrupt Enable Register | 0=Enable                                                             |
+| s_axi_control | IP_IER   | 0x08   | 32    | RW     | IP Interrupt Enable Register     | 0=CHAN0_INT_EN 1=CHAN1_INT_EN                                        |
+| s_axi_control | IP_ISR   | 0x0c   | 32    | RW     | IP Interrupt Status Register     | 0=CHAN0_INT_ST 1=CHAN1_INT_ST                                        |
++---------------+----------+--------+-------+--------+----------------------------------+----------------------------------------------------------------------+
+
+* BRAM
++---------------+------------+---------------+
+| Interface     | Data Width | Address Width |
++---------------+------------+---------------+
+| disp_PORTA    | 32         | 32            |
+| left_r_PORTA  | 32         | 32            |
+| right_r_PORTA | 32         | 32            |
++---------------+------------+---------------+
+
+* TOP LEVEL CONTROL
++-----------+------------+-----------+
+| Interface | Type       | Ports     |
++-----------+------------+-----------+
+| ap_clk    | clock      | ap_clk    |
+| ap_rst_n  | reset      | ap_rst_n  |
+| interrupt | interrupt  | interrupt |
+| ap_ctrl   | ap_ctrl_hs |           |
++-----------+------------+-----------+
+
+
+================================================================
+== SW I/O Information
+================================================================
+* Top Function Arguments
++----------+-----------+--------------+
+| Argument | Direction | Datatype     |
++----------+-----------+--------------+
+| left     | in        | ap_uint<32>* |
+| right    | in        | ap_uint<32>* |
+| disp     | out       | ap_uint<32>* |
++----------+-----------+--------------+
+
+* SW-to-HW Mapping
++----------+---------------+-----------+
+| Argument | HW Interface  | HW Type   |
++----------+---------------+-----------+
+| left     | left_r_PORTA  | interface |
+| right    | right_r_PORTA | interface |
+| disp     | disp_PORTA    | interface |
++----------+---------------+-----------+
+
+
+================================================================
+== Bind Op Report
+================================================================
++-------------------------------------------------------------+-----+--------+-------------------------+------+--------+---------+
+| Name                                                        | DSP | Pragma | Variable                | Op   | Impl   | Latency |
++-------------------------------------------------------------+-----+--------+-------------------------+------+--------+---------+
+| + sgm_kernel                                                | 0   |        |                         |      |        |         |
+|   add_ln1052_fu_1121_p2                                     | -   |        | add_ln1052              | add  | fabric | 0       |
+|   r_2_fu_1166_p2                                            | -   |        | r_2                     | add  | fabric | 0       |
+|   out_r_fu_1172_p2                                          | -   |        | out_r                   | add  | fabric | 0       |
+|  + sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_1022_1            | 0   |        |                         |      |        |         |
+|    add_ln1020_1_fu_172_p2                                   | -   |        | add_ln1020_1            | add  | fabric | 0       |
+|    add_ln1020_fu_184_p2                                     | -   |        | add_ln1020              | add  | fabric | 0       |
+|    add_ln1022_fu_212_p2                                     | -   |        | add_ln1022              | add  | fabric | 0       |
+|  + sgm_kernel_Pipeline_InitTBRowD                           | 0   |        |                         |      |        |         |
+|    add_ln1063_fu_142_p2                                     | -   |        | add_ln1063              | add  | fabric | 0       |
+|    add_ln1060_fu_176_p2                                     | -   |        | add_ln1060              | add  | fabric | 0       |
+|  + process_row                                              | 0   |        |                         |      |        |         |
+|    rowValid_loc_channel_U                                   | -   |        | rowValid_loc_channel    | fifo | srl    | 0       |
+|    outputValid_loc_channel_U                                | -   |        | outputValid_loc_channel | fifo | srl    | 0       |
+|   + row_frontend                                            | 0   |        |                         |      |        |         |
+|     add_ln759_fu_1358_p2                                    | -   |        | add_ln759               | add  | fabric | 0       |
+|     add_ln774_fu_1547_p2                                    | -   |        | add_ln774               | add  | fabric | 0       |
+|    + row_frontend_Pipeline_VITIS_LOOP_735_1                 | 0   |        |                         |      |        |         |
+|      add_ln735_fu_778_p2                                    | -   |        | add_ln735               | add  | fabric | 0       |
+|    + row_frontend_Pipeline_InitLeftWin_VITIS_LOOP_744_2     | 0   |        |                         |      |        |         |
+|      add_ln742_1_fu_200_p2                                  | -   |        | add_ln742_1             | add  | fabric | 0       |
+|      add_ln742_fu_212_p2                                    | -   |        | add_ln742               | add  | fabric | 0       |
+|      add_ln744_fu_276_p2                                    | -   |        | add_ln744               | add  | fabric | 0       |
+|    + row_frontend_Pipeline_InitRightStripe_VITIS_LOOP_753_3 | 0   |        |                         |      |        |         |
+|      add_ln751_1_fu_124_p2                                  | -   |        | add_ln751_1             | add  | fabric | 0       |
+|      add_ln751_fu_136_p2                                    | -   |        | add_ln751               | add  | fabric | 0       |
+|      add_ln753_fu_171_p2                                    | -   |        | add_ln753               | add  | fabric | 0       |
+|    + prepare_census_column                                  | 0   |        |                         |      |        |         |
+|      add_ln577_fu_716_p2                                    | -   |        | add_ln577               | add  | fabric | 0       |
+|      pixel_idx_fu_726_p2                                    | -   |        | pixel_idx               | add  | fabric | 0       |
+|      add_ln32_fu_772_p2                                     | -   |        | add_ln32                | add  | fabric | 0       |
+|      add_ln67_fu_815_p2                                     | -   |        | add_ln67                | add  | fabric | 0       |
+|      center_idx_fu_911_p2                                   | -   |        | center_idx              | add  | fabric | 0       |
+|      center_idx_2_fu_932_p2                                 | -   |        | center_idx_2            | add  | fabric | 0       |
+|      physIndex_fu_944_p2                                    | -   |        | physIndex               | add  | fabric | 0       |
+|      add_ln126_1_fu_949_p2                                  | -   |        | add_ln126_1             | add  | fabric | 0       |
+|      physIndex_6_fu_982_p2                                  | -   |        | physIndex_6             | add  | fabric | 0       |
+|    + row_frontend_Pipeline_VITIS_LOOP_778_5                 | 0   |        |                         |      |        |         |
+|      add_ln778_fu_463_p2                                    | -   |        | add_ln778               | add  | fabric | 0       |
+|      sum_16_fu_1931_p2                                      | -   |        | sum_16                  | add  | fabric | 0       |
+|      sum_17_fu_1982_p2                                      | -   |        | sum_17                  | add  | fabric | 0       |
+|      sum_18_fu_2033_p2                                      | -   |        | sum_18                  | add  | fabric | 0       |
+|      sum_19_fu_2084_p2                                      | -   |        | sum_19                  | add  | fabric | 0       |
+|      sum_20_fu_2135_p2                                      | -   |        | sum_20                  | add  | fabric | 0       |
+|      sum_21_fu_2186_p2                                      | -   |        | sum_21                  | add  | fabric | 0       |
+|      sum_22_fu_2237_p2                                      | -   |        | sum_22                  | add  | fabric | 0       |
+|      sum_23_fu_2288_p2                                      | -   |        | sum_23                  | add  | fabric | 0       |
+|   + row_backend                                             | 0   |        |                         |      |        |         |
+|     add_ln836_fu_828_p2                                     | -   |        | add_ln836               | add  | fabric | 0       |
+|    + col_backend                                            | 0   |        |                         |      |        |         |
+|     + prepare_stage                                         | 0   |        |                         |      |        |         |
+|      + prepare_stage_Pipeline_PrepareGroups                 | 0   |        |                         |      |        |         |
+|        add_ln438_fu_463_p2                                  | -   |        | add_ln438               | add  | fabric | 0       |
+|        add_ln460_fu_473_p2                                  | -   |        | add_ln460               | add  | fabric | 0       |
+|        add_ln461_fu_483_p2                                  | -   |        | add_ln461               | add  | fabric | 0       |
+|     + aggregate_stage                                       | 0   |        |                         |      |        |         |
+|       g_6_fu_323_p2                                         | -   |        | g_6                     | add  | fabric | 0       |
+|       val_9_fu_1433_p2                                      | -   |        | val_9                   | add  | fabric | 0       |
+|       conv3_i_i_i399_i_fu_1447_p2                           | -   |        | conv3_i_i_i399_i        | add  | fabric | 0       |
+|       val_8_fu_1455_p2                                      | -   |        | val_8                   | add  | fabric | 0       |
+|       conv3_i_i_i97_i_fu_1469_p2                            | -   |        | conv3_i_i_i97_i         | add  | fabric | 0       |
+|       val_fu_918_p2                                         | -   |        | val                     | add  | fabric | 0       |
+|       p1_LR_fu_932_p2                                       | -   |        | p1_LR                   | add  | fabric | 0       |
+|       val_10_fu_1477_p2                                     | -   |        | val_10                  | add  | fabric | 0       |
+|       p2_LR_fu_1491_p2                                      | -   |        | p2_LR                   | add  | fabric | 0       |
+|       val_11_fu_950_p2                                      | -   |        | val_11                  | add  | fabric | 0       |
+|       p1_TB_fu_964_p2                                       | -   |        | p1_TB                   | add  | fabric | 0       |
+|       val_12_fu_1539_p2                                     | -   |        | val_12                  | add  | fabric | 0       |
+|       p2_TB_fu_1553_p2                                      | -   |        | p2_TB                   | add  | fabric | 0       |
+|       sub_ln282_fu_2386_p2                                  | -   |        | sub_ln282               | sub  | fabric | 0       |
+|       val_13_fu_2399_p2                                     | -   |        | val_13                  | add  | fabric | 0       |
+|       add_ln35_fu_2421_p2                                   | -   |        | add_ln35                | add  | fabric | 0       |
+|       sub_ln301_fu_2431_p2                                  | -   |        | sub_ln301               | sub  | fabric | 0       |
+|       val_14_fu_2444_p2                                     | -   |        | val_14                  | add  | fabric | 0       |
+|       add_ln35_8_fu_2466_p2                                 | -   |        | add_ln35_8              | add  | fabric | 0       |
+|       val_15_fu_982_p2                                      | -   |        | val_15                  | add  | fabric | 0       |
+|       p1_LR_2_fu_996_p2                                     | -   |        | p1_LR_2                 | add  | fabric | 0       |
+|       val_16_fu_1601_p2                                     | -   |        | val_16                  | add  | fabric | 0       |
+|       p2_LR_2_fu_1615_p2                                    | -   |        | p2_LR_2                 | add  | fabric | 0       |
+|       val_17_fu_1014_p2                                     | -   |        | val_17                  | add  | fabric | 0       |
+|       p1_TB_2_fu_1028_p2                                    | -   |        | p1_TB_2                 | add  | fabric | 0       |
+|       val_18_fu_1655_p2                                     | -   |        | val_18                  | add  | fabric | 0       |
+|       p2_TB_2_fu_1669_p2                                    | -   |        | p2_TB_2                 | add  | fabric | 0       |
+|       sub_ln282_1_fu_2504_p2                                | -   |        | sub_ln282_1             | sub  | fabric | 0       |
+|       val_19_fu_2517_p2                                     | -   |        | val_19                  | add  | fabric | 0       |
+|       add_ln35_13_fu_2539_p2                                | -   |        | add_ln35_13             | add  | fabric | 0       |
+|       sub_ln301_1_fu_2549_p2                                | -   |        | sub_ln301_1             | sub  | fabric | 0       |
+|       val_20_fu_2562_p2                                     | -   |        | val_20                  | add  | fabric | 0       |
+|       add_ln35_14_fu_2584_p2                                | -   |        | add_ln35_14             | add  | fabric | 0       |
+|       val_21_fu_1046_p2                                     | -   |        | val_21                  | add  | fabric | 0       |
+|       p1_LR_4_fu_1060_p2                                    | -   |        | p1_LR_4                 | add  | fabric | 0       |
+|       val_22_fu_1709_p2                                     | -   |        | val_22                  | add  | fabric | 0       |
+|       p2_LR_4_fu_1723_p2                                    | -   |        | p2_LR_4                 | add  | fabric | 0       |
+|       val_23_fu_1078_p2                                     | -   |        | val_23                  | add  | fabric | 0       |
+|       p1_TB_4_fu_1092_p2                                    | -   |        | p1_TB_4                 | add  | fabric | 0       |
+|       val_24_fu_1763_p2                                     | -   |        | val_24                  | add  | fabric | 0       |
+|       p2_TB_4_fu_1777_p2                                    | -   |        | p2_TB_4                 | add  | fabric | 0       |
+|       sub_ln282_2_fu_2622_p2                                | -   |        | sub_ln282_2             | sub  | fabric | 0       |
+|       val_25_fu_2635_p2                                     | -   |        | val_25                  | add  | fabric | 0       |
+|       add_ln35_19_fu_2657_p2                                | -   |        | add_ln35_19             | add  | fabric | 0       |
+|       sub_ln301_2_fu_2667_p2                                | -   |        | sub_ln301_2             | sub  | fabric | 0       |
+|       val_26_fu_2680_p2                                     | -   |        | val_26                  | add  | fabric | 0       |
+|       add_ln35_20_fu_2702_p2                                | -   |        | add_ln35_20             | add  | fabric | 0       |
+|       val_27_fu_1110_p2                                     | -   |        | val_27                  | add  | fabric | 0       |
+|       p1_LR_6_fu_1124_p2                                    | -   |        | p1_LR_6                 | add  | fabric | 0       |
+|       val_28_fu_1817_p2                                     | -   |        | val_28                  | add  | fabric | 0       |
+|       p2_LR_6_fu_1831_p2                                    | -   |        | p2_LR_6                 | add  | fabric | 0       |
+|       val_29_fu_1142_p2                                     | -   |        | val_29                  | add  | fabric | 0       |
+|       p1_TB_6_fu_1156_p2                                    | -   |        | p1_TB_6                 | add  | fabric | 0       |
+|       val_30_fu_1871_p2                                     | -   |        | val_30                  | add  | fabric | 0       |
+|       p2_TB_6_fu_1885_p2                                    | -   |        | p2_TB_6                 | add  | fabric | 0       |
+|       sub_ln282_3_fu_2740_p2                                | -   |        | sub_ln282_3             | sub  | fabric | 0       |
+|       val_31_fu_2753_p2                                     | -   |        | val_31                  | add  | fabric | 0       |
+|       add_ln35_25_fu_2775_p2                                | -   |        | add_ln35_25             | add  | fabric | 0       |
+|       sub_ln301_3_fu_2785_p2                                | -   |        | sub_ln301_3             | sub  | fabric | 0       |
+|       val_32_fu_2798_p2                                     | -   |        | val_32                  | add  | fabric | 0       |
+|       add_ln35_26_fu_2820_p2                                | -   |        | add_ln35_26             | add  | fabric | 0       |
+|       val_33_fu_1174_p2                                     | -   |        | val_33                  | add  | fabric | 0       |
+|       p1_LR_8_fu_1188_p2                                    | -   |        | p1_LR_8                 | add  | fabric | 0       |
+|       val_34_fu_1925_p2                                     | -   |        | val_34                  | add  | fabric | 0       |
+|       p2_LR_8_fu_1939_p2                                    | -   |        | p2_LR_8                 | add  | fabric | 0       |
+|       val_35_fu_1206_p2                                     | -   |        | val_35                  | add  | fabric | 0       |
+|       p1_TB_8_fu_1220_p2                                    | -   |        | p1_TB_8                 | add  | fabric | 0       |
+|       val_36_fu_1979_p2                                     | -   |        | val_36                  | add  | fabric | 0       |
+|       p2_TB_8_fu_1993_p2                                    | -   |        | p2_TB_8                 | add  | fabric | 0       |
+|       sub_ln282_4_fu_2858_p2                                | -   |        | sub_ln282_4             | sub  | fabric | 0       |
+|       val_37_fu_2871_p2                                     | -   |        | val_37                  | add  | fabric | 0       |
+|       add_ln35_31_fu_2893_p2                                | -   |        | add_ln35_31             | add  | fabric | 0       |
+|       sub_ln301_4_fu_2903_p2                                | -   |        | sub_ln301_4             | sub  | fabric | 0       |
+|       val_38_fu_2916_p2                                     | -   |        | val_38                  | add  | fabric | 0       |
+|       add_ln35_32_fu_2938_p2                                | -   |        | add_ln35_32             | add  | fabric | 0       |
+|       val_39_fu_1238_p2                                     | -   |        | val_39                  | add  | fabric | 0       |
+|       p1_LR_10_fu_1252_p2                                   | -   |        | p1_LR_10                | add  | fabric | 0       |
+|       val_40_fu_2033_p2                                     | -   |        | val_40                  | add  | fabric | 0       |
+|       p2_LR_10_fu_2047_p2                                   | -   |        | p2_LR_10                | add  | fabric | 0       |
+|       val_41_fu_1270_p2                                     | -   |        | val_41                  | add  | fabric | 0       |
+|       p1_TB_10_fu_1284_p2                                   | -   |        | p1_TB_10                | add  | fabric | 0       |
+|       val_42_fu_2087_p2                                     | -   |        | val_42                  | add  | fabric | 0       |
+|       p2_TB_10_fu_2101_p2                                   | -   |        | p2_TB_10                | add  | fabric | 0       |
+|       sub_ln282_5_fu_2976_p2                                | -   |        | sub_ln282_5             | sub  | fabric | 0       |
+|       val_43_fu_2989_p2                                     | -   |        | val_43                  | add  | fabric | 0       |
+|       add_ln35_37_fu_3011_p2                                | -   |        | add_ln35_37             | add  | fabric | 0       |
+|       sub_ln301_5_fu_3021_p2                                | -   |        | sub_ln301_5             | sub  | fabric | 0       |
+|       val_44_fu_3034_p2                                     | -   |        | val_44                  | add  | fabric | 0       |
+|       add_ln35_38_fu_3056_p2                                | -   |        | add_ln35_38             | add  | fabric | 0       |
+|       val_45_fu_1302_p2                                     | -   |        | val_45                  | add  | fabric | 0       |
+|       p1_LR_12_fu_1316_p2                                   | -   |        | p1_LR_12                | add  | fabric | 0       |
+|       val_46_fu_2141_p2                                     | -   |        | val_46                  | add  | fabric | 0       |
+|       p2_LR_12_fu_2155_p2                                   | -   |        | p2_LR_12                | add  | fabric | 0       |
+|       val_47_fu_1334_p2                                     | -   |        | val_47                  | add  | fabric | 0       |
+|       p1_TB_12_fu_1348_p2                                   | -   |        | p1_TB_12                | add  | fabric | 0       |
+|       val_48_fu_2195_p2                                     | -   |        | val_48                  | add  | fabric | 0       |
+|       p2_TB_12_fu_2209_p2                                   | -   |        | p2_TB_12                | add  | fabric | 0       |
+|       sub_ln282_6_fu_3094_p2                                | -   |        | sub_ln282_6             | sub  | fabric | 0       |
+|       val_49_fu_3107_p2                                     | -   |        | val_49                  | add  | fabric | 0       |
+|       add_ln35_43_fu_3129_p2                                | -   |        | add_ln35_43             | add  | fabric | 0       |
+|       sub_ln301_6_fu_3139_p2                                | -   |        | sub_ln301_6             | sub  | fabric | 0       |
+|       val_50_fu_3152_p2                                     | -   |        | val_50                  | add  | fabric | 0       |
+|       add_ln35_44_fu_3174_p2                                | -   |        | add_ln35_44             | add  | fabric | 0       |
+|       val_51_fu_1366_p2                                     | -   |        | val_51                  | add  | fabric | 0       |
+|       p1_LR_14_fu_1380_p2                                   | -   |        | p1_LR_14                | add  | fabric | 0       |
+|       val_52_fu_2249_p2                                     | -   |        | val_52                  | add  | fabric | 0       |
+|       p2_LR_14_fu_2263_p2                                   | -   |        | p2_LR_14                | add  | fabric | 0       |
+|       val_53_fu_1398_p2                                     | -   |        | val_53                  | add  | fabric | 0       |
+|       p1_TB_14_fu_1412_p2                                   | -   |        | p1_TB_14                | add  | fabric | 0       |
+|       val_54_fu_2303_p2                                     | -   |        | val_54                  | add  | fabric | 0       |
+|       p2_TB_14_fu_2317_p2                                   | -   |        | p2_TB_14                | add  | fabric | 0       |
+|       sub_ln282_7_fu_3212_p2                                | -   |        | sub_ln282_7             | sub  | fabric | 0       |
+|       val_55_fu_3225_p2                                     | -   |        | val_55                  | add  | fabric | 0       |
+|       add_ln35_49_fu_3247_p2                                | -   |        | add_ln35_49             | add  | fabric | 0       |
+|       sub_ln301_7_fu_3257_p2                                | -   |        | sub_ln301_7             | sub  | fabric | 0       |
+|       val_56_fu_3270_p2                                     | -   |        | val_56                  | add  | fabric | 0       |
+|       add_ln35_50_fu_3292_p2                                | -   |        | add_ln35_50             | add  | fabric | 0       |
+|     + reduce_stage                                          | 0   |        |                         |      |        |         |
+|      + reduce_stage_Pipeline_ReduceGroups                   | 0   |        |                         |      |        |         |
+|        add_ln507_fu_563_p2                                  | -   |        | add_ln507               | add  | fabric | 0       |
+|        add_ln527_fu_577_p2                                  | -   |        | add_ln527               | add  | fabric | 0       |
+|        val_fu_794_p2                                        | -   |        | val                     | add  | fabric | 0       |
+|        add_ln35_fu_808_p2                                   | -   |        | add_ln35                | add  | fabric | 0       |
+|        val_1_fu_840_p2                                      | -   |        | val_1                   | add  | fabric | 0       |
+|        add_ln35_1_fu_854_p2                                 | -   |        | add_ln35_1              | add  | fabric | 0       |
+|        val_2_fu_876_p2                                      | -   |        | val_2                   | add  | fabric | 0       |
+|        add_ln35_2_fu_890_p2                                 | -   |        | add_ln35_2              | add  | fabric | 0       |
+|        val_3_fu_912_p2                                      | -   |        | val_3                   | add  | fabric | 0       |
+|        add_ln35_3_fu_926_p2                                 | -   |        | add_ln35_3              | add  | fabric | 0       |
+|        val_4_fu_948_p2                                      | -   |        | val_4                   | add  | fabric | 0       |
+|        add_ln35_4_fu_962_p2                                 | -   |        | add_ln35_4              | add  | fabric | 0       |
+|        val_5_fu_984_p2                                      | -   |        | val_5                   | add  | fabric | 0       |
+|        add_ln35_5_fu_998_p2                                 | -   |        | add_ln35_5              | add  | fabric | 0       |
+|        val_6_fu_1020_p2                                     | -   |        | val_6                   | add  | fabric | 0       |
+|        add_ln35_6_fu_1034_p2                                | -   |        | add_ln35_6              | add  | fabric | 0       |
+|        val_7_fu_1067_p2                                     | -   |        | val_7                   | add  | fabric | 0       |
+|        add_ln35_7_fu_1081_p2                                | -   |        | add_ln35_7              | add  | fabric | 0       |
+|   + row_output                                              | 0   |        |                         |      |        |         |
+|     mul_i_fu_124_p2                                         | -   |        | mul_i                   | add  | fabric | 0       |
+|     last_pixel_idx_fu_134_p2                                | -   |        | last_pixel_idx          | add  | fabric | 0       |
+|    + row_output_Pipeline_RowOutputCols                      | 0   |        |                         |      |        |         |
+|      out_c_2_fu_129_p2                                      | -   |        | out_c_2                 | add  | fabric | 0       |
+|      pixel_idx_fu_183_p2                                    | -   |        | pixel_idx               | add  | fabric | 0       |
++-------------------------------------------------------------+-----+--------+-------------------------+------+--------+---------+
+
+
+================================================================
+== Bind Storage Report
+================================================================
++-------------------------------+------+------+--------+------------------------+---------+------+---------+
+| Name                          | BRAM | URAM | Pragma | Variable               | Storage | Impl | Latency |
++-------------------------------+------+------+--------+------------------------+---------+------+---------+
+| + sgm_kernel                  | 20   | 0    |        |                        |         |      |         |
+|   bufL_U                      | 1    | -    |        | bufL                   | ram_1p  | auto | 1       |
+|   bufL_1_U                    | 1    | -    |        | bufL_1                 | ram_1p  | auto | 1       |
+|   bufL_2_U                    | 1    | -    |        | bufL_2                 | ram_1p  | auto | 1       |
+|   bufR_U                      | 1    | -    |        | bufR                   | ram_1p  | auto | 1       |
+|   bufR_1_U                    | 1    | -    |        | bufR_1                 | ram_1p  | auto | 1       |
+|   bufR_2_U                    | 1    | -    |        | bufR_2                 | ram_1p  | auto | 1       |
+|   rightStripe_U               | -    | -    |        | rightStripe            | ram_s2p | auto | 1       |
+|   rightStripe_1_U             | -    | -    |        | rightStripe_1          | ram_s2p | auto | 1       |
+|   rightStripe_2_U             | -    | -    |        | rightStripe_2          | ram_s2p | auto | 1       |
+|   minT_A_U                    | 1    | -    |        | minT_A                 | ram_1p  | auto | 1       |
+|   minT_B_U                    | 1    | -    |        | minT_B                 | ram_1p  | auto | 1       |
+|   costT_A_U                   | 6    | -    | pragma | costT_A                | ram_2p  | bram | 1       |
+|   costT_B_U                   | 6    | -    | pragma | costT_B                | ram_2p  | bram | 1       |
+|  + process_row                | 0    | 0    |        |                        |         |      |         |
+|    out_r_c_U                  | -    | -    |        | out_r_c                | fifo    | srl  | 0       |
+|    coststream_U               | -    | -    |        | coststream             | fifo    | srl  | 0       |
+|    dispstream_U               | -    | -    |        | dispstream             | fifo    | srl  | 0       |
+|   + row_backend               | 0    | 0    |        |                        |         |      |         |
+|    + col_backend              | 0    | 0    |        |                        |         |      |         |
+|      nextCostT_out_offset_c_U | -    | -    |        | nextCostT_out_offset_c | fifo    | srl  | 0       |
+|      prepstream_U             | -    | -    |        | prepstream             | fifo    | srl  | 0       |
+|      aggstream_U              | -    | -    |        | aggstream              | fifo    | srl  | 0       |
++-------------------------------+------+------+--------+------------------------+---------+------+---------+
+
+
+================================================================
+== Pragma Report
+================================================================
+* Pragmas with Warnings
++---------------+------------------------------------------+------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------+
+| Type          | Options                                  | Location                                                                                                                     | Messages                                           |
++---------------+------------------------------------------+------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------+
+| array_reshape | variable=val factor=RESHAPE_FACTOR dim=1 | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:759 in linebuffer<rows, cols, t, mem_type, reshape_factor>, val | 'factor' in '#pragma HLS array_reshape' is ignored |
++---------------+------------------------------------------+------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------+
+
+* Valid Pragma Syntax
++-----------------+--------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------+
+| Type            | Options                                          | Location                                                                                                                     |
++-----------------+--------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------+
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:245 in scalar<n, t>                                               |
+| array_partition | variable=val dim=1 complete                      | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:246 in scalar<n, t>, val                                          |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:252 in scalar<n, t>                                               |
+| array_partition | variable=val dim=1 complete                      | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:253 in scalar<n, t>, val                                          |
+| array_partition | variable=val dim=1 complete                      | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:260 in scalar<n, t>, val                                          |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:261 in scalar<n, t>                                               |
+| array_partition | variable=val dim=1 complete                      | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:269 in scalar<n, t>, val                                          |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:270 in scalar<n, t>                                               |
+| array_partition | variable=val dim=1 complete                      | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:279 in scalar<n, t>, val                                          |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:280 in scalar<n, t>                                               |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:305 in operator=                                                  |
+| unroll          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:309 in operator=                                                  |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:318 in operator+                                                  |
+| unroll          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:323 in operator+                                                  |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:333 in operator+                                                  |
+| unroll          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:338 in operator+                                                  |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:348 in operator-                                                  |
+| unroll          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:353 in operator-                                                  |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:363 in operator-                                                  |
+| unroll          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:368 in operator-                                                  |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:378 in operator*                                                  |
+| unroll          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:383 in operator*                                                  |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:393 in operator*                                                  |
+| unroll          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:398 in operator*                                                  |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:408 in operator/                                                  |
+| unroll          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:413 in operator/                                                  |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:423 in operator/                                                  |
+| unroll          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:428 in operator/                                                  |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:584 in type                                                       |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:592 in depth                                                      |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:599 in channels                                                   |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:607 in init                                                       |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:654 in mat<t, rows, cols, npc, xfcvdepth>                         |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:663 in mat<t, rows, cols, npc, xfcvdepth>                         |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:672 in mat<t, rows, cols, npc, xfcvdepth>                         |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:681 in mat<t, rows, cols, npc, xfcvdepth>                         |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:708 in copyto                                                     |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:742 in copyfrom                                                   |
+| bind_op         | variable=mul_rows_cols op=mul impl=dsp latency=2 | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:949 in addrbound, mul_rows_cols                                   |
+| loop_tripcount  | min=1 max=ADDRBOUND                              | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:984 in axi2axistream                                              |
+| pipeline        |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:985 in axi2axistream                                              |
+| loop_tripcount  | min=1 max=ADDRBOUND                              | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:998 in axi2axistream                                              |
+| pipeline        |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:999 in axi2axistream                                              |
+| loop_tripcount  | min=1 max=ROWS                                   | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1019 in axi2axistream                                             |
+| loop_tripcount  | min=1 max=COLS_ADDRBOUND                         | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1023 in axi2axistream                                             |
+| pipeline        | II=1                                             | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1024 in axi2axistream                                             |
+| loop_tripcount  | min=1 max=LOOPBOUND                              | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1056 in axistream2matstream                                       |
+| pipeline        |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1057 in axistream2matstream                                       |
+| loop_tripcount  | min=1 max=LOOPBOUND                              | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1100 in matstream2mat                                             |
+| pipeline        |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1101 in matstream2mat                                             |
+| dataflow        |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1113 in axistream2mat                                             |
+| dataflow        |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1126 in axistream2mat                                             |
+| dataflow        |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1141 in axi2mat                                                   |
+| dataflow        |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1164 in axi2mat                                                   |
+| dataflow        |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1176 in axi2mat                                                   |
+| dataflow        |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1199 in axi2mat                                                   |
+| loop_tripcount  | min=1 max=LOOPBOUND                              | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1273 in mat2matstream                                             |
+| pipeline        |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1274 in mat2matstream                                             |
+| loop_tripcount  | min=1 max=ROWS                                   | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1303 in matstream2axistream                                       |
+| loop_tripcount  | min=1 max=COLS_BOUND_PER_NPC                     | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1308 in matstream2axistream                                       |
+| pipeline        |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1309 in matstream2axistream                                       |
+| dataflow        |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1351 in mat2axistream                                             |
+| dataflow        |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1364 in mat2axistream                                             |
+| loop_tripcount  | min=1 max=ADDRBOUND                              | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1381 in axistream2axi                                             |
+| pipeline        |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1382 in axistream2axi                                             |
+| loop_tripcount  | min=1 max=ADDRBOUND                              | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1396 in axistream2axi                                             |
+| pipeline        |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1397 in axistream2axi                                             |
+| dataflow        |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1411 in mat2axi                                                   |
+| dataflow        |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1438 in mat2axi                                                   |
+| dataflow        |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1469 in mat2axi                                                   |
+| dataflow        |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_structs.hpp:1499 in mat2axi                                                   |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:46 in window<rows, cols, t>                                     |
+| array_partition | variable=val dim=1 complete                      | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:47 in window<rows, cols, t>, val                                |
+| array_partition | variable=val dim=2 complete                      | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:48 in window<rows, cols, t>, val                                |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:112 in shift_pixels_left                                        |
+| unroll          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:124 in shift_pixels_left                                        |
+| unroll          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:128 in shift_pixels_left                                        |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:156 in shift_pixels_right                                       |
+| unroll          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:168 in shift_pixels_right                                       |
+| unroll          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:172 in shift_pixels_right                                       |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:200 in shift_pixels_up                                          |
+| unroll          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:212 in shift_pixels_up                                          |
+| unroll          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:216 in shift_pixels_up                                          |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:244 in shift_pixels_down                                        |
+| unroll          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:256 in shift_pixels_down                                        |
+| unroll          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:260 in shift_pixels_down                                        |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:287 in insert_pixel                                             |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:320 in insert_row                                               |
+| unroll          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:332 in insert_row                                               |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:359 in insert_top_row                                           |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:392 in insert_bottom_row                                        |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:425 in insert_col                                               |
+| unroll          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:437 in insert_col                                               |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:464 in insert_left_col                                          |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:497 in insert_right_col                                         |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:530 in getval                                                   |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:542 in operator()                                               |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:579 in shift_left                                               |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:592 in shift_right                                              |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:605 in shift_up                                                 |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:618 in shift_down                                               |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:631 in insert                                                   |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:644 in insert_top                                               |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:657 in insert_bottom                                            |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:670 in insert_left                                              |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:683 in insert_right                                             |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:700 in linebuffer<rows, cols, t, mem_type, reshape_factor>      |
+| dependence      | variable=val inter false                         | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:701 in linebuffer<rows, cols, t, mem_type, reshape_factor>, val |
+| dependence      | variable=val intra false                         | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:702 in linebuffer<rows, cols, t, mem_type, reshape_factor>, val |
+| bind_storage    | variable=val type=RAM_1P impl=BRAM               | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:711 in linebuffer<rows, cols, t, mem_type, reshape_factor>, val |
+| bind_storage    | variable=val type=RAM_1P impl=URAM               | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:716 in linebuffer<rows, cols, t, mem_type, reshape_factor>, val |
+| bind_storage    | variable=val type=RAM_2P impl=BRAM               | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:721 in linebuffer<rows, cols, t, mem_type, reshape_factor>, val |
+| bind_storage    | variable=val type=RAM_2P impl=URAM               | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:726 in linebuffer<rows, cols, t, mem_type, reshape_factor>, val |
+| bind_storage    | variable=val type=RAM_S2P impl=BRAM              | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:731 in linebuffer<rows, cols, t, mem_type, reshape_factor>, val |
+| bind_storage    | variable=val type=RAM_S2P impl=URAM              | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:736 in linebuffer<rows, cols, t, mem_type, reshape_factor>, val |
+| bind_storage    | variable=val type=RAM_T2P impl=BRAM              | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:741 in linebuffer<rows, cols, t, mem_type, reshape_factor>, val |
+| bind_storage    | variable=val type=RAM_T2P impl=URAM              | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:746 in linebuffer<rows, cols, t, mem_type, reshape_factor>, val |
+| array_partition | variable=val complete dim=1                      | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:755 in linebuffer<rows, cols, t, mem_type, reshape_factor>, val |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:813 in shift_pixels_down                                        |
+| unroll          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:826 in shift_pixels_down                                        |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:856 in shift_pixels_up                                          |
+| unroll          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:869 in shift_pixels_up                                          |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:898 in insert_bottom_row                                        |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:931 in insert_top_row                                           |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:964 in get_col                                                  |
+| unroll          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:970 in get_col                                                  |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:981 in getval                                                   |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:992 in operator()                                               |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:1004 in shift_down                                              |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:1016 in shift_up                                                |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:1028 in insert_bottom                                           |
+| inline          |                                                  | ../Vitis_Libraries/vision/L1/include/common/xf_video_mem.hpp:1040 in insert_top                                              |
+| inline          |                                                  | sgm_kernel/sgm_kernel.cpp:28 in update_line_buffers                                                                          |
+| inline          |                                                  | sgm_kernel/sgm_kernel.cpp:47 in update_sliding_windows                                                                       |
+| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:52 in update_sliding_windows                                                                       |
+| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:55 in update_sliding_windows                                                                       |
+| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:63 in update_sliding_windows                                                                       |
+| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:74 in update_sliding_windows                                                                       |
+| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:87 in compute_census_descriptor                                                                    |
+| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:92 in compute_census_descriptor                                                                    |
+| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:117 in compute_right_census_descriptor                                                             |
+| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:122 in compute_right_census_descriptor                                                             |
+| inline          |                                                  | sgm_kernel/sgm_kernel.cpp:146 in compute_census_cost_vector                                                                  |
+| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:149 in compute_census_cost_vector                                                                  |
+| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:159 in compute_census_cost_vector                                                                  |
+| array_partition | variable=tbCur type=complete                     | sgm_kernel/sgm_kernel.cpp:204 in prepare_group, tbCur                                                                        |
+| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:208 in prepare_group                                                                               |
+| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:223 in prepare_group                                                                               |
+| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:267 in aggregate_group                                                                             |
+| array_partition | variable=out.aggLR complete                      | sgm_kernel/sgm_kernel.cpp:325 in reduce_group, out.aggLR                                                                     |
+| array_partition | variable=laneSum complete                        | sgm_kernel/sgm_kernel.cpp:328 in reduce_group, laneSum                                                                       |
+| array_partition | variable=lrTree complete                         | sgm_kernel/sgm_kernel.cpp:336 in reduce_group, lrTree                                                                        |
+| array_partition | variable=tbTree complete                         | sgm_kernel/sgm_kernel.cpp:337 in reduce_group, tbTree                                                                        |
+| array_partition | variable=costTree complete                       | sgm_kernel/sgm_kernel.cpp:338 in reduce_group, costTree                                                                      |
+| array_partition | variable=dispTree complete                       | sgm_kernel/sgm_kernel.cpp:339 in reduce_group, dispTree                                                                      |
+| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:346 in reduce_group                                                                                |
+| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:365 in reduce_group                                                                                |
+| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:370 in reduce_group                                                                                |
+| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:407 in commit_prev_costs                                                                           |
+| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:412 in commit_prev_costs                                                                           |
+| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:427 in prepare_stage                                                                               |
+| pipeline        | II=1                                             | sgm_kernel/sgm_kernel.cpp:440 in prepare_stage                                                                               |
+| pipeline        | II=1                                             | sgm_kernel/sgm_kernel.cpp:481 in aggregate_stage                                                                             |
+| pipeline        | II=1                                             | sgm_kernel/sgm_kernel.cpp:509 in reduce_stage                                                                                |
+| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:522 in reduce_stage                                                                                |
+| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:575 in prepare_census_column                                                                       |
+| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:597 in prepare_census_column                                                                       |
+| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:617 in col_frontend                                                                                |
+| pipeline        | II=1                                             | sgm_kernel/sgm_kernel.cpp:621 in col_frontend                                                                                |
+| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:650 in col_backend                                                                                 |
+| dataflow        |                                                  | sgm_kernel/sgm_kernel.cpp:651 in col_backend                                                                                 |
+| stream          | variable=prepstream depth=2                      | sgm_kernel/sgm_kernel.cpp:656 in col_backend, prepstream                                                                     |
+| stream          | variable=aggstream depth=2                       | sgm_kernel/sgm_kernel.cpp:657 in col_backend, aggstream                                                                      |
+| dataflow        |                                                  | sgm_kernel/sgm_kernel.cpp:696 in process_cost_groups                                                                         |
+| stream          | variable=coststream depth=2                      | sgm_kernel/sgm_kernel.cpp:699 in process_cost_groups, coststream                                                             |
+| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:731 in row_frontend                                                                                |
+| unroll          | factor=2                                         | sgm_kernel/sgm_kernel.cpp:737 in row_frontend                                                                                |
+| pipeline        | II=1                                             | sgm_kernel/sgm_kernel.cpp:780 in row_frontend                                                                                |
+| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:813 in row_backend                                                                                 |
+| array_partition | variable=costL_A complete                        | sgm_kernel/sgm_kernel.cpp:818 in row_backend, costL_A                                                                        |
+| array_partition | variable=costL_B complete                        | sgm_kernel/sgm_kernel.cpp:819 in row_backend, costL_B                                                                        |
+| unroll          | factor=2                                         | sgm_kernel/sgm_kernel.cpp:824 in row_backend                                                                                 |
+| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:897 in row_output                                                                                  |
+| pipeline        | II=1                                             | sgm_kernel/sgm_kernel.cpp:906 in row_output                                                                                  |
+| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:959 in process_row                                                                                 |
+| dataflow        |                                                  | sgm_kernel/sgm_kernel.cpp:960 in process_row                                                                                 |
+| stream          | variable=coststream depth=16                     | sgm_kernel/sgm_kernel.cpp:965 in process_row, coststream                                                                     |
+| stream          | variable=dispstream depth=4                      | sgm_kernel/sgm_kernel.cpp:966 in process_row, dispstream                                                                     |
+| interface       | mode=bram port=left                              | sgm_kernel/sgm_kernel.cpp:1006 in sgm_kernel, left                                                                           |
+| interface       | mode=bram port=right                             | sgm_kernel/sgm_kernel.cpp:1007 in sgm_kernel, right                                                                          |
+| interface       | mode=bram port=disp                              | sgm_kernel/sgm_kernel.cpp:1008 in sgm_kernel, disp                                                                           |
+| interface       | mode=s_axilite port=return bundle=control        | sgm_kernel/sgm_kernel.cpp:1010 in sgm_kernel, return                                                                         |
+| array_partition | variable=bufL complete dim=1                     | sgm_kernel/sgm_kernel.cpp:1016 in sgm_kernel, bufL                                                                           |
+| array_partition | variable=bufR complete dim=1                     | sgm_kernel/sgm_kernel.cpp:1017 in sgm_kernel, bufR                                                                           |
+| bind_storage    | variable=costT_A type=RAM_2P impl=BRAM           | sgm_kernel/sgm_kernel.cpp:1033 in sgm_kernel, costT_A                                                                        |
+| bind_storage    | variable=costT_B type=RAM_2P impl=BRAM           | sgm_kernel/sgm_kernel.cpp:1034 in sgm_kernel, costT_B                                                                        |
+| array_partition | variable=leftWin complete dim=0                  | sgm_kernel/sgm_kernel.cpp:1039 in sgm_kernel, leftWin                                                                        |
+| array_partition | variable=rightStripe complete dim=1              | sgm_kernel/sgm_kernel.cpp:1040 in sgm_kernel, rightStripe                                                                    |
+| array_partition | variable=rightCensusHistory complete             | sgm_kernel/sgm_kernel.cpp:1043 in sgm_kernel, rightCensusHistory                                                             |
+| loop_tripcount  | min=IMG_W max=IMG_W                              | sgm_kernel/sgm_kernel.cpp:1054 in sgm_kernel                                                                                 |
+| unroll          | factor=2                                         | sgm_kernel/sgm_kernel.cpp:1062 in sgm_kernel                                                                                 |
+| inline          |                                                  | sgm_kernel/sgm_params.hpp:28 in absdiff                                                                                      |
+| inline          |                                                  | sgm_kernel/sgm_params.hpp:34 in sat12                                                                                        |
++-----------------+--------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------+
+
+* Inferred Pragmas
++----------------------------------------+-----------------+---------------------------------------------+-------------------------------------------+
+| Source Pragma                          | Inferred Pragma | Options                                     | Location                                  |
++----------------------------------------+-----------------+---------------------------------------------+-------------------------------------------+
+| pipeline sgm_kernel/sgm_kernel.cpp:440 | array_partition | dim=1 type=complete  variable=pkt.curCost   | variable pkt.curCost in prepare_stage     |
+| pipeline sgm_kernel/sgm_kernel.cpp:440 | array_partition | dim=1 type=complete  variable=prep.curCost  | variable prep.curCost in prepare_stage    |
+| pipeline sgm_kernel/sgm_kernel.cpp:440 | array_partition | dim=1 type=complete  variable=prep.lrCenter | variable prep.lrCenter in prepare_stage   |
+| pipeline sgm_kernel/sgm_kernel.cpp:440 | array_partition | dim=1 type=complete  variable=prep.lrLeft   | variable prep.lrLeft in prepare_stage     |
+| pipeline sgm_kernel/sgm_kernel.cpp:440 | array_partition | dim=1 type=complete  variable=prep.lrRight  | variable prep.lrRight in prepare_stage    |
+| pipeline sgm_kernel/sgm_kernel.cpp:440 | array_partition | dim=1 type=complete  variable=prep.tbCenter | variable prep.tbCenter in prepare_stage   |
+| pipeline sgm_kernel/sgm_kernel.cpp:440 | array_partition | dim=1 type=complete  variable=prep.tbLeft   | variable prep.tbLeft in prepare_stage     |
+| pipeline sgm_kernel/sgm_kernel.cpp:440 | array_partition | dim=1 type=complete  variable=prep.tbRight  | variable prep.tbRight in prepare_stage    |
+| pipeline sgm_kernel/sgm_kernel.cpp:481 | array_partition | dim=1 type=complete  variable=prep.curCost  | variable prep.curCost in aggregate_stage  |
+| pipeline sgm_kernel/sgm_kernel.cpp:481 | array_partition | dim=1 type=complete  variable=prep.lrCenter | variable prep.lrCenter in aggregate_stage |
+| pipeline sgm_kernel/sgm_kernel.cpp:481 | array_partition | dim=1 type=complete  variable=prep.lrLeft   | variable prep.lrLeft in aggregate_stage   |
+| pipeline sgm_kernel/sgm_kernel.cpp:481 | array_partition | dim=1 type=complete  variable=prep.lrRight  | variable prep.lrRight in aggregate_stage  |
+| pipeline sgm_kernel/sgm_kernel.cpp:481 | array_partition | dim=1 type=complete  variable=prep.tbCenter | variable prep.tbCenter in aggregate_stage |
+| pipeline sgm_kernel/sgm_kernel.cpp:481 | array_partition | dim=1 type=complete  variable=prep.tbLeft   | variable prep.tbLeft in aggregate_stage   |
+| pipeline sgm_kernel/sgm_kernel.cpp:481 | array_partition | dim=1 type=complete  variable=prep.tbRight  | variable prep.tbRight in aggregate_stage  |
+| pipeline sgm_kernel/sgm_kernel.cpp:481 | array_partition | dim=1 type=complete  variable=agg.aggLR     | variable agg.aggLR in aggregate_stage     |
+| pipeline sgm_kernel/sgm_kernel.cpp:481 | array_partition | dim=1 type=complete  variable=agg.aggTB     | variable agg.aggTB in aggregate_stage     |
+| pipeline sgm_kernel/sgm_kernel.cpp:509 | array_partition | dim=1 type=complete  variable=agg.aggLR     | variable agg.aggLR in reduce_stage        |
+| pipeline sgm_kernel/sgm_kernel.cpp:509 | array_partition | dim=1 type=complete  variable=agg.aggTB     | variable agg.aggTB in reduce_stage        |
++----------------------------------------+-----------------+---------------------------------------------+-------------------------------------------+
+
+
