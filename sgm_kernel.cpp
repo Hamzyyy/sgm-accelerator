@@ -383,7 +383,9 @@ ReduceLanes:
                     tbTree[i] = tbTree[j];
                 }
 
-                if (costTree[j] < costTree[i])
+                if (costTree[j] < costTree[i] ||
+                	(costTree[j] == costTree[i]	&&
+                	dispTree[j] < dispTree[i]))
                 {
                     costTree[i] = costTree[j];
                     dispTree[i] = dispTree[j];
@@ -532,7 +534,9 @@ ReduceGroups:
             if (result.groupMinTB < runMinTB)
                 runMinTB = result.groupMinTB;
 
-            if (result.groupBestCost < bestCost)
+            if (result.groupBestCost < bestCost ||
+            	(result.groupBestCost == bestCost &&
+            	result.groupBestDisp < bestDisp))
             {
                 bestCost = result.groupBestCost;
                 bestDisp = result.groupBestDisp;

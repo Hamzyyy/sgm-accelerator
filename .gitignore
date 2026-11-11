@@ -2,8 +2,14 @@
 solution1
 .apc
 .settings
-Debug	
-
+Debug/	
+tools/.Xil/
+tools/gt_*.hpp
+tools/left_*.hpp
+tools/right_*.hpp
+tools/xrc.log
+Vivado_design/
+export/
 
 # Ignore files
 vitis_hls.log

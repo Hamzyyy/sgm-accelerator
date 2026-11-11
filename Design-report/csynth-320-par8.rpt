@@ -4,7 +4,7 @@
 == Synthesis Summary Report of 'sgm_kernel'
 ================================================================
 + General Information: 
-    * Date:           Sun Nov  1 07:24:51 2026
+    * Date:           Wed Nov 11 22:10:40 2026
     * Version:        2023.1 (Build 3854077 on May  4 2023)
     * Project:        sgm_kernel
     * Solution:       solution1 (Vivado IP Flow Target)
@@ -19,39 +19,39 @@
     |                            Modules                           | Issue|      | Latency |  Latency  | Iteration|         | Trip |          |          |    |            |             |     |
     |                            & Loops                           | Type | Slack| (cycles)|    (ns)   |  Latency | Interval| Count| Pipelined|   BRAM   | DSP|     FF     |     LUT     | URAM|
     +--------------------------------------------------------------+------+------+---------+-----------+----------+---------+------+----------+----------+----+------------+-------------+-----+
-    |+ sgm_kernel                                                  |     -|  0.02|   812805|  8.128e+06|         -|   812806|     -|        no|  20 (16%)|   -|  6304 (17%)|  14002 (79%)|    -|
-    | + sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_1022_1              |     -|  1.10|      962|  9.620e+03|         -|      962|     -|        no|         -|   -|    35 (~0%)|    149 (~0%)|    -|
-    |  o InitBuf_VITIS_LOOP_1022_1                                 |     -|  7.30|      960|  9.600e+03|         2|        1|   960|       yes|         -|   -|           -|            -|    -|
+    |+ sgm_kernel                                                  |     -|  0.02|   812805|  8.128e+06|         -|   812806|     -|        no|  20 (16%)|   -|  6494 (18%)|  14406 (81%)|    -|
+    | + sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_1026_1              |     -|  1.10|      962|  9.620e+03|         -|      962|     -|        no|         -|   -|    35 (~0%)|    149 (~0%)|    -|
+    |  o InitBuf_VITIS_LOOP_1026_1                                 |     -|  7.30|      960|  9.600e+03|         2|        1|   960|       yes|         -|   -|           -|            -|    -|
     | o InitTBRow                                                  |     -|  7.30|     2560|  2.560e+04|         8|        -|   320|        no|         -|   -|           -|            -|    -|
     |  + sgm_kernel_Pipeline_InitTBRowD                            |     -|  2.41|        6|     60.000|         -|        6|     -|        no|         -|   -|     9 (~0%)|     94 (~0%)|    -|
     |   o InitTBRowD                                               |    II|  7.30|        4|     40.000|         2|        2|     2|       yes|         -|   -|           -|            -|    -|
     | o Row                                                        |     -|  7.30|   809280|  8.093e+06|      8430|        -|    96|        no|         -|   -|           -|            -|    -|
-    |  + process_row*                                              |     -|  0.02|     8427|  8.427e+04|         -|     8428|     -|  dataflow|         -|   -|  4922 (13%)|  11701 (66%)|    -|
+    |  + process_row*                                              |     -|  0.02|     8427|  8.427e+04|         -|     8428|     -|  dataflow|         -|   -|  5112 (14%)|  12105 (68%)|    -|
     |   + process_row_Block_entry2_proc                            |     -|  3.67|        0|      0.000|         -|        0|     -|        no|         -|   -|     4 (~0%)|     54 (~0%)|    -|
     |   + row_frontend                                             |     -|  0.42|     8427|  8.427e+04|         -|     8427|     -|        no|         -|   -|   2256 (6%)|   4281 (24%)|    -|
-    |    + row_frontend_Pipeline_VITIS_LOOP_735_1                  |     -|  3.89|       18|    180.000|         -|       18|     -|        no|         -|   -|     8 (~0%)|     477 (2%)|    -|
-    |     o VITIS_LOOP_735_1                                       |     -|  7.30|       16|    160.000|         1|        1|    16|       yes|         -|   -|           -|            -|    -|
-    |    + row_frontend_Pipeline_InitLeftWin_VITIS_LOOP_744_2      |     -|  1.59|       11|    110.000|         -|       11|     -|        no|         -|   -|    10 (~0%)|     219 (1%)|    -|
-    |     o InitLeftWin_VITIS_LOOP_744_2                           |     -|  7.30|        9|     90.000|         1|        1|     9|       yes|         -|   -|           -|            -|    -|
-    |    + row_frontend_Pipeline_InitRightStripe_VITIS_LOOP_753_3  |     -|  0.87|      104|  1.040e+03|         -|      104|     -|        no|         -|   -|    17 (~0%)|    137 (~0%)|    -|
-    |     o InitRightStripe_VITIS_LOOP_753_3                       |     -|  7.30|      102|  1.020e+03|         1|        1|   102|       yes|         -|   -|           -|            -|    -|
-    |    o VITIS_LOOP_759_4                                        |     -|  7.30|     8321|  8.321e+04|        26|        -|   320|        no|         -|   -|           -|            -|    -|
+    |    + row_frontend_Pipeline_VITIS_LOOP_739_1                  |     -|  3.89|       18|    180.000|         -|       18|     -|        no|         -|   -|     8 (~0%)|     477 (2%)|    -|
+    |     o VITIS_LOOP_739_1                                       |     -|  7.30|       16|    160.000|         1|        1|    16|       yes|         -|   -|           -|            -|    -|
+    |    + row_frontend_Pipeline_InitLeftWin_VITIS_LOOP_748_2      |     -|  1.59|       11|    110.000|         -|       11|     -|        no|         -|   -|    10 (~0%)|     219 (1%)|    -|
+    |     o InitLeftWin_VITIS_LOOP_748_2                           |     -|  7.30|        9|     90.000|         1|        1|     9|       yes|         -|   -|           -|            -|    -|
+    |    + row_frontend_Pipeline_InitRightStripe_VITIS_LOOP_757_3  |     -|  0.87|      104|  1.040e+03|         -|      104|     -|        no|         -|   -|    17 (~0%)|    137 (~0%)|    -|
+    |     o InitRightStripe_VITIS_LOOP_757_3                       |     -|  7.30|      102|  1.020e+03|         1|        1|   102|       yes|         -|   -|           -|            -|    -|
+    |    o VITIS_LOOP_763_4                                        |     -|  7.30|     8321|  8.321e+04|        26|        -|   320|        no|         -|   -|           -|            -|    -|
     |     + prepare_census_column                                  |     -|  0.42|       14|    140.000|         -|       14|     -|        no|         -|   -|    697 (1%)|    1393 (7%)|    -|
     |      o VITIS_LOOP_30_1                                       |     -|  7.30|        8|     80.000|         4|        -|     2|        no|         -|   -|           -|            -|    -|
-    |     + row_frontend_Pipeline_VITIS_LOOP_778_5                 |     -|  0.80|        7|     70.000|         -|        7|     -|        no|         -|   -|   157 (~0%)|     942 (5%)|    -|
-    |      o VITIS_LOOP_778_5                                      |     -|  7.30|        5|     50.000|         3|        1|     4|       yes|         -|   -|           -|            -|    -|
-    |   + row_backend                                              |     -|  0.02|     7019|  7.019e+04|         -|     7019|     -|        no|         -|   -|   2002 (5%)|   6385 (36%)|    -|
-    |    o RowBackendCols                                          |     -|  7.30|     7018|  7.018e+04|        22|        -|   319|        no|         -|   -|           -|            -|    -|
-    |     + col_backend*                                           |     -|  0.02|       17|    170.000|         -|       12|     -|  dataflow|         -|   -|   1522 (4%)|   5113 (29%)|    -|
+    |     + row_frontend_Pipeline_VITIS_LOOP_782_5                 |     -|  0.80|        7|     70.000|         -|        7|     -|        no|         -|   -|   157 (~0%)|     942 (5%)|    -|
+    |      o VITIS_LOOP_782_5                                      |     -|  7.30|        5|     50.000|         3|        1|     4|       yes|         -|   -|           -|            -|    -|
+    |   + row_backend                                              |     -|  0.02|     7657|  7.657e+04|         -|     7657|     -|        no|         -|   -|   2192 (6%)|   6789 (38%)|    -|
+    |    o RowBackendCols                                          |     -|  7.30|     7656|  7.656e+04|        24|        -|   319|        no|         -|   -|           -|            -|    -|
+    |     + col_backend*                                           |     -|  0.02|       19|    190.000|         -|       14|     -|  dataflow|         -|   -|   1712 (4%)|   5517 (31%)|    -|
     |      + prepare_stage                                         |     -|  0.02|       10|    100.000|         -|       10|     -|        no|         -|   -|   267 (~0%)|     530 (3%)|    -|
     |       + prepare_stage_Pipeline_PrepareGroups                 |     -|  0.02|        7|     70.000|         -|        7|     -|        no|         -|   -|   155 (~0%)|     428 (2%)|    -|
     |        o PrepareGroups                                       |     -|  7.30|        5|     50.000|         2|        1|     4|       yes|         -|   -|           -|            -|    -|
     |      + aggregate_stage                                       |     -|  0.65|        9|     90.000|         -|        9|     -|        no|         -|   -|    745 (2%)|   3320 (18%)|    -|
     |       o AggregateGroups                                      |     -|  7.30|        7|     70.000|         5|        1|     4|       yes|         -|   -|           -|            -|    -|
     |      + entry_proc                                            |     -|  3.67|        0|      0.000|         -|        0|     -|        no|         -|   -|     3 (~0%)|     29 (~0%)|    -|
-    |      + reduce_stage                                          |     -|  0.41|       11|    110.000|         -|       11|     -|        no|         -|   -|   208 (~0%)|    1000 (5%)|    -|
-    |       + reduce_stage_Pipeline_ReduceGroups                   |     -|  0.41|        8|     80.000|         -|        8|     -|        no|         -|   -|   172 (~0%)|     905 (5%)|    -|
-    |        o ReduceGroups                                        |     -|  7.30|        6|     60.000|         4|        1|     4|       yes|         -|   -|           -|            -|    -|
+    |      + reduce_stage                                          |     -|  0.27|       13|    130.000|         -|       13|     -|        no|         -|   -|    398 (1%)|    1404 (7%)|    -|
+    |       + reduce_stage_Pipeline_ReduceGroups                   |     -|  0.27|       10|    100.000|         -|       10|     -|        no|         -|   -|    362 (1%)|    1309 (7%)|    -|
+    |        o ReduceGroups                                        |     -|  7.30|        8|     80.000|         5|        1|     4|       yes|         -|   -|           -|            -|    -|
     |   + row_output                                               |     -|  0.52|      325|  3.250e+03|         -|      325|     -|        no|         -|   -|   160 (~0%)|     566 (3%)|    -|
     |    + row_output_Pipeline_RowOutputCols                       |     -|  0.52|      322|  3.220e+03|         -|      322|     -|        no|         -|   -|   130 (~0%)|     421 (2%)|    -|
     |     o RowOutputCols                                          |     -|  7.30|      320|  3.200e+03|         3|        1|   319|       yes|         -|   -|           -|            -|    -|
@@ -127,34 +127,34 @@
 | Name                                                        | DSP | Pragma | Variable                | Op   | Impl   | Latency |
 +-------------------------------------------------------------+-----+--------+-------------------------+------+--------+---------+
 | + sgm_kernel                                                | 0   |        |                         |      |        |         |
-|   add_ln1052_fu_1121_p2                                     | -   |        | add_ln1052              | add  | fabric | 0       |
+|   add_ln1056_fu_1121_p2                                     | -   |        | add_ln1056              | add  | fabric | 0       |
 |   r_2_fu_1166_p2                                            | -   |        | r_2                     | add  | fabric | 0       |
 |   out_r_fu_1172_p2                                          | -   |        | out_r                   | add  | fabric | 0       |
-|  + sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_1022_1            | 0   |        |                         |      |        |         |
-|    add_ln1020_1_fu_172_p2                                   | -   |        | add_ln1020_1            | add  | fabric | 0       |
-|    add_ln1020_fu_184_p2                                     | -   |        | add_ln1020              | add  | fabric | 0       |
-|    add_ln1022_fu_212_p2                                     | -   |        | add_ln1022              | add  | fabric | 0       |
+|  + sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_1026_1            | 0   |        |                         |      |        |         |
+|    add_ln1024_1_fu_172_p2                                   | -   |        | add_ln1024_1            | add  | fabric | 0       |
+|    add_ln1024_fu_184_p2                                     | -   |        | add_ln1024              | add  | fabric | 0       |
+|    add_ln1026_fu_212_p2                                     | -   |        | add_ln1026              | add  | fabric | 0       |
 |  + sgm_kernel_Pipeline_InitTBRowD                           | 0   |        |                         |      |        |         |
-|    add_ln1063_fu_142_p2                                     | -   |        | add_ln1063              | add  | fabric | 0       |
-|    add_ln1060_fu_176_p2                                     | -   |        | add_ln1060              | add  | fabric | 0       |
+|    add_ln1067_fu_142_p2                                     | -   |        | add_ln1067              | add  | fabric | 0       |
+|    add_ln1064_fu_176_p2                                     | -   |        | add_ln1064              | add  | fabric | 0       |
 |  + process_row                                              | 0   |        |                         |      |        |         |
 |    rowValid_loc_channel_U                                   | -   |        | rowValid_loc_channel    | fifo | srl    | 0       |
 |    outputValid_loc_channel_U                                | -   |        | outputValid_loc_channel | fifo | srl    | 0       |
 |   + row_frontend                                            | 0   |        |                         |      |        |         |
-|     add_ln759_fu_1358_p2                                    | -   |        | add_ln759               | add  | fabric | 0       |
-|     add_ln774_fu_1547_p2                                    | -   |        | add_ln774               | add  | fabric | 0       |
-|    + row_frontend_Pipeline_VITIS_LOOP_735_1                 | 0   |        |                         |      |        |         |
-|      add_ln735_fu_778_p2                                    | -   |        | add_ln735               | add  | fabric | 0       |
-|    + row_frontend_Pipeline_InitLeftWin_VITIS_LOOP_744_2     | 0   |        |                         |      |        |         |
-|      add_ln742_1_fu_200_p2                                  | -   |        | add_ln742_1             | add  | fabric | 0       |
-|      add_ln742_fu_212_p2                                    | -   |        | add_ln742               | add  | fabric | 0       |
-|      add_ln744_fu_276_p2                                    | -   |        | add_ln744               | add  | fabric | 0       |
-|    + row_frontend_Pipeline_InitRightStripe_VITIS_LOOP_753_3 | 0   |        |                         |      |        |         |
-|      add_ln751_1_fu_124_p2                                  | -   |        | add_ln751_1             | add  | fabric | 0       |
-|      add_ln751_fu_136_p2                                    | -   |        | add_ln751               | add  | fabric | 0       |
-|      add_ln753_fu_171_p2                                    | -   |        | add_ln753               | add  | fabric | 0       |
+|     add_ln763_fu_1358_p2                                    | -   |        | add_ln763               | add  | fabric | 0       |
+|     add_ln778_fu_1547_p2                                    | -   |        | add_ln778               | add  | fabric | 0       |
+|    + row_frontend_Pipeline_VITIS_LOOP_739_1                 | 0   |        |                         |      |        |         |
+|      add_ln739_fu_778_p2                                    | -   |        | add_ln739               | add  | fabric | 0       |
+|    + row_frontend_Pipeline_InitLeftWin_VITIS_LOOP_748_2     | 0   |        |                         |      |        |         |
+|      add_ln746_1_fu_200_p2                                  | -   |        | add_ln746_1             | add  | fabric | 0       |
+|      add_ln746_fu_212_p2                                    | -   |        | add_ln746               | add  | fabric | 0       |
+|      add_ln748_fu_276_p2                                    | -   |        | add_ln748               | add  | fabric | 0       |
+|    + row_frontend_Pipeline_InitRightStripe_VITIS_LOOP_757_3 | 0   |        |                         |      |        |         |
+|      add_ln755_1_fu_124_p2                                  | -   |        | add_ln755_1             | add  | fabric | 0       |
+|      add_ln755_fu_136_p2                                    | -   |        | add_ln755               | add  | fabric | 0       |
+|      add_ln757_fu_171_p2                                    | -   |        | add_ln757               | add  | fabric | 0       |
 |    + prepare_census_column                                  | 0   |        |                         |      |        |         |
-|      add_ln577_fu_716_p2                                    | -   |        | add_ln577               | add  | fabric | 0       |
+|      add_ln581_fu_716_p2                                    | -   |        | add_ln581               | add  | fabric | 0       |
 |      pixel_idx_fu_726_p2                                    | -   |        | pixel_idx               | add  | fabric | 0       |
 |      add_ln32_fu_772_p2                                     | -   |        | add_ln32                | add  | fabric | 0       |
 |      add_ln67_fu_815_p2                                     | -   |        | add_ln67                | add  | fabric | 0       |
@@ -163,8 +163,8 @@
 |      physIndex_fu_944_p2                                    | -   |        | physIndex               | add  | fabric | 0       |
 |      add_ln126_1_fu_949_p2                                  | -   |        | add_ln126_1             | add  | fabric | 0       |
 |      physIndex_6_fu_982_p2                                  | -   |        | physIndex_6             | add  | fabric | 0       |
-|    + row_frontend_Pipeline_VITIS_LOOP_778_5                 | 0   |        |                         |      |        |         |
-|      add_ln778_fu_463_p2                                    | -   |        | add_ln778               | add  | fabric | 0       |
+|    + row_frontend_Pipeline_VITIS_LOOP_782_5                 | 0   |        |                         |      |        |         |
+|      add_ln782_fu_463_p2                                    | -   |        | add_ln782               | add  | fabric | 0       |
 |      sum_16_fu_1931_p2                                      | -   |        | sum_16                  | add  | fabric | 0       |
 |      sum_17_fu_1982_p2                                      | -   |        | sum_17                  | add  | fabric | 0       |
 |      sum_18_fu_2033_p2                                      | -   |        | sum_18                  | add  | fabric | 0       |
@@ -174,13 +174,13 @@
 |      sum_22_fu_2237_p2                                      | -   |        | sum_22                  | add  | fabric | 0       |
 |      sum_23_fu_2288_p2                                      | -   |        | sum_23                  | add  | fabric | 0       |
 |   + row_backend                                             | 0   |        |                         |      |        |         |
-|     add_ln836_fu_828_p2                                     | -   |        | add_ln836               | add  | fabric | 0       |
+|     add_ln840_fu_828_p2                                     | -   |        | add_ln840               | add  | fabric | 0       |
 |    + col_backend                                            | 0   |        |                         |      |        |         |
 |     + prepare_stage                                         | 0   |        |                         |      |        |         |
 |      + prepare_stage_Pipeline_PrepareGroups                 | 0   |        |                         |      |        |         |
-|        add_ln438_fu_463_p2                                  | -   |        | add_ln438               | add  | fabric | 0       |
-|        add_ln460_fu_473_p2                                  | -   |        | add_ln460               | add  | fabric | 0       |
-|        add_ln461_fu_483_p2                                  | -   |        | add_ln461               | add  | fabric | 0       |
+|        add_ln440_fu_463_p2                                  | -   |        | add_ln440               | add  | fabric | 0       |
+|        add_ln462_fu_473_p2                                  | -   |        | add_ln462               | add  | fabric | 0       |
+|        add_ln463_fu_483_p2                                  | -   |        | add_ln463               | add  | fabric | 0       |
 |     + aggregate_stage                                       | 0   |        |                         |      |        |         |
 |       g_6_fu_323_p2                                         | -   |        | g_6                     | add  | fabric | 0       |
 |       val_9_fu_1433_p2                                      | -   |        | val_9                   | add  | fabric | 0       |
@@ -301,24 +301,24 @@
 |       add_ln35_50_fu_3292_p2                                | -   |        | add_ln35_50             | add  | fabric | 0       |
 |     + reduce_stage                                          | 0   |        |                         |      |        |         |
 |      + reduce_stage_Pipeline_ReduceGroups                   | 0   |        |                         |      |        |         |
-|        add_ln507_fu_563_p2                                  | -   |        | add_ln507               | add  | fabric | 0       |
-|        add_ln527_fu_577_p2                                  | -   |        | add_ln527               | add  | fabric | 0       |
-|        val_fu_794_p2                                        | -   |        | val                     | add  | fabric | 0       |
-|        add_ln35_fu_808_p2                                   | -   |        | add_ln35                | add  | fabric | 0       |
-|        val_1_fu_840_p2                                      | -   |        | val_1                   | add  | fabric | 0       |
-|        add_ln35_1_fu_854_p2                                 | -   |        | add_ln35_1              | add  | fabric | 0       |
-|        val_2_fu_876_p2                                      | -   |        | val_2                   | add  | fabric | 0       |
-|        add_ln35_2_fu_890_p2                                 | -   |        | add_ln35_2              | add  | fabric | 0       |
-|        val_3_fu_912_p2                                      | -   |        | val_3                   | add  | fabric | 0       |
-|        add_ln35_3_fu_926_p2                                 | -   |        | add_ln35_3              | add  | fabric | 0       |
-|        val_4_fu_948_p2                                      | -   |        | val_4                   | add  | fabric | 0       |
-|        add_ln35_4_fu_962_p2                                 | -   |        | add_ln35_4              | add  | fabric | 0       |
-|        val_5_fu_984_p2                                      | -   |        | val_5                   | add  | fabric | 0       |
-|        add_ln35_5_fu_998_p2                                 | -   |        | add_ln35_5              | add  | fabric | 0       |
-|        val_6_fu_1020_p2                                     | -   |        | val_6                   | add  | fabric | 0       |
-|        add_ln35_6_fu_1034_p2                                | -   |        | add_ln35_6              | add  | fabric | 0       |
-|        val_7_fu_1067_p2                                     | -   |        | val_7                   | add  | fabric | 0       |
-|        add_ln35_7_fu_1081_p2                                | -   |        | add_ln35_7              | add  | fabric | 0       |
+|        add_ln509_fu_576_p2                                  | -   |        | add_ln509               | add  | fabric | 0       |
+|        add_ln529_fu_590_p2                                  | -   |        | add_ln529               | add  | fabric | 0       |
+|        val_fu_807_p2                                        | -   |        | val                     | add  | fabric | 0       |
+|        add_ln35_fu_821_p2                                   | -   |        | add_ln35                | add  | fabric | 0       |
+|        val_1_fu_853_p2                                      | -   |        | val_1                   | add  | fabric | 0       |
+|        add_ln35_1_fu_867_p2                                 | -   |        | add_ln35_1              | add  | fabric | 0       |
+|        val_2_fu_889_p2                                      | -   |        | val_2                   | add  | fabric | 0       |
+|        add_ln35_2_fu_903_p2                                 | -   |        | add_ln35_2              | add  | fabric | 0       |
+|        val_3_fu_925_p2                                      | -   |        | val_3                   | add  | fabric | 0       |
+|        add_ln35_3_fu_939_p2                                 | -   |        | add_ln35_3              | add  | fabric | 0       |
+|        val_4_fu_961_p2                                      | -   |        | val_4                   | add  | fabric | 0       |
+|        add_ln35_4_fu_975_p2                                 | -   |        | add_ln35_4              | add  | fabric | 0       |
+|        val_5_fu_997_p2                                      | -   |        | val_5                   | add  | fabric | 0       |
+|        add_ln35_5_fu_1011_p2                                | -   |        | add_ln35_5              | add  | fabric | 0       |
+|        val_6_fu_1033_p2                                     | -   |        | val_6                   | add  | fabric | 0       |
+|        add_ln35_6_fu_1047_p2                                | -   |        | add_ln35_6              | add  | fabric | 0       |
+|        val_7_fu_1080_p2                                     | -   |        | val_7                   | add  | fabric | 0       |
+|        add_ln35_7_fu_1094_p2                                | -   |        | add_ln35_7              | add  | fabric | 0       |
 |   + row_output                                              | 0   |        |                         |      |        |         |
 |     mul_i_fu_124_p2                                         | -   |        | mul_i                   | add  | fabric | 0       |
 |     last_pixel_idx_fu_134_p2                                | -   |        | last_pixel_idx          | add  | fabric | 0       |
@@ -532,49 +532,49 @@
 | unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:346 in reduce_group                                                                                |
 | unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:365 in reduce_group                                                                                |
 | unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:370 in reduce_group                                                                                |
-| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:407 in commit_prev_costs                                                                           |
-| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:412 in commit_prev_costs                                                                           |
-| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:427 in prepare_stage                                                                               |
-| pipeline        | II=1                                             | sgm_kernel/sgm_kernel.cpp:440 in prepare_stage                                                                               |
-| pipeline        | II=1                                             | sgm_kernel/sgm_kernel.cpp:481 in aggregate_stage                                                                             |
-| pipeline        | II=1                                             | sgm_kernel/sgm_kernel.cpp:509 in reduce_stage                                                                                |
-| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:522 in reduce_stage                                                                                |
-| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:575 in prepare_census_column                                                                       |
-| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:597 in prepare_census_column                                                                       |
-| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:617 in col_frontend                                                                                |
-| pipeline        | II=1                                             | sgm_kernel/sgm_kernel.cpp:621 in col_frontend                                                                                |
-| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:650 in col_backend                                                                                 |
-| dataflow        |                                                  | sgm_kernel/sgm_kernel.cpp:651 in col_backend                                                                                 |
-| stream          | variable=prepstream depth=2                      | sgm_kernel/sgm_kernel.cpp:656 in col_backend, prepstream                                                                     |
-| stream          | variable=aggstream depth=2                       | sgm_kernel/sgm_kernel.cpp:657 in col_backend, aggstream                                                                      |
-| dataflow        |                                                  | sgm_kernel/sgm_kernel.cpp:696 in process_cost_groups                                                                         |
-| stream          | variable=coststream depth=2                      | sgm_kernel/sgm_kernel.cpp:699 in process_cost_groups, coststream                                                             |
-| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:731 in row_frontend                                                                                |
-| unroll          | factor=2                                         | sgm_kernel/sgm_kernel.cpp:737 in row_frontend                                                                                |
-| pipeline        | II=1                                             | sgm_kernel/sgm_kernel.cpp:780 in row_frontend                                                                                |
-| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:813 in row_backend                                                                                 |
-| array_partition | variable=costL_A complete                        | sgm_kernel/sgm_kernel.cpp:818 in row_backend, costL_A                                                                        |
-| array_partition | variable=costL_B complete                        | sgm_kernel/sgm_kernel.cpp:819 in row_backend, costL_B                                                                        |
-| unroll          | factor=2                                         | sgm_kernel/sgm_kernel.cpp:824 in row_backend                                                                                 |
-| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:897 in row_output                                                                                  |
-| pipeline        | II=1                                             | sgm_kernel/sgm_kernel.cpp:906 in row_output                                                                                  |
-| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:959 in process_row                                                                                 |
-| dataflow        |                                                  | sgm_kernel/sgm_kernel.cpp:960 in process_row                                                                                 |
-| stream          | variable=coststream depth=16                     | sgm_kernel/sgm_kernel.cpp:965 in process_row, coststream                                                                     |
-| stream          | variable=dispstream depth=4                      | sgm_kernel/sgm_kernel.cpp:966 in process_row, dispstream                                                                     |
-| interface       | mode=bram port=left                              | sgm_kernel/sgm_kernel.cpp:1006 in sgm_kernel, left                                                                           |
-| interface       | mode=bram port=right                             | sgm_kernel/sgm_kernel.cpp:1007 in sgm_kernel, right                                                                          |
-| interface       | mode=bram port=disp                              | sgm_kernel/sgm_kernel.cpp:1008 in sgm_kernel, disp                                                                           |
-| interface       | mode=s_axilite port=return bundle=control        | sgm_kernel/sgm_kernel.cpp:1010 in sgm_kernel, return                                                                         |
-| array_partition | variable=bufL complete dim=1                     | sgm_kernel/sgm_kernel.cpp:1016 in sgm_kernel, bufL                                                                           |
-| array_partition | variable=bufR complete dim=1                     | sgm_kernel/sgm_kernel.cpp:1017 in sgm_kernel, bufR                                                                           |
-| bind_storage    | variable=costT_A type=RAM_2P impl=BRAM           | sgm_kernel/sgm_kernel.cpp:1033 in sgm_kernel, costT_A                                                                        |
-| bind_storage    | variable=costT_B type=RAM_2P impl=BRAM           | sgm_kernel/sgm_kernel.cpp:1034 in sgm_kernel, costT_B                                                                        |
-| array_partition | variable=leftWin complete dim=0                  | sgm_kernel/sgm_kernel.cpp:1039 in sgm_kernel, leftWin                                                                        |
-| array_partition | variable=rightStripe complete dim=1              | sgm_kernel/sgm_kernel.cpp:1040 in sgm_kernel, rightStripe                                                                    |
-| array_partition | variable=rightCensusHistory complete             | sgm_kernel/sgm_kernel.cpp:1043 in sgm_kernel, rightCensusHistory                                                             |
-| loop_tripcount  | min=IMG_W max=IMG_W                              | sgm_kernel/sgm_kernel.cpp:1054 in sgm_kernel                                                                                 |
-| unroll          | factor=2                                         | sgm_kernel/sgm_kernel.cpp:1062 in sgm_kernel                                                                                 |
+| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:409 in commit_prev_costs                                                                           |
+| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:414 in commit_prev_costs                                                                           |
+| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:429 in prepare_stage                                                                               |
+| pipeline        | II=1                                             | sgm_kernel/sgm_kernel.cpp:442 in prepare_stage                                                                               |
+| pipeline        | II=1                                             | sgm_kernel/sgm_kernel.cpp:483 in aggregate_stage                                                                             |
+| pipeline        | II=1                                             | sgm_kernel/sgm_kernel.cpp:511 in reduce_stage                                                                                |
+| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:524 in reduce_stage                                                                                |
+| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:579 in prepare_census_column                                                                       |
+| unroll          |                                                  | sgm_kernel/sgm_kernel.cpp:601 in prepare_census_column                                                                       |
+| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:621 in col_frontend                                                                                |
+| pipeline        | II=1                                             | sgm_kernel/sgm_kernel.cpp:625 in col_frontend                                                                                |
+| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:654 in col_backend                                                                                 |
+| dataflow        |                                                  | sgm_kernel/sgm_kernel.cpp:655 in col_backend                                                                                 |
+| stream          | variable=prepstream depth=2                      | sgm_kernel/sgm_kernel.cpp:660 in col_backend, prepstream                                                                     |
+| stream          | variable=aggstream depth=2                       | sgm_kernel/sgm_kernel.cpp:661 in col_backend, aggstream                                                                      |
+| dataflow        |                                                  | sgm_kernel/sgm_kernel.cpp:700 in process_cost_groups                                                                         |
+| stream          | variable=coststream depth=2                      | sgm_kernel/sgm_kernel.cpp:703 in process_cost_groups, coststream                                                             |
+| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:735 in row_frontend                                                                                |
+| unroll          | factor=2                                         | sgm_kernel/sgm_kernel.cpp:741 in row_frontend                                                                                |
+| pipeline        | II=1                                             | sgm_kernel/sgm_kernel.cpp:784 in row_frontend                                                                                |
+| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:817 in row_backend                                                                                 |
+| array_partition | variable=costL_A complete                        | sgm_kernel/sgm_kernel.cpp:822 in row_backend, costL_A                                                                        |
+| array_partition | variable=costL_B complete                        | sgm_kernel/sgm_kernel.cpp:823 in row_backend, costL_B                                                                        |
+| unroll          | factor=2                                         | sgm_kernel/sgm_kernel.cpp:828 in row_backend                                                                                 |
+| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:901 in row_output                                                                                  |
+| pipeline        | II=1                                             | sgm_kernel/sgm_kernel.cpp:910 in row_output                                                                                  |
+| inline          | off                                              | sgm_kernel/sgm_kernel.cpp:963 in process_row                                                                                 |
+| dataflow        |                                                  | sgm_kernel/sgm_kernel.cpp:964 in process_row                                                                                 |
+| stream          | variable=coststream depth=16                     | sgm_kernel/sgm_kernel.cpp:969 in process_row, coststream                                                                     |
+| stream          | variable=dispstream depth=4                      | sgm_kernel/sgm_kernel.cpp:970 in process_row, dispstream                                                                     |
+| interface       | mode=bram port=left                              | sgm_kernel/sgm_kernel.cpp:1010 in sgm_kernel, left                                                                           |
+| interface       | mode=bram port=right                             | sgm_kernel/sgm_kernel.cpp:1011 in sgm_kernel, right                                                                          |
+| interface       | mode=bram port=disp                              | sgm_kernel/sgm_kernel.cpp:1012 in sgm_kernel, disp                                                                           |
+| interface       | mode=s_axilite port=return bundle=control        | sgm_kernel/sgm_kernel.cpp:1014 in sgm_kernel, return                                                                         |
+| array_partition | variable=bufL complete dim=1                     | sgm_kernel/sgm_kernel.cpp:1020 in sgm_kernel, bufL                                                                           |
+| array_partition | variable=bufR complete dim=1                     | sgm_kernel/sgm_kernel.cpp:1021 in sgm_kernel, bufR                                                                           |
+| bind_storage    | variable=costT_A type=RAM_2P impl=BRAM           | sgm_kernel/sgm_kernel.cpp:1037 in sgm_kernel, costT_A                                                                        |
+| bind_storage    | variable=costT_B type=RAM_2P impl=BRAM           | sgm_kernel/sgm_kernel.cpp:1038 in sgm_kernel, costT_B                                                                        |
+| array_partition | variable=leftWin complete dim=0                  | sgm_kernel/sgm_kernel.cpp:1043 in sgm_kernel, leftWin                                                                        |
+| array_partition | variable=rightStripe complete dim=1              | sgm_kernel/sgm_kernel.cpp:1044 in sgm_kernel, rightStripe                                                                    |
+| array_partition | variable=rightCensusHistory complete             | sgm_kernel/sgm_kernel.cpp:1047 in sgm_kernel, rightCensusHistory                                                             |
+| loop_tripcount  | min=IMG_W max=IMG_W                              | sgm_kernel/sgm_kernel.cpp:1058 in sgm_kernel                                                                                 |
+| unroll          | factor=2                                         | sgm_kernel/sgm_kernel.cpp:1066 in sgm_kernel                                                                                 |
 | inline          |                                                  | sgm_kernel/sgm_params.hpp:28 in absdiff                                                                                      |
 | inline          |                                                  | sgm_kernel/sgm_params.hpp:34 in sat12                                                                                        |
 +-----------------+--------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------+
@@ -583,25 +583,25 @@
 +----------------------------------------+-----------------+---------------------------------------------+-------------------------------------------+
 | Source Pragma                          | Inferred Pragma | Options                                     | Location                                  |
 +----------------------------------------+-----------------+---------------------------------------------+-------------------------------------------+
-| pipeline sgm_kernel/sgm_kernel.cpp:440 | array_partition | dim=1 type=complete  variable=pkt.curCost   | variable pkt.curCost in prepare_stage     |
-| pipeline sgm_kernel/sgm_kernel.cpp:440 | array_partition | dim=1 type=complete  variable=prep.curCost  | variable prep.curCost in prepare_stage    |
-| pipeline sgm_kernel/sgm_kernel.cpp:440 | array_partition | dim=1 type=complete  variable=prep.lrCenter | variable prep.lrCenter in prepare_stage   |
-| pipeline sgm_kernel/sgm_kernel.cpp:440 | array_partition | dim=1 type=complete  variable=prep.lrLeft   | variable prep.lrLeft in prepare_stage     |
-| pipeline sgm_kernel/sgm_kernel.cpp:440 | array_partition | dim=1 type=complete  variable=prep.lrRight  | variable prep.lrRight in prepare_stage    |
-| pipeline sgm_kernel/sgm_kernel.cpp:440 | array_partition | dim=1 type=complete  variable=prep.tbCenter | variable prep.tbCenter in prepare_stage   |
-| pipeline sgm_kernel/sgm_kernel.cpp:440 | array_partition | dim=1 type=complete  variable=prep.tbLeft   | variable prep.tbLeft in prepare_stage     |
-| pipeline sgm_kernel/sgm_kernel.cpp:440 | array_partition | dim=1 type=complete  variable=prep.tbRight  | variable prep.tbRight in prepare_stage    |
-| pipeline sgm_kernel/sgm_kernel.cpp:481 | array_partition | dim=1 type=complete  variable=prep.curCost  | variable prep.curCost in aggregate_stage  |
-| pipeline sgm_kernel/sgm_kernel.cpp:481 | array_partition | dim=1 type=complete  variable=prep.lrCenter | variable prep.lrCenter in aggregate_stage |
-| pipeline sgm_kernel/sgm_kernel.cpp:481 | array_partition | dim=1 type=complete  variable=prep.lrLeft   | variable prep.lrLeft in aggregate_stage   |
-| pipeline sgm_kernel/sgm_kernel.cpp:481 | array_partition | dim=1 type=complete  variable=prep.lrRight  | variable prep.lrRight in aggregate_stage  |
-| pipeline sgm_kernel/sgm_kernel.cpp:481 | array_partition | dim=1 type=complete  variable=prep.tbCenter | variable prep.tbCenter in aggregate_stage |
-| pipeline sgm_kernel/sgm_kernel.cpp:481 | array_partition | dim=1 type=complete  variable=prep.tbLeft   | variable prep.tbLeft in aggregate_stage   |
-| pipeline sgm_kernel/sgm_kernel.cpp:481 | array_partition | dim=1 type=complete  variable=prep.tbRight  | variable prep.tbRight in aggregate_stage  |
-| pipeline sgm_kernel/sgm_kernel.cpp:481 | array_partition | dim=1 type=complete  variable=agg.aggLR     | variable agg.aggLR in aggregate_stage     |
-| pipeline sgm_kernel/sgm_kernel.cpp:481 | array_partition | dim=1 type=complete  variable=agg.aggTB     | variable agg.aggTB in aggregate_stage     |
-| pipeline sgm_kernel/sgm_kernel.cpp:509 | array_partition | dim=1 type=complete  variable=agg.aggLR     | variable agg.aggLR in reduce_stage        |
-| pipeline sgm_kernel/sgm_kernel.cpp:509 | array_partition | dim=1 type=complete  variable=agg.aggTB     | variable agg.aggTB in reduce_stage        |
+| pipeline sgm_kernel/sgm_kernel.cpp:442 | array_partition | dim=1 type=complete  variable=pkt.curCost   | variable pkt.curCost in prepare_stage     |
+| pipeline sgm_kernel/sgm_kernel.cpp:442 | array_partition | dim=1 type=complete  variable=prep.curCost  | variable prep.curCost in prepare_stage    |
+| pipeline sgm_kernel/sgm_kernel.cpp:442 | array_partition | dim=1 type=complete  variable=prep.lrCenter | variable prep.lrCenter in prepare_stage   |
+| pipeline sgm_kernel/sgm_kernel.cpp:442 | array_partition | dim=1 type=complete  variable=prep.lrLeft   | variable prep.lrLeft in prepare_stage     |
+| pipeline sgm_kernel/sgm_kernel.cpp:442 | array_partition | dim=1 type=complete  variable=prep.lrRight  | variable prep.lrRight in prepare_stage    |
+| pipeline sgm_kernel/sgm_kernel.cpp:442 | array_partition | dim=1 type=complete  variable=prep.tbCenter | variable prep.tbCenter in prepare_stage   |
+| pipeline sgm_kernel/sgm_kernel.cpp:442 | array_partition | dim=1 type=complete  variable=prep.tbLeft   | variable prep.tbLeft in prepare_stage     |
+| pipeline sgm_kernel/sgm_kernel.cpp:442 | array_partition | dim=1 type=complete  variable=prep.tbRight  | variable prep.tbRight in prepare_stage    |
+| pipeline sgm_kernel/sgm_kernel.cpp:483 | array_partition | dim=1 type=complete  variable=prep.curCost  | variable prep.curCost in aggregate_stage  |
+| pipeline sgm_kernel/sgm_kernel.cpp:483 | array_partition | dim=1 type=complete  variable=prep.lrCenter | variable prep.lrCenter in aggregate_stage |
+| pipeline sgm_kernel/sgm_kernel.cpp:483 | array_partition | dim=1 type=complete  variable=prep.lrLeft   | variable prep.lrLeft in aggregate_stage   |
+| pipeline sgm_kernel/sgm_kernel.cpp:483 | array_partition | dim=1 type=complete  variable=prep.lrRight  | variable prep.lrRight in aggregate_stage  |
+| pipeline sgm_kernel/sgm_kernel.cpp:483 | array_partition | dim=1 type=complete  variable=prep.tbCenter | variable prep.tbCenter in aggregate_stage |
+| pipeline sgm_kernel/sgm_kernel.cpp:483 | array_partition | dim=1 type=complete  variable=prep.tbLeft   | variable prep.tbLeft in aggregate_stage   |
+| pipeline sgm_kernel/sgm_kernel.cpp:483 | array_partition | dim=1 type=complete  variable=prep.tbRight  | variable prep.tbRight in aggregate_stage  |
+| pipeline sgm_kernel/sgm_kernel.cpp:483 | array_partition | dim=1 type=complete  variable=agg.aggLR     | variable agg.aggLR in aggregate_stage     |
+| pipeline sgm_kernel/sgm_kernel.cpp:483 | array_partition | dim=1 type=complete  variable=agg.aggTB     | variable agg.aggTB in aggregate_stage     |
+| pipeline sgm_kernel/sgm_kernel.cpp:511 | array_partition | dim=1 type=complete  variable=agg.aggLR     | variable agg.aggLR in reduce_stage        |
+| pipeline sgm_kernel/sgm_kernel.cpp:511 | array_partition | dim=1 type=complete  variable=agg.aggTB     | variable agg.aggTB in reduce_stage        |
 +----------------------------------------+-----------------+---------------------------------------------+-------------------------------------------+
 
 

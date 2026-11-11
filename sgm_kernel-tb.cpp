@@ -152,12 +152,16 @@ int main()
 			cv::Mat out_of_border_mask(IMG_H, IMG_W, CV_8U, cv::Scalar(0));
 			cv::Mat err_map(IMG_H, IMG_W, CV_32F, cv::Scalar(0));
 
+			volatile uint32_t checksum = 0;
 			for(int r = 0; r < IMG_H; ++r)
 			{
 				for(int c = 0; c < IMG_W; ++c)
 				{
 					float gt_disp = gt_vis.at<float>(r,c);
-					float est_disp = disp.at<uint8_t>(r,c);
+					float est_disp = float(disp.at<uint8_t>(r,c));
+
+					checksum += static_cast<uint32_t>(est_disp);
+					cv::imwrite("disp_raw_par8.png", disp);
 
 					if(r < WIN -1 || c >= IMG_W-cx)
 					{
@@ -182,6 +186,7 @@ int main()
 					}
 				}
 			}
+			std::cout << "Checksum = " << checksum << std::endl;
 	        cv::Mat gt_8u_0;
 	        gt_vis.convertTo(gt_8u_0, CV_8U, img_out_scale);
 	        cv::imwrite("gt_8u_0.png", gt_8u_0);
