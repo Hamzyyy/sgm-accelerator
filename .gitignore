@@ -2,8 +2,15 @@
 solution1
 .apc
 .settings
-Debug	
-
+Debug/
+Vivado_design/
+export/
+ps_profile/dataset/
+tools/.Xil/	
+tools/gt_*.hpp
+tools/left_*.hpp
+tools/right_*.hpp
+tools/xrc.log
 
 # Ignore files
 vitis_hls.log
@@ -11,4 +18,4 @@ hls.app
 .cproject
 .project
 .vitis_hls_log_all.xml
-
+tools/scale_x_frames.hpp

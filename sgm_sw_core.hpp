@@ -12,7 +12,7 @@ extern uint64_t t_commitcosts;
 
 static const uint16_t P1_core = 3;
 static const uint16_t P2_core = 15;
-static const uint16_t INF_COST_core = 4095;
+static const uint16_t INF_COST_core = 63;
 
 void sgm_sw_core(
 		const uint8_t left[IMG_H][IMG_W],
