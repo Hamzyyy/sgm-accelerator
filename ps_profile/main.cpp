@@ -5,6 +5,10 @@
 #include "xil_printf.h"
 #include "xtime_l.h"
 
+#define CHECK_OUTPUT 0
+#define PROFILE_STAGES 0
+
+
 int main()
 {
 	static uint8_t disp_out[IMG_H][IMG_W];
@@ -19,6 +23,12 @@ int main()
 	int invalid_selected_count = 0;
 
 	uint64_t total_latency = 0;
+
+	uint64_t total_linebuffer = 0;
+	uint64_t total_slidingwindow = 0;
+	uint64_t total_census = 0;
+	uint64_t total_aggregate = 0;
+	uint64_t total_commit = 0;
 
 	static double d1_per_frame[NUM_FRAMES];
 	static double mae_per_frame[NUM_FRAMES];
@@ -43,21 +53,30 @@ int main()
 
 	for(int i = 0; i < NUM_FRAMES; ++i)
 	{
-		xil_printf("Frame %d\r\n", i);
+		if (i % 20 == 0)
+			xil_printf("Frame %d\r\n", i);
+
 		const float scale_x = scale_x_frames[i];
 
 		XTime_GetTime(&t0);
 		sgm_sw_core(left_frames[i], right_frames[i], disp_out);
 		XTime_GetTime(&t1);
 
+		total_linebuffer += t_linebuffer;
+		total_slidingwindow += t_slidingwindow;
+		total_census += t_computecensus;
+		total_aggregate += t_aggregatecost;
+		total_commit += t_commitcosts;
+
 		uint64_t cycles = uint64_t(t1 - t0);
 	    uint32_t latency_us = (uint32_t)((cycles * 1000000ULL) / COUNTS_PER_SECOND);
 	    latency_per_frame[i] = latency_us;
 
-	    xil_printf("Latency = %u us\r\n", (unsigned int)latency_us);
+	    if (i % 20 == 0)
+	    	xil_printf("Latency = %u us\r\n", (unsigned int)latency_us);
 
 	    total_latency += latency_us;
-
+#if CHECK_OUTPUT
 		volatile uint32_t checksum = 0;
 		for(int r = 0; r < IMG_H; ++r)
 		{
@@ -67,7 +86,7 @@ int main()
 			}
 		}
 	    xil_printf("checksum = %u \r\n", checksum);
-
+#endif
 
 		int kitti_d1_err = 0;
 		int kitti_valid_count = 0;
@@ -172,12 +191,14 @@ int main()
         unsigned int bad1_per_frame_x1000  = (unsigned int)((bad1_per_frame[i] * 1000.0));
         unsigned int bad3_per_frame_x1000  = (unsigned int)((bad3_per_frame[i] * 1000.0));
 
-    	xil_printf ("Frame %d, ", i);
-    	xil_printf (" D1 = %u.%03u", d1_per_frame_x1000/1000, d1_per_frame_x1000%1000);
-    	xil_printf (" MAE = %u.%03u", mae_per_frame_x1000/1000, mae_per_frame_x1000%1000);
-    	xil_printf (" Bad(>1) = %u.%03u", bad1_per_frame_x1000/1000, bad1_per_frame_x1000%1000);
-    	xil_printf (" Bad(>3) = %u.%03u\n", bad3_per_frame_x1000/1000, bad3_per_frame_x1000%1000);
-
+        if (i % 20 == 0)
+        {
+        	xil_printf ("Frame %d, ", i);
+        	xil_printf (" D1 = %u.%03u", d1_per_frame_x1000/1000, d1_per_frame_x1000%1000);
+        	xil_printf (" MAE = %u.%03u", mae_per_frame_x1000/1000, mae_per_frame_x1000%1000);
+        	xil_printf (" Bad(>1) = %u.%03u", bad1_per_frame_x1000/1000, bad1_per_frame_x1000%1000);
+        	xil_printf (" Bad(>3) = %u.%03u\n", bad3_per_frame_x1000/1000, bad3_per_frame_x1000%1000);
+        }
 
         if((kitti_invalid_count + kitti_valid_count) != (IMG_H * IMG_W))
         {
@@ -190,7 +211,6 @@ int main()
         	xil_printf ("ERROR: HW-valid + HW-excluded counts do not match"
         			" KITTI-valid count at frame: %d", i);
         }
-
 	}
 
 	if(NUM_FRAMES > 0)
@@ -212,14 +232,95 @@ int main()
         uint64_t fps_x1000 = ((uint64_t)NUM_FRAMES * 1000000000ULL) / total_latency;
 
 
-    	xil_printf("Mean latency = %u.%03u\r\n",
+    	xil_printf("Mean latency = %u.%03u us\r\n",
     			mean_latency_x1000/1000, mean_latency_x1000%1000);
 
-    	xil_printf("Latency Standard Deviation = %u.%03u\r\n",
+    	xil_printf("Latency Standard Deviation = %u.%03u us\r\n",
     			std_latency_x1000/1000, std_latency_x1000%1000);
 
     	xil_printf("Throughput = %u.%03u FPS\r\n",
     			(unsigned int)(fps_x1000 / 1000), (unsigned int)(fps_x1000 % 1000));
+
+#if PROFILE_STAGES
+    	uint64_t total_profile_ticks = total_linebuffer + total_slidingwindow +
+    			total_census + total_aggregate + total_commit;
+
+    	double avg_linebuffer_ms = ((double) total_linebuffer / NUM_FRAMES)
+    			* 1000.0 / COUNTS_PER_SECOND;
+
+    	double avg_slidingwindow_ms = ((double) total_slidingwindow / NUM_FRAMES)
+    			* 1000.0 / COUNTS_PER_SECOND;
+
+    	double avg_census_ms = ((double) total_census / NUM_FRAMES)
+    			* 1000.0 / COUNTS_PER_SECOND;
+
+    	double avg_aggregate_ms = ((double) total_aggregate / NUM_FRAMES)
+    			* 1000.0 / COUNTS_PER_SECOND;
+
+    	double avg_commit_ms = ((double) total_commit / NUM_FRAMES)
+    			* 1000.0 / COUNTS_PER_SECOND;
+
+
+    	double pct_linebuffer = (100.0 * total_linebuffer) /
+    			total_profile_ticks;
+
+    	double pct_slidingwindow = (100.0 * total_slidingwindow) /
+    			total_profile_ticks;
+
+    	double pct_census = (100.0 * total_census) /
+    			total_profile_ticks;
+
+    	double pct_aggregate = (100.0 * total_aggregate) /
+    			total_profile_ticks;
+
+    	double pct_commit = (100.0 * total_commit) /
+    			total_profile_ticks;
+
+    	uint32_t pct_linebuffer_x100	= (uint32_t)(100.0 * pct_linebuffer);
+    	uint32_t pct_slidingwidnow_x100 = (uint32_t)(100.0 * pct_slidingwindow);
+    	uint32_t pct_census_x100		= (uint32_t)(100.0 * pct_census);
+    	uint32_t pct_aggregate_x100		= (uint32_t)(100.0 * pct_aggregate);
+    	uint32_t pct_commit_x100		= (uint32_t)(100.0 * pct_commit);
+
+
+    	uint32_t linebuffer_x1000    	= (uint32_t)(1000.0 * avg_linebuffer_ms);
+    	uint32_t slidingwindow_ms_x1000 = (uint32_t)(1000.0 * avg_slidingwindow_ms);
+    	uint32_t census_ms_x1000		= (uint32_t)(1000.0 * avg_census_ms);
+    	uint32_t aggregate_ms_x1000 	= (uint32_t)(1000.0 * avg_aggregate_ms);
+    	uint32_t commit_ms_x1000		= (uint32_t)(1000.0 * avg_commit_ms);
+
+
+
+    	xil_printf("Line buffer:\r\n");
+    	xil_printf("Mean = %u.%03u ms/frame\r\n",
+    	    	linebuffer_x1000/1000, linebuffer_x1000%1000);
+    	xil_printf("Share = %u.%02u %%\r\n",
+    	    	pct_linebuffer_x100/100, pct_linebuffer_x100%100);
+
+    	xil_printf("\r\n\r\n Sliding window:\r\n");
+    	xil_printf("Mean = %u.%03u ms/frame\r\n",
+    			slidingwindow_ms_x1000/1000, slidingwindow_ms_x1000%1000);
+    	xil_printf("Share = %u.%02u %%\r\n",
+    			pct_slidingwidnow_x100/100, pct_slidingwidnow_x100%100);
+
+    	xil_printf("\r\n\r\n Census cost:\r\n");
+    	xil_printf("Mean = %u.%03u ms/frame\r\n",
+    			census_ms_x1000/1000, census_ms_x1000%1000);
+    	xil_printf("Share = %u.%02u %%\r\n",
+    			pct_census_x100/100, pct_census_x100%100);
+
+    	xil_printf("\r\n\r\n SGM aggregation:\r\n");
+    	xil_printf("Mean = %u.%03u ms/frame\r\n",
+    			aggregate_ms_x1000/1000, aggregate_ms_x1000%1000);
+    	xil_printf("Share = %u.%02u %%\r\n",
+    			pct_aggregate_x100/100, pct_aggregate_x100%100);
+
+    	xil_printf("\r\n\r\n Commit:\r\n");
+    	xil_printf("Mean = %u.%03u ms/frame\r\n",
+    			commit_ms_x1000/1000, commit_ms_x1000%1000);
+    	xil_printf("Share = %u.%02u %%\r\n",
+    			pct_commit_x100/100, pct_commit_x100%100);
+#endif
 	}
 
 	if(kitti_valid_frame > 0)
@@ -291,5 +392,14 @@ int main()
     	xil_printf("Mean Bad(>3) = %u.%03u\r\n", mean_bad3_x1000/1000, mean_bad3_x1000%1000);
     	xil_printf("Bad(>3) Standard Deviation = %u.%03u\r\n", std_bad3_x1000/1000, std_bad3_x1000%1000);
 	}
+
+
+
+
+
+
+
+
+
     while(1);
 }

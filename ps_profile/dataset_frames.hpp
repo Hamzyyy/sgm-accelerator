@@ -1412,6 +1412,6 @@ static const float (*gt_frames[])[IMG_W] = {
     gt_000199_10
 };
 
-// constexpr int NUM_FRAMES = sizeof(left_frames) / sizeof(left_frames[0]);
+constexpr int NUM_FRAMES = sizeof(left_frames) / sizeof(left_frames[0]);
 
-constexpr int NUM_FRAMES = 1;
+//constexpr int NUM_FRAMES = 1;
