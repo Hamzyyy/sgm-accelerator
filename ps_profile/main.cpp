@@ -1,163 +1,503 @@
-#include "sgm_config.hpp"
-#include "left_img.hpp"
-#include "right_img.hpp"
-#include "gt_disp.hpp"
+#include <stdint.h>
+#include <cmath>
 #include "xil_printf.h"
-#include "xtime_l.h"
+#include "xil_io.h"
 #include "xsgm_kernel.h"
 #include "xparameters.h"
-#include "xil_cache.h"
 #include "xstatus.h"
+#include "xtime_l.h"
+#include "sgm_config.hpp"
+#include "dataset_frames.hpp"
 
-int main()
+#define CHECK_OUTPUT 0
+#define PROFILE_STAGES 1
+
+#define LEFT_BRAM_BASE 	XPAR_AXI_BRAM_CTRL_0_S_AXI_BASEADDR
+#define RIGHT_BRAM_BASE XPAR_AXI_BRAM_CTRL_1_S_AXI_BASEADDR
+#define DISP_BRAM_BASE 	XPAR_AXI_BRAM_CTRL_2_S_AXI_BASEADDR
+
+int main ()
 {
-	xil_printf("Starting PL-PS Variant-B Census... \r\n");
-	XTime t0, t1;
+	/* Evaluation metrics */
+	int kitti_valid_frame = 0;
+	int hw_valid_frame = 0;
 
-	XTime_GetTime(&t0);
-	static uint8_t left_buf[IMG_H][IMG_W] __attribute__((aligned(32)));
-	static uint8_t right_buf[IMG_H][IMG_W] __attribute__((aligned(32)));
-	static uint8_t disp_hw[IMG_H][IMG_W] __attribute__((aligned(32)));
+	double total_kitti_d1_error = 0;
+	double total_mae = 0;
+	double total_Bad1_error = 0, total_Bad3_error = 0;
+	int invalid_selected_count = 0;
 
-	for(int r = 0; r < IMG_H; ++r)
-	{
-		for(int c = 0; c < IMG_W; ++c)
-		{
-			left_buf[r][c] = left_img[r][c];
-			right_buf[r][c] = right_img[r][c];
-			disp_hw[r][c] = 0;
-		}
-	}
-	XTime_GetTime(&t1);
+	uint64_t total_latency = 0;
 
-	XTime t_input = t1 - t0;
+#if PROFILE_STAGES
+	uint64_t total_t_input = 0;
+	uint64_t total_t_pl = 0;
+	uint64_t total_t_output = 0;
+#endif
 
-	XSgm_kernel pl_accel;
-	int status = XSgm_kernel_Initialize(&pl_accel,XPAR_SGM_KERNEL_0_DEVICE_ID);
+	static double d1_per_frame[NUM_FRAMES];
+	static double mae_per_frame[NUM_FRAMES];
+	static double bad1_per_frame[NUM_FRAMES];
+	static double bad3_per_frame[NUM_FRAMES];
+	static uint32_t latency_per_frame[NUM_FRAMES];
+
+	const int cx = WIN >> 1;
+	const int cy = WIN >> 1;
+
+	static uint8_t disp_img[IMG_H][IMG_W];
+
+	const int valid_r_min = WIN - 1 - cy;
+	const int valid_r_max = IMG_H - 1 - cy;
+	const int valid_c_max = IMG_W - cx;
+
+	xil_printf("Starting Variant B - PL-PS SGM evaluation... \r\n");
+
+	XSgm_kernel sgm;
+
+	int status = XSgm_kernel_Initialize(&sgm,
+			XPAR_SGM_KERNEL_0_DEVICE_ID);
+
 	if(status != XST_SUCCESS)
 	{
-		xil_printf("SGM init failed...\r\n");
-		return -1;
+		xil_printf("SGM driver init failed\r\n");
+		while(1);
 	}
+	xil_printf("SGM driver init PASS\r\n");
 
-	XSgm_kernel_Set_left_r(&pl_accel, (UINTPTR)&left_buf[0][0]);
-	XSgm_kernel_Set_right_r(&pl_accel, (UINTPTR)&right_buf[0][0]);
-	XSgm_kernel_Set_disp(&pl_accel, (UINTPTR)&disp_hw[0][0]);
+	xil_printf("Running warm-up frame...\r\n");
 
-	XTime_GetTime(&t0);
-	Xil_DCacheFlushRange((UINTPTR)&left_buf[0][0], IMG_H * IMG_W * sizeof(uint8_t));
-	Xil_DCacheFlushRange((UINTPTR)&right_buf[0][0], IMG_H * IMG_W * sizeof(uint8_t));
-	Xil_DCacheFlushRange((UINTPTR)&disp_hw[0][0], IMG_H * IMG_W * sizeof(uint8_t));
-	XTime_GetTime(&t1);
-
-	XTime t_cache_flush = t1 - t0;
-
-	XTime_GetTime(&t0);
-	XSgm_kernel_Start(&pl_accel);
-	while(!XSgm_kernel_IsDone(&pl_accel));
-	XTime_GetTime(&t1);
-
-	XTime t_pl= t1 - t0;
-
-	XTime_GetTime(&t0);
-	Xil_DCacheInvalidateRange((UINTPTR)&disp_hw[0][0], IMG_H * IMG_W * sizeof(uint8_t));
-	XTime_GetTime(&t1);
-
-	XTime t_cache_invalidate = t1 - t0;
-
-	XTime_GetTime(&t0);
-	volatile uint32_t checksum = 0;
 	for(int r = 0; r < IMG_H; ++r)
 	{
-		for(int c = 0; c < IMG_W; ++c)
+	    for(int c = 0; c < IMG_W; c += 4)
+	    {
+	        uint32_t left_word =
+	              ((uint32_t)left_frames[0][r][c + 0])
+	            | ((uint32_t)left_frames[0][r][c + 1] << 8)
+	            | ((uint32_t)left_frames[0][r][c + 2] << 16)
+	            | ((uint32_t)left_frames[0][r][c + 3] << 24);
+
+	        uint32_t right_word =
+	              ((uint32_t)right_frames[0][r][c + 0])
+	            | ((uint32_t)right_frames[0][r][c + 1] << 8)
+	            | ((uint32_t)right_frames[0][r][c + 2] << 16)
+	            | ((uint32_t)right_frames[0][r][c + 3] << 24);
+
+	        int word_idx = (r * IMG_W + c) >> 2;
+
+	        Xil_Out32(LEFT_BRAM_BASE  + word_idx * 4, left_word);
+	        Xil_Out32(RIGHT_BRAM_BASE + word_idx * 4, right_word);
+	    }
+	}
+
+	/* Run accelerator */
+	XSgm_kernel_Start(&sgm);
+	while(!XSgm_kernel_IsDone(&sgm));
+
+	for(int r = 0; r < IMG_H; ++r)
+	{
+	    for(int c = 0; c < IMG_W; c += 4)
+	    {
+	        int word_idx = (r * IMG_W + c) >> 2;
+
+	        uint32_t word =
+	            Xil_In32(DISP_BRAM_BASE + word_idx * 4);
+
+	        disp_img[r][c + 0] = (uint8_t)( word        & 0xFF);
+	        disp_img[r][c + 1] = (uint8_t)((word >>  8) & 0xFF);
+	        disp_img[r][c + 2] = (uint8_t)((word >> 16) & 0xFF);
+	        disp_img[r][c + 3] = (uint8_t)((word >> 24) & 0xFF);
+	    }
+	}
+
+	xil_printf("Warm-up complete\r\n");
+
+	for(int i = 0; i < NUM_FRAMES;++i)
+	{
+		if (i % 20 == 0)
+			xil_printf("Frame %d\r\n", i);
+		const float scale_x = scale_x_frames[i];
+
+		XTime frame_start, frame_end;
+
+#if PROFILE_STAGES
+XTime t0, t1;
+#endif
+
+		XTime_GetTime(&frame_start);
+
+#if PROFILE_STAGES
+		XTime_GetTime(&t0);
+#endif
+
+		for(int r = 0; r < IMG_H; ++r)
 		{
-			checksum += disp_hw[r][c];
+			for(int c = 0; c < IMG_W; c += 4)
+			{
+				uint32_t left_word = ((uint32_t)left_frames[i][r][c + 0])
+						| ((uint32_t)left_frames[i][r][c + 1] << 8)
+						| ((uint32_t)left_frames[i][r][c + 2] << 16)
+						| ((uint32_t)left_frames[i][r][c + 3] << 24);
+
+				uint32_t right_word = ((uint32_t)right_frames[i][r][c + 0])
+									| ((uint32_t)right_frames[i][r][c + 1] << 8)
+									| ((uint32_t)right_frames[i][r][c + 2] << 16)
+									| ((uint32_t)right_frames[i][r][c + 3] << 24);
+
+				int word_idx = (r* IMG_W + c) >> 2;
+
+				Xil_Out32(LEFT_BRAM_BASE + word_idx * 4, left_word);
+				Xil_Out32(RIGHT_BRAM_BASE + word_idx * 4, right_word);
+			}
+		}
+#if PROFILE_STAGES
+		XTime_GetTime(&t1);
+		total_t_input += uint64_t (t1-t0);
+#endif
+
+	/* start kernel */
+#if PROFILE_STAGES
+	XTime_GetTime(&t0);
+#endif
+
+	XSgm_kernel_Start(&sgm);
+	while(!XSgm_kernel_IsDone(&sgm));
+
+#if PROFILE_STAGES
+	XTime_GetTime(&t1);
+	total_t_pl += uint64_t (t1-t0);
+#endif
+
+
+#if PROFILE_STAGES
+	XTime_GetTime(&t0);
+#endif
+	for(int r = 0; r < IMG_H; ++r)
+	{
+		for(int c = 0; c < IMG_W; c += 4)
+		{
+			int word_idx = (r * IMG_W + c) >> 2;
+
+			uint32_t word = Xil_In32(DISP_BRAM_BASE + word_idx * 4);
+
+			disp_img[r][c + 0] = (uint8_t)( word        & 0xFF);
+	        disp_img[r][c + 1] = (uint8_t)((word >>  8) & 0xFF);
+	        disp_img[r][c + 2] = (uint8_t)((word >> 16) & 0xFF);
+	        disp_img[r][c + 3] = (uint8_t)((word >> 24) & 0xFF);
 		}
 	}
+
+#if PROFILE_STAGES
 	XTime_GetTime(&t1);
-	XTime t_checksum = t1 - t0;
+	total_t_output += uint64_t (t1-t0);
+#endif
 
-	XTime t_variant_b = t_input + t_cache_flush + t_pl + t_cache_invalidate;
+	XTime_GetTime(&frame_end);
+	uint64_t frame_ticks = (uint64_t)(frame_end - frame_start);
 
-	/* Evaluation metrics */
-    int eval_valid_count = 0;
-    int bad1_b = 0, bad3_b = 0;
-    double sum_abs_err_b = 0.0;
+    uint32_t latency_us = (uint32_t)((frame_ticks * 1000000ULL) / COUNTS_PER_SECOND);
+    latency_per_frame[i] = latency_us;
 
-    const int cx = WIN >> 1;
+    if (i % 20 == 0)
+    	xil_printf("Latency = %u us\r\n", (unsigned int)latency_us);
 
-    const int valid_r_min = WIN - 1;
-    const int valid_c_min = (DISP - 1) + cx;
-    const int valid_c_max = IMG_W - cx;
+    total_latency += latency_us;
 
-    for (int r = 0; r < IMG_H; ++r)
-    {
-    	for (int c = 0; c < IMG_W; ++c)
-    	{
-    		float gt_val = gt_disp[r][c];
+#if CHECK_OUTPUT
+	uint32_t checksum = 0;
 
-            bool gt_valid = gt_val > 0.0f;
-            bool roi_valid =
-                (r >= valid_r_min) &&
-                (c >= valid_c_min) &&
-                (c < valid_c_max);
+	for(int r = 0; r < IMG_H; ++r)
+	{
+	    for(int c = 0; c < IMG_W; ++c)
+	    {
+	        checksum += disp_img[r][c];
+	    }
+	}
 
-            bool disp_range_valid =
-                (gt_val >= 0.0f) &&
-                (gt_val < DISP);
-
-            bool eval_valid = gt_valid && roi_valid && disp_range_valid;
-
-            if (!eval_valid)
-            {
-                continue;
-            }
-
-            ++eval_valid_count;
-
-    		float est_disp_b = float(disp_hw[r][c]);
-
-    		float err_b= est_disp_b - gt_val;
-    		if(err_b < 0) err_b = -err_b;
-
-    		sum_abs_err_b += err_b;
-    		if (err_b > 1.0f) bad1_b++;
-    		if (err_b > 3.0f) bad3_b++;
-    	}
-    }
-
-	xil_printf("SGM finished. \r\n");
 	xil_printf("checksum = %u\r\n", (unsigned int)checksum);
 
-    xil_printf("data input time = %u us \r\n", (unsigned)((t_input * 1000000ULL) / COUNTS_PER_SECOND));
-    xil_printf("cache flush time = %u us \r\n", (unsigned)((t_cache_flush * 1000000ULL) / COUNTS_PER_SECOND));
-    xil_printf("PL accelerator time = %u us \r\n", (unsigned)((t_pl * 1000000ULL) / COUNTS_PER_SECOND));
-    xil_printf("cache invalidate time = %u us \r\n", (unsigned)((t_cache_invalidate * 1000000ULL) / COUNTS_PER_SECOND));
-    xil_printf("checksum time = %u us \r\n", (unsigned)((t_checksum * 1000000ULL) / COUNTS_PER_SECOND));
+#endif
 
-    xil_printf("Variant B Census latency = %u us\r\n", (unsigned int)((t_variant_b * 1000000ULL) / COUNTS_PER_SECOND));
-    xil_printf("Variant B Census latency = %u ms\r\n", (unsigned int)((t_variant_b * 1000ULL) / COUNTS_PER_SECOND));
+	int kitti_d1_err = 0;
+	int kitti_valid_count = 0;
+	int kitti_invalid_count = 0;
 
-	xil_printf("Counts per second = %d\r\n", COUNTS_PER_SECOND);
+	int hw_valid_count = 0, hw_invalid_count = 0;
 
-	xil_printf("disp(48, 80) = %d\r\n", disp_hw[48][80]);
-	xil_printf("disp(48, 160) = %d\r\n", disp_hw[48][160]);
-	xil_printf("disp(48, 240) = %d\r\n", disp_hw[48][240]);
+	int bad1 = 0, bad3 = 0;
+	double sum_abs_err = 0.0;
 
-    if (eval_valid_count == 0)
+	for (int r = 0; r < IMG_H; ++r)
+	{
+		for (int c = 0; c < IMG_W; ++c)
+		{
+			float gt_disp = gt_frames[i][r][c];
+			float est_disp = disp_img[r][c];
+
+			if(r >= valid_r_min && est_disp > c)
+				++invalid_selected_count;
+
+			bool gt_valid = gt_disp > 0.0f;
+			if(!gt_valid)
+			{
+				// Invalid kitti ground truth
+				kitti_invalid_count++;
+				continue;
+			}
+			++kitti_valid_count;
+			float err = (std::abs(est_disp - gt_disp)) / scale_x;
+
+			/* Kitt-style D1 */
+			bool abs_error_gt3 = err > 3.0f;
+			bool rel_error_gt5 = ((err / (gt_disp/scale_x)) > 0.05f);
+
+			if(abs_error_gt3 && rel_error_gt5)
+			{
+				++kitti_d1_err;
+			}
+
+	        bool roi_valid = (r >= valid_r_min) && (r <= valid_r_max)
+	        		&& (c < valid_c_max);
+
+	        bool disp_range_valid = (gt_disp < DISP) && (gt_disp <= c);
+
+	        bool hw_valid = roi_valid && disp_range_valid;
+
+	    	if(!hw_valid)
+	    	{
+	    		++hw_invalid_count;
+	    	}
+	    	else
+	    	{
+		    	++hw_valid_count;
+		    	sum_abs_err += err;
+		    	if (err > 1.0f) bad1++;
+		    	if (err > 3.0f) bad3++;
+	    	}
+	    }
+	}
+	double current_kitti_error = 0.0f;
+	double current_mae = 0.0f;
+	double current_bad1 = 0.0f;
+	double current_bad3= 0.0f;
+
+    if(kitti_valid_count > 0)
     {
-        xil_printf("ERROR: No valid GT pixels for comparison\n");
+    	current_kitti_error = (100.0 * kitti_d1_err / kitti_valid_count);
+    	++kitti_valid_frame;
+    	total_kitti_d1_error += current_kitti_error;
+    }
+    else
+    {
+        xil_printf( "ERROR: No KITTI-valid GT pixels at frame %d\n", i);
+        return 5;
+    }
+
+    if(hw_valid_count > 0)
+    {
+    	++hw_valid_frame;
+    	current_mae = (sum_abs_err / hw_valid_count);
+		current_bad1 = (100.0 * bad1 / hw_valid_count);
+		current_bad3= (100.0 * bad3 / hw_valid_count);
+
+		total_mae += current_mae;
+		total_Bad1_error += current_bad1;
+		total_Bad3_error +=current_bad3;
+    }
+    if (hw_valid_count == 0)
+    {
+        xil_printf("ERROR: No HW-valid GT pixels for comparison at frame: %d\n", i);
         return 6;
     }
 
-    unsigned int mae_x1000_b  = (unsigned int)((sum_abs_err_b * 1000.0) / eval_valid_count);
-    unsigned int bad1_x100_b  = (unsigned int)((bad1_b * 10000.0) / eval_valid_count);
-    unsigned int bad3_x100_b  = (unsigned int)((bad3_b * 10000.0) / eval_valid_count);
+	d1_per_frame[i] = current_kitti_error;
+	mae_per_frame[i] = current_mae;
+	bad1_per_frame[i] = current_bad1;
+	bad3_per_frame[i] = current_bad3;
 
-    xil_printf("Evaluation valid pixels = %u\r\n", eval_valid_count);
-    xil_printf("Variant-B MAE = %u.%03u px\r\n", mae_x1000_b / 1000, mae_x1000_b % 1000);
-    xil_printf("Variant-B Bad >1 px = %u.%02u %%\r\n", bad1_x100_b / 100, bad1_x100_b % 100);
-    xil_printf("Variant-B Bad >3 px = %u.%02u %%\r\n", bad3_x100_b / 100, bad3_x100_b % 100);
+    unsigned int d1_per_frame_x1000  = (unsigned int)((d1_per_frame[i] * 1000.0));
+    unsigned int mae_per_frame_x1000  = (unsigned int)((mae_per_frame[i] * 1000.0));
+    unsigned int bad1_per_frame_x1000  = (unsigned int)((bad1_per_frame[i] * 1000.0));
+    unsigned int bad3_per_frame_x1000  = (unsigned int)((bad3_per_frame[i] * 1000.0));
+
+    if (i % 20 == 0)
+    {
+    	xil_printf ("Frame %d, ", i);
+    	xil_printf (" D1 = %u.%03u", d1_per_frame_x1000/1000, d1_per_frame_x1000%1000);
+    	xil_printf (" MAE = %u.%03u", mae_per_frame_x1000/1000, mae_per_frame_x1000%1000);
+    	xil_printf (" Bad(>1) = %u.%03u", bad1_per_frame_x1000/1000, bad1_per_frame_x1000%1000);
+    	xil_printf (" Bad(>3) = %u.%03u\n", bad3_per_frame_x1000/1000, bad3_per_frame_x1000%1000);
+    }
+
+    if((kitti_invalid_count + kitti_valid_count) != (IMG_H * IMG_W))
+    {
+    	xil_printf("ERROR: GT validity counts do not match image "
+    			"size at frame: %d\n", i);
+    }
+
+    if((hw_invalid_count + hw_valid_count) != kitti_valid_count)
+    {
+    	xil_printf ("ERROR: HW-valid + HW-excluded counts do not match"
+    			" KITTI-valid count at frame: %d", i);
+    }
+
+
+	}
+////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////
+		if(NUM_FRAMES > 0)
+		{
+			xil_printf("---Mean Latency--- \n ");
+
+			double mean_latency = static_cast<double>(total_latency) / NUM_FRAMES;
+			double squared_diff_sum = 0.0;
+
+			for(int i = 0; i < NUM_FRAMES; ++i)
+			{
+				double diff = latency_per_frame[i] - mean_latency;
+				squared_diff_sum += diff * diff;
+			}
+			double std_latency = std::sqrt(squared_diff_sum / NUM_FRAMES);
+
+			uint32_t mean_latency_x1000  = (uint32_t)((mean_latency * 1000.0));
+			uint32_t std_latency_x1000  = (uint32_t)((std_latency * 1000.0));
+	        uint64_t fps_x1000 = ((uint64_t)NUM_FRAMES * 1000000000ULL) / total_latency;
+
+	    	xil_printf("Mean latency = %u.%03u us\r\n",
+	    			mean_latency_x1000/1000, mean_latency_x1000%1000);
+
+	    	xil_printf("Latency Standard Deviation = %u.%03u us\r\n",
+	    			std_latency_x1000/1000, std_latency_x1000%1000);
+
+	    	xil_printf("Throughput = %u.%03u FPS\r\n",
+	    			(unsigned int)(fps_x1000 / 1000), (unsigned int)(fps_x1000 % 1000));
+
+	#if PROFILE_STAGES
+	    	uint64_t total_profile_ticks = total_t_input + total_t_pl +
+	    			total_t_output;
+
+	    	double avg_input_ms = ((double) total_t_input / NUM_FRAMES)
+	    			* 1000.0 / COUNTS_PER_SECOND;
+
+	    	double avg_pl_ms = ((double) total_t_pl / NUM_FRAMES)
+	    			* 1000.0 / COUNTS_PER_SECOND;
+
+	    	double avg_output_ms = ((double) total_t_output / NUM_FRAMES)
+	    			* 1000.0 / COUNTS_PER_SECOND;
+
+
+	    	double pct_input = (100.0 * total_t_input) /
+	    			total_profile_ticks;
+
+	    	double pct_pl = (100.0 * total_t_pl) /
+	    			total_profile_ticks;
+
+	    	double pct_output = (100.0 * total_t_output) /
+	    			total_profile_ticks;
+
+	    	uint32_t pct_input_x100		= (uint32_t)(100.0 * pct_input);
+	    	uint32_t pct_pl_x100 		= (uint32_t)(100.0 * pct_pl);
+	    	uint32_t pct_output_x100	= (uint32_t)(100.0 * pct_output);
+
+
+	    	uint32_t input_x1000    	= (uint32_t)(1000.0 * avg_input_ms);
+	    	uint32_t pl_ms_x1000 		= (uint32_t)(1000.0 * avg_pl_ms);
+	    	uint32_t output_ms_x1000	= (uint32_t)(1000.0 * avg_output_ms);
+
+
+	    	xil_printf("Image input time:\r\n");
+	    	xil_printf("Mean = %u.%03u ms/frame\r\n",
+	    			input_x1000/1000, input_x1000%1000);
+	    	xil_printf("Share = %u.%02u %%\r\n",
+	    			pct_input_x100/100, pct_input_x100%100);
+
+	    	xil_printf("\r\n\r\n PL execution time:\r\n");
+	    	xil_printf("Mean = %u.%03u ms/frame\r\n",
+	    			pl_ms_x1000/1000, pl_ms_x1000%1000);
+	    	xil_printf("Share = %u.%02u %%\r\n",
+	    			pct_pl_x100/100, pct_pl_x100%100);
+
+	    	xil_printf("\r\n\r\n Image output time:\r\n");
+	    	xil_printf("Mean = %u.%03u ms/frame\r\n",
+	    			output_ms_x1000/1000, output_ms_x1000%1000);
+	    	xil_printf("Share = %u.%02u %%\r\n",
+	    			pct_output_x100/100, pct_output_x100%100);
+
+
+	#endif
+		}
+
+		if(kitti_valid_frame > 0)
+		{
+			xil_printf("---KITTI-style Evaluation --- \n ");
+
+			double mean_d1 = total_kitti_d1_error / kitti_valid_frame;
+			double squared_diff_sum = 0.0;
+
+			for(int i = 0; i < NUM_FRAMES; ++i)
+			{
+				double diff = d1_per_frame[i] - mean_d1;
+				squared_diff_sum += diff * diff;
+			}
+			double std_d1 = std::sqrt(squared_diff_sum / kitti_valid_frame);
+
+	        unsigned int mean_d1_x1000  = (unsigned int)((mean_d1 * 1000.0));
+	        unsigned int std_d1_x1000  = (unsigned int)((std_d1 * 1000.0));
+
+	    	xil_printf("Mean D1 = %u.%03u\r\n", mean_d1_x1000/1000, mean_d1_x1000%1000);
+	    	xil_printf("D1 Standard Deviation = %u.%03u\r\n", std_d1_x1000/1000, std_d1_x1000%1000);
+		}
+
+		if(hw_valid_frame > 0)
+		{
+			xil_printf("\n --- HW Valid Evaluation --- \n ");
+
+			double mean_mae = total_mae / hw_valid_frame;
+			double mae_squared_diff_sum = 0.0;
+
+			double mean_bad1 = total_Bad1_error / hw_valid_frame;
+			double bad1_squared_diff_sum = 0.0;
+
+			double mean_bad3 = total_Bad3_error / hw_valid_frame;
+			double bad3_squared_diff_sum = 0.0;
+
+			for(int i = 0; i < NUM_FRAMES; ++i)
+			{
+				double mae_diff = mae_per_frame[i] - mean_mae;
+				mae_squared_diff_sum += mae_diff * mae_diff;
+
+
+				double bad1_diff = bad1_per_frame[i] - mean_bad1;
+				bad1_squared_diff_sum += bad1_diff * bad1_diff;
+
+
+				double bad3_diff = bad3_per_frame[i] - mean_bad3;
+				bad3_squared_diff_sum += bad3_diff * bad3_diff;
+			}
+			double std_mae = std::sqrt(mae_squared_diff_sum / hw_valid_frame);
+			double std_bad1 = std::sqrt(bad1_squared_diff_sum / hw_valid_frame);
+			double std_bad3 = std::sqrt(bad3_squared_diff_sum / hw_valid_frame);
+
+	        unsigned int mean_mae_x1000  = (unsigned int)((mean_mae * 1000.0));
+	        unsigned int std_mae_x1000  = (unsigned int)((std_mae * 1000.0));
+
+	        unsigned int mean_bad1_x1000  = (unsigned int)((mean_bad1 * 1000.0));
+	        unsigned int std_bad1_x1000  = (unsigned int)((std_bad1 * 1000.0));
+
+	        unsigned int mean_bad3_x1000  = (unsigned int)((mean_bad3 * 1000.0));
+	        unsigned int std_bad3_x1000  = (unsigned int)((std_bad3 * 1000.0));
+
+	    	xil_printf("Mean MAE = %u.%03u\r\n", mean_mae_x1000/1000, mean_mae_x1000%1000);
+	    	xil_printf("MAE Standard Deviation = %u.%03u\r\n", std_mae_x1000/1000, std_mae_x1000%1000);
+
+	    	xil_printf("Mean Bad(>1) = %u.%03u\r\n", mean_bad1_x1000/1000, mean_bad1_x1000%1000);
+	    	xil_printf("Bad(>1) Standard Deviation = %u.%03u\r\n", std_bad1_x1000/1000, std_bad1_x1000%1000);
+
+	    	xil_printf("Mean Bad(>3) = %u.%03u\r\n", mean_bad3_x1000/1000, mean_bad3_x1000%1000);
+	    	xil_printf("Bad(>3) Standard Deviation = %u.%03u\r\n", std_bad3_x1000/1000, std_bad3_x1000%1000);
+		}
+
 
 	while(1);
+
+	return 0;
 }
