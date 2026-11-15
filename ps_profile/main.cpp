@@ -9,12 +9,57 @@
 #include "sgm_config.hpp"
 #include "dataset_frames.hpp"
 
-#define CHECK_OUTPUT 0
-#define PROFILE_STAGES 1
+#define CHECK_OUTPUT	0
+#define PROFILE_STAGES	1
 
 #define LEFT_BRAM_BASE 	XPAR_AXI_BRAM_CTRL_0_S_AXI_BASEADDR
 #define RIGHT_BRAM_BASE XPAR_AXI_BRAM_CTRL_1_S_AXI_BASEADDR
 #define DISP_BRAM_BASE 	XPAR_AXI_BRAM_CTRL_2_S_AXI_BASEADDR
+
+static uint8_t median(uint8_t v[MED_WIN*MED_WIN])
+{
+	for(int i = 1; i < (MED_WIN*MED_WIN); i++)
+	{
+		uint8_t key = v[i];
+		int j = i - 1;
+		while(j >= 0 && v[j] > key)
+		{
+			v[j+1] = v[j];
+			j--;
+		}
+		v[j+1] = key;
+	}
+	return v[(MED_WIN*MED_WIN)/2];
+}
+
+static void median_filter(const uint8_t in[IMG_H][IMG_W],
+						uint8_t out[IMG_H][IMG_W])
+{
+	for(int r = 0; r < IMG_H; ++r)
+	{
+		for(int c = 0; c < IMG_W; ++c)
+		{
+			out[r][c] = in[r][c];
+		}
+	}
+	for(int r = MED_RAD; r < IMG_H - MED_RAD; ++r)
+	{
+		for(int c = MED_RAD; c < IMG_W - MED_RAD; ++c)
+		{
+			uint8_t window[MED_WIN*MED_WIN];
+			int k = 0;
+
+			for(int dy = -MED_RAD; dy <= MED_RAD; ++dy)
+			{
+				for(int dx = -MED_RAD; dx <= MED_RAD; ++dx)
+				{
+					window[k++] = in[r+dy][c+dx];
+				}
+			}
+			out[r][c] = median(window);
+		}
+	}
+}
 
 int main ()
 {
@@ -33,6 +78,7 @@ int main ()
 	uint64_t total_t_input = 0;
 	uint64_t total_t_pl = 0;
 	uint64_t total_t_output = 0;
+	uint64_t total_t_median = 0;
 #endif
 
 	static double d1_per_frame[NUM_FRAMES];
@@ -45,12 +91,13 @@ int main ()
 	const int cy = WIN >> 1;
 
 	static uint8_t disp_img[IMG_H][IMG_W];
+	static uint8_t disp_post[IMG_H][IMG_W];
 
 	const int valid_r_min = WIN - 1 - cy;
 	const int valid_r_max = IMG_H - 1 - cy;
 	const int valid_c_max = IMG_W - cx;
 
-	xil_printf("Starting Variant B - PL-PS SGM evaluation... \r\n");
+	xil_printf("Starting Variant C - PL-PS SGM + median evaluation... \r\n");
 
 	XSgm_kernel sgm;
 
@@ -108,6 +155,8 @@ int main ()
 	        disp_img[r][c + 3] = (uint8_t)((word >> 24) & 0xFF);
 	    }
 	}
+
+	median_filter(disp_img, disp_post);
 
 	xil_printf("Warm-up complete\r\n");
 
@@ -191,6 +240,18 @@ XTime t0, t1;
 	total_t_output += uint64_t (t1-t0);
 #endif
 
+
+#if PROFILE_STAGES
+	XTime_GetTime(&t0);
+#endif
+
+    median_filter(disp_img, disp_post);
+
+#if PROFILE_STAGES
+	XTime_GetTime(&t1);
+	total_t_median += uint64_t (t1-t0);
+#endif
+
 	XTime_GetTime(&frame_end);
 	uint64_t frame_ticks = (uint64_t)(frame_end - frame_start);
 
@@ -202,6 +263,7 @@ XTime t0, t1;
 
     total_latency += latency_us;
 
+
 #if CHECK_OUTPUT
 	uint32_t checksum = 0;
 
@@ -209,7 +271,7 @@ XTime t0, t1;
 	{
 	    for(int c = 0; c < IMG_W; ++c)
 	    {
-	        checksum += disp_img[r][c];
+	        checksum += disp_post[r][c];
 	    }
 	}
 
@@ -231,7 +293,7 @@ XTime t0, t1;
 		for (int c = 0; c < IMG_W; ++c)
 		{
 			float gt_disp = gt_frames[i][r][c];
-			float est_disp = disp_img[r][c];
+			float est_disp = disp_post[r][c];
 
 			if(r >= valid_r_min && est_disp > c)
 				++invalid_selected_count;
@@ -373,7 +435,7 @@ XTime t0, t1;
 
 	#if PROFILE_STAGES
 	    	uint64_t total_profile_ticks = total_t_input + total_t_pl +
-	    			total_t_output;
+	    			total_t_output + total_t_median;
 
 	    	double avg_input_ms = ((double) total_t_input / NUM_FRAMES)
 	    			* 1000.0 / COUNTS_PER_SECOND;
@@ -382,6 +444,9 @@ XTime t0, t1;
 	    			* 1000.0 / COUNTS_PER_SECOND;
 
 	    	double avg_output_ms = ((double) total_t_output / NUM_FRAMES)
+	    			* 1000.0 / COUNTS_PER_SECOND;
+
+	    	double avg_median_ms = ((double) total_t_median / NUM_FRAMES)
 	    			* 1000.0 / COUNTS_PER_SECOND;
 
 
@@ -394,14 +459,20 @@ XTime t0, t1;
 	    	double pct_output = (100.0 * total_t_output) /
 	    			total_profile_ticks;
 
+	    	double pct_median = (100.0 * total_t_median) /
+	    			total_profile_ticks;
+
 	    	uint32_t pct_input_x100		= (uint32_t)(100.0 * pct_input);
 	    	uint32_t pct_pl_x100 		= (uint32_t)(100.0 * pct_pl);
 	    	uint32_t pct_output_x100	= (uint32_t)(100.0 * pct_output);
+	    	uint32_t pct_median_x100	= (uint32_t)(100.0 * pct_median);
+
 
 
 	    	uint32_t input_x1000    	= (uint32_t)(1000.0 * avg_input_ms);
 	    	uint32_t pl_ms_x1000 		= (uint32_t)(1000.0 * avg_pl_ms);
 	    	uint32_t output_ms_x1000	= (uint32_t)(1000.0 * avg_output_ms);
+	    	uint32_t median_ms_x1000	= (uint32_t)(1000.0 * avg_median_ms);
 
 
 	    	xil_printf("Image input time:\r\n");
@@ -421,6 +492,12 @@ XTime t0, t1;
 	    			output_ms_x1000/1000, output_ms_x1000%1000);
 	    	xil_printf("Share = %u.%02u %%\r\n",
 	    			pct_output_x100/100, pct_output_x100%100);
+
+	    	xil_printf("\r\n\r\n Median filter time:\r\n");
+	    	xil_printf("Mean = %u.%03u ms/frame\r\n",
+	    			median_ms_x1000/1000, median_ms_x1000%1000);
+	    	xil_printf("Share = %u.%02u %%\r\n",
+	    			pct_median_x100/100, pct_median_x100%100);
 
 
 	#endif
