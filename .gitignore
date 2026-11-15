@@ -19,3 +19,6 @@ hls.app
 .project
 .vitis_hls_log_all.xml
 tools/scale_x_frames.hpp
+.Xil/
+tools/.Xil/
+xrc.log

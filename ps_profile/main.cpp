@@ -15,12 +15,10 @@ int main()
 
 	/* Evaluation metrics */
 	int kitti_valid_frame = 0;
-	int hw_valid_frame = 0;
 
 	double total_kitti_d1_error = 0;
 	double total_mae = 0;
 	double total_Bad1_error = 0, total_Bad3_error = 0;
-	int invalid_selected_count = 0;
 
 	uint64_t total_latency = 0;
 
@@ -35,15 +33,6 @@ int main()
 	static double bad1_per_frame[NUM_FRAMES];
 	static double bad3_per_frame[NUM_FRAMES];
 	static uint32_t latency_per_frame[NUM_FRAMES];
-
-
-
-	const int cx = WIN >> 1;
-	const int cy = WIN >> 1;
-
-	const int valid_r_min = WIN - 1 - cy;
-	const int valid_r_max = IMG_H - 1 - cy;
-	const int valid_c_max = IMG_W - cx;
 
 	xil_printf("Starting Variant A - PS SGM evaluation... \r\n");
 
@@ -62,11 +51,13 @@ int main()
 		sgm_sw_core(left_frames[i], right_frames[i], disp_out);
 		XTime_GetTime(&t1);
 
+#if PROFILE_STAGES
 		total_linebuffer += t_linebuffer;
 		total_slidingwindow += t_slidingwindow;
 		total_census += t_computecensus;
 		total_aggregate += t_aggregatecost;
 		total_commit += t_commitcosts;
+#endif
 
 		uint64_t cycles = uint64_t(t1 - t0);
 	    uint32_t latency_us = (uint32_t)((cycles * 1000000ULL) / COUNTS_PER_SECOND);
@@ -92,8 +83,6 @@ int main()
 		int kitti_valid_count = 0;
 		int kitti_invalid_count = 0;
 
-		int hw_valid_count = 0, hw_invalid_count = 0;
-
 		int bad1 = 0, bad3 = 0;
 		double sum_abs_err = 0.0;
 
@@ -103,9 +92,6 @@ int main()
 			{
 				float gt_disp = gt_frames[i][r][c];
 				float est_disp = disp_out[r][c];
-
-				if(r >= valid_r_min && est_disp > c)
-					++invalid_selected_count;
 
 				bool gt_valid = gt_disp > 0.0f;
 				if(!gt_valid)
@@ -117,6 +103,10 @@ int main()
 				++kitti_valid_count;
 				float err = (std::abs(est_disp - gt_disp)) / scale_x;
 
+		    	sum_abs_err += err;
+		    	if (err > 1.0f) bad1++;
+		    	if (err > 3.0f) bad3++;
+
 				/* Kitt-style D1 */
 				bool abs_error_gt3 = err > 3.0f;
 				bool rel_error_gt5 = ((err / (gt_disp/scale_x)) > 0.05f);
@@ -125,25 +115,6 @@ int main()
 				{
 					++kitti_d1_err;
 				}
-
-		        bool roi_valid = (r >= valid_r_min) && (r <= valid_r_max)
-		        		&& (c < valid_c_max);
-
-		        bool disp_range_valid = (gt_disp < DISP) && (gt_disp <= c);
-
-		        bool hw_valid = roi_valid && disp_range_valid;
-
-		    	if(!hw_valid)
-		    	{
-		    		++hw_invalid_count;
-		    	}
-		    	else
-		    	{
-			    	++hw_valid_count;
-			    	sum_abs_err += err;
-			    	if (err > 1.0f) bad1++;
-			    	if (err > 3.0f) bad3++;
-		    	}
 		    }
 		}
 
@@ -157,28 +128,19 @@ int main()
         	current_kitti_error = (100.0 * kitti_d1_err / kitti_valid_count);
         	++kitti_valid_frame;
         	total_kitti_d1_error += current_kitti_error;
-        }
-        else
-        {
-            xil_printf( "ERROR: No KITTI-valid GT pixels at frame %d\n", i);
-            return 5;
-        }
 
-        if(hw_valid_count > 0)
-        {
-        	++hw_valid_frame;
-        	current_mae = (sum_abs_err / hw_valid_count);
-			current_bad1 = (100.0 * bad1 / hw_valid_count);
-			current_bad3= (100.0 * bad3 / hw_valid_count);
+        	current_mae = (sum_abs_err / kitti_valid_count);
+			current_bad1 = (100.0 * bad1 / kitti_valid_count);
+			current_bad3= (100.0 * bad3 / kitti_valid_count);
 
 			total_mae += current_mae;
 			total_Bad1_error += current_bad1;
 			total_Bad3_error +=current_bad3;
         }
-        if (hw_valid_count == 0)
+        else
         {
-            xil_printf("ERROR: No HW-valid GT pixels for comparison at frame: %d\n", i);
-            return 6;
+            xil_printf( "ERROR: No KITTI-valid GT pixels at frame %d\n", i);
+            return 5;
         }
 
     	d1_per_frame[i] = current_kitti_error;
@@ -204,12 +166,6 @@ int main()
         {
         	xil_printf("ERROR: GT validity counts do not match image "
         			"size at frame: %d\n", i);
-        }
-
-        if((hw_invalid_count + hw_valid_count) != kitti_valid_count)
-        {
-        	xil_printf ("ERROR: HW-valid + HW-excluded counts do not match"
-        			" KITTI-valid count at frame: %d", i);
         }
 	}
 
@@ -344,17 +300,17 @@ int main()
     	xil_printf("D1 Standard Deviation = %u.%03u\r\n", std_d1_x1000/1000, std_d1_x1000%1000);
 	}
 
-	if(hw_valid_frame > 0)
+	if(kitti_valid_frame > 0)
 	{
-		xil_printf("\n --- HW Valid Evaluation --- \n ");
+		xil_printf("\n --- Accuracy Evaluation --- \n ");
 
-		double mean_mae = total_mae / hw_valid_frame;
+		double mean_mae = total_mae / kitti_valid_frame;
 		double mae_squared_diff_sum = 0.0;
 
-		double mean_bad1 = total_Bad1_error / hw_valid_frame;
+		double mean_bad1 = total_Bad1_error / kitti_valid_frame;
 		double bad1_squared_diff_sum = 0.0;
 
-		double mean_bad3 = total_Bad3_error / hw_valid_frame;
+		double mean_bad3 = total_Bad3_error / kitti_valid_frame;
 		double bad3_squared_diff_sum = 0.0;
 
 		for(int i = 0; i < NUM_FRAMES; ++i)
@@ -370,9 +326,9 @@ int main()
 			double bad3_diff = bad3_per_frame[i] - mean_bad3;
 			bad3_squared_diff_sum += bad3_diff * bad3_diff;
 		}
-		double std_mae = std::sqrt(mae_squared_diff_sum / hw_valid_frame);
-		double std_bad1 = std::sqrt(bad1_squared_diff_sum / hw_valid_frame);
-		double std_bad3 = std::sqrt(bad3_squared_diff_sum / hw_valid_frame);
+		double std_mae = std::sqrt(mae_squared_diff_sum / kitti_valid_frame);
+		double std_bad1 = std::sqrt(bad1_squared_diff_sum / kitti_valid_frame);
+		double std_bad3 = std::sqrt(bad3_squared_diff_sum / kitti_valid_frame);
 
         unsigned int mean_mae_x1000  = (unsigned int)((mean_mae * 1000.0));
         unsigned int std_mae_x1000  = (unsigned int)((std_mae * 1000.0));
@@ -392,14 +348,5 @@ int main()
     	xil_printf("Mean Bad(>3) = %u.%03u\r\n", mean_bad3_x1000/1000, mean_bad3_x1000%1000);
     	xil_printf("Bad(>3) Standard Deviation = %u.%03u\r\n", std_bad3_x1000/1000, std_bad3_x1000%1000);
 	}
-
-
-
-
-
-
-
-
-
     while(1);
 }
