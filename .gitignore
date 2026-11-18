@@ -2,7 +2,11 @@
 solution1
 .apc
 .settings
-Debug	
+Debug/
+Debug/	
+.Xil/
+Vivado_design/
+export/
 
 
 # Ignore files
@@ -11,4 +15,8 @@ hls.app
 .cproject
 .project
 .vitis_hls_log_all.xml
-
+tools/gt_*.hpp
+tools/right_*.hpp
+tools/left_*.hpp
+xrc.log
+tools/.Xil
