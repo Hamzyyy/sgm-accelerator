@@ -1,276 +1,297 @@
 #include "sgm_kernel-tb.hpp"
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
+
 #include <iostream>
 #include <cmath>
+#include <sstream>
+#include <iomanip>
+#include <algorithm>
 
-static inline bool file_exist(const std::string &p)
+int main()
 {
-	return !p.empty();
-}
+	std::string left_dir = "/home/hamzy/SGM/Kitti-Data/training/image_2";
+	std::string right_dir = "/home/hamzy/SGM/Kitti-Data/training/image_3";
+	std::string gt_dir = "/home/hamzy/SGM/Kitti-Data/training/disp_noc_0";
 
-int main(int argc, char** argv)
-{
+    const int NUM_FRAME = 200;
 
-    std::string left_path  = (argc > 1) ? argv[1] :
-    		"/home/hamzy/SGM/Kitti-Data/training/image_2/000000_10.png";
-    std::string right_path = (argc > 2) ? argv[2] :
-    		"/home/hamzy/SGM/Kitti-Data/training/image_3/000000_10.png";
+    const int cy = WIN >> 1;
 
-    std::string gt_path = (argc > 3) ? argv[3] :
-        	"/home/hamzy/SGM/Kitti-Data/training/disp_noc_0/000000_10.png";
+    int valid_frame_count = 0;
 
-    if (!file_exist(left_path) || !file_exist(right_path) || !file_exist(gt_path))
+    double total_d1 = 0.0;
+    double total_mae = 0.0;
+    double total_bad3 = 0.0;
+
+    double d1_per_frame[NUM_FRAME];
+    double mae_per_frame[NUM_FRAME];
+    double bad3_per_frame[NUM_FRAME];
+
+    for(int i = 0; i < NUM_FRAME; ++i)
     {
-    	std::cerr << "ERROR: Provide left & right images and the ground truth"
-    			<< " left: " << left_path << "\n"
-				<< "right: " << right_path << "\n"
-				<< "gt: " << gt_path << std::endl;
-    	return 1;
-    }
-    /* Load as grayscale */
-    cv::Mat left  = cv::imread(left_path,  cv::IMREAD_GRAYSCALE);
-    cv::Mat right = cv::imread(right_path, cv::IMREAD_GRAYSCALE);
-    cv::Mat gt = cv::imread(gt_path, cv::IMREAD_UNCHANGED);
-    if (left.empty() || right.empty() || gt.empty())
-    {
-        std::cerr << "ERROR: Could not load input images:\n  "
-                  << left_path << "\n  " << right_path <<  "\n  " << gt_path << std::endl;
-        return 2;
-    }
+        std::ostringstream ss;
+        ss << std::setw(6) << std::setfill('0') << i;
 
-    /* Ensure size matches kernel shape */
-    if (left.cols != IMG_W || left.rows != IMG_H)
-    {
-        cv::resize(left,  left,  cv::Size(IMG_W, IMG_H), 0, 0, cv::INTER_AREA);
-    }
-    if (right.cols != IMG_W || right.rows != IMG_H)
-    {
-        cv::resize(right, right, cv::Size(IMG_W, IMG_H), 0, 0, cv::INTER_AREA);
-    }
+        std::string id = ss.str();
+        std::string file_name = id + "_10.png";
 
-    /* Before resize the GT count valid/invalid pixels */
-    int original_total_pixels = 0;
-    int original_gt_valid_count = 0, original_gt_invalid_count = 0;
+        std::string left_path = left_dir + "/" + file_name;
+        std::string right_path = right_dir + "/" + file_name;
+        std::string gt_path = gt_dir + "/" + file_name;
 
-    for (int r = 0; r < gt.rows; ++r)
-    {
-    	for (int c = 0; c < gt.cols; ++c)
-    	{
-    		++original_total_pixels;
-    		uint16_t raw_gt = gt.at<uint16_t>(r,c);
-    		if(raw_gt <= 0)
-    			{
-    				++original_gt_invalid_count;
-    				continue;
-    			}
-    		++original_gt_valid_count;
-    	}
-    }
-
-    std::cout << "gt type = " << gt.type() << "\n";
-    std::cout << "Pixel count on the original GT " << "\n";
-    std::cout << "Total pixels: " << original_total_pixels << "\n";
-    std::cout << "GT-valid pixels (>0): " << original_gt_valid_count << "\n";
-    std::cout << "GT-invalid pixels (<=0): " << original_gt_invalid_count << "\n";
-
-    const float scale_x = static_cast<float>(IMG_W) / static_cast<float>(gt.cols);
-
-    cv::Mat gt_f;
-    gt.convertTo(gt_f, CV_32F, 1.0f / 256.0f);
-
-    if(gt_f.cols != IMG_W || gt_f.rows != IMG_H)
-    {
-    	cv::resize(gt_f, gt_f, cv::Size(IMG_W, IMG_H), 0, 0, cv::INTER_NEAREST);
-    	gt_f *= scale_x;
-    }
-
-    if (left.cols != IMG_W || left.rows != IMG_H ||
-        right.cols != IMG_W || right.rows != IMG_H ||
-		gt_f.cols != IMG_W || gt_f.rows != IMG_H)
-    {
-        std::cerr << "ERROR: Size mismatch after resize. "
-                  << "Expected (" << IMG_W << "x" << IMG_H << ").\n";
-        return 3;
-    }
-
-    /* Prepare memory-mapped input/output arrays */
-    static pix_t left_arr[IMG_H][IMG_W];
-    static pix_t right_arr[IMG_H][IMG_W];
-    static disp_t disp_arr[IMG_H][IMG_W];
-
-    for (int r = 0; r < IMG_H; ++r)
-    {
-        const uint8_t* lp = left.ptr<uint8_t>(r);
-        const uint8_t* rp = right.ptr<uint8_t>(r);
-        for (int c = 0; c < IMG_W; ++c)
+        /* Load as grayscale */
+        cv::Mat left  = cv::imread(left_path,  cv::IMREAD_GRAYSCALE);
+        cv::Mat right = cv::imread(right_path, cv::IMREAD_GRAYSCALE);
+        cv::Mat gt = cv::imread(gt_path, cv::IMREAD_UNCHANGED);
+        if (left.empty() || right.empty() || gt.empty())
         {
-        	left_arr[r][c] = static_cast<pix_t>(lp[c]);
-        	right_arr[r][c] = static_cast<pix_t>(rp[c]);
+            std::cerr << "ERROR: Could not load input images:\n  "
+                      << left_path << "\n  " << right_path <<  "\n  " << gt_path << std::endl;
+            return 2;
         }
-    }
 
-    /* Run kernel */
-    sgm_kernel(left_arr, right_arr, disp_arr);
-
-    /* Retrieve output disparity */
-    cv::Mat disp(IMG_H, IMG_W, CV_8U);
-    using out_u_t = uint8_t;
-
-    for (int r = 0; r < IMG_H; ++r)
-    {
-
-    uint8_t *dp = disp.ptr<uint8_t>(r);
-
-        for (int c = 0; c < IMG_W; ++c)
+        /* Ensure size matches kernel shape */
+        if (left.cols != IMG_W || left.rows != IMG_H)
         {
-            dp[c] = static_cast<out_u_t>(disp_arr[r][c]);
+            cv::resize(left,  left,  cv::Size(IMG_W, IMG_H), 0, 0, cv::INTER_AREA);
         }
-    }
-
-    double disp_min = 0.0, disp_max = 0.0;
-    cv::minMaxLoc(disp, &disp_min, &disp_max);
-    std::cout << "disp min=" << disp_min << " max=" << disp_max << "\n";
-
-    int nonzero = 0;
-    for (int r = 0; r < IMG_H; ++r)
-    {
-        for (int c = 0; c < IMG_W; ++c)
+        if (right.cols != IMG_W || right.rows != IMG_H)
         {
-            if (disp.at<out_u_t>(r,c) != 0) nonzero++;
+            cv::resize(right, right, cv::Size(IMG_W, IMG_H), 0, 0, cv::INTER_AREA);
         }
-    }
-    std::cout << "nonzero disparity pixels: " << nonzero
-              << " / " << (IMG_W * IMG_H) << "\n";
 
-    int test_r = IMG_H / 2;
-    for (int c : {IMG_W/4, IMG_W/2, 3*IMG_W/4})
-    {
-        std::cout << "disp(" << test_r << "," << c << ") = "
-                  << int(disp.at<out_u_t>(test_r, c)) << "\n";
-    }
+        /* Resize the ground truth */
+        const float scale_x = static_cast<float>(IMG_W) / static_cast<float>(gt.cols);
 
-    int count0 = 0, count1to3 = 0, count4plus = 0;
-    for (int r = 0; r < IMG_H; ++r) {
-        for (int c = 0; c < IMG_W; ++c) {
-            int v = int(disp.at<out_u_t>(r,c));
-            if (v == 0) count0++;
-            else if (v <= 3) count1to3++;
-            else count4plus++;
+        cv::Mat gt_f;
+        gt.convertTo(gt_f, CV_32F, 1.0f / 256.0f);
+
+        if(gt_f.cols != IMG_W || gt_f.rows != IMG_H)
+        {
+        	cv::resize(gt_f, gt_f, cv::Size(IMG_W, IMG_H), 0, 0, cv::INTER_NEAREST);
+        	gt_f *= scale_x;
         }
-    }
-    std::cout << "count0=" << count0
-              << " count1to3=" << count1to3
-              << " count4plus=" << count4plus << "\n";
 
-    /* Save result */
-    const char* raw_name = "disp_u8.png";
+        if (left.cols != IMG_W || left.rows != IMG_H ||
+            right.cols != IMG_W || right.rows != IMG_H ||
+    		gt_f.cols != IMG_W || gt_f.rows != IMG_H)
+        {
+            std::cerr << "ERROR: Size mismatch after resize. "
+                      << "Expected (" << IMG_W << "x" << IMG_H << ").\n";
+            return 3;
+        }
 
-    static_assert(DISP <= 256, "Current output saving assume 8-bit disparity");
+        /* Prepare memory-mapped input/output arrays */
+        static pix_t left_arr[IMG_H][IMG_W];
+        static pix_t right_arr[IMG_H][IMG_W];
+        static disp_t disp_arr[IMG_H][IMG_W];
 
-    cv::imwrite(raw_name, disp);
-    std::cout << "OK: Disparity map written to " << raw_name << " ("
-            << IMG_W << "x" << IMG_H << ")\n";
+        for(int r = 0; r < IMG_H; ++r)
+        {
+            const uint8_t* lp = left.ptr<uint8_t>(r);
+            const uint8_t* rp = right.ptr<uint8_t>(r);
 
-    /* Visualization */
-    double mn = 0, mx = 0;
-        cv::minMaxLoc(disp, &mn, &mx);
-        double scale_den = (mx > 0) ? mx : std::max(1, DISP - 1);
-        cv::Mat disp_vis_8u;
-        disp.convertTo(disp_vis_8u, CV_8U, 255.0 / scale_den);
+            for(int c = 0; c < IMG_W; ++c)
+            {
+                left_arr[r][c] = static_cast<pix_t>(lp[c]);
+                right_arr[r][c] = static_cast<pix_t>(rp[c]);
 
-        cv::imwrite("disp_vis.png", disp_vis_8u);
-        cv::Mat disp_color;
-        cv::applyColorMap(disp_vis_8u, disp_color, cv::COLORMAP_JET);
-        cv::imwrite("disp_color.png", disp_color);
+                disp_arr[r][c] = 0;
+            }
+        }
 
-        int total_pixels = 0;
-        int eval_valid_count = 0, eval_invalid_count = 0;
-        int zero_count_on_gt_valid= 0;
-        int nonzero_count_on_gt_valid= 0;
-        int out_of_range_on_gt_valid= 0;
+        /* Run kernel */
+        sgm_kernel(left_arr, right_arr, disp_arr);
 
-        int bad1 = 0, bad3 = 0;
+        /* Retrieve output disparity */
+        cv::Mat disp(IMG_H, IMG_W, CV_8U, cv::Scalar(0));
+        using out_u_t = uint8_t;
+
+        for(int r = 0; r < IMG_H; ++r)
+        {
+            int out_r = r - cy;
+
+            if(out_r < 0)
+                continue;
+
+            for(int c = 0; c < IMG_W; ++c)
+            {
+                disp.at<out_u_t>(out_r, c) = static_cast<out_u_t>(disp_arr[r][c]);
+            }
+        }
+
+        /* Accuracy metrics*/
+        int kitti_valid_count = 0;
+        int kitti_invalid_count = 0;
+
+        int kitti_d1_err = 0;
+        int bad3 = 0;
+
         double sum_abs_err = 0.0;
+
         cv::Mat err_map(IMG_H, IMG_W, CV_32F, cv::Scalar(0));
 
-        const int cx = WIN >> 1;
-
-        const int valid_r_min = WIN - 1;
-        const int valid_c_min = (DISP - 1) + cx;
-        const int valid_c_max = IMG_W - cx;
-
-        for (int r = 0; r < IMG_H; ++r)
+        for(int r = 0; r < IMG_H; ++r)
         {
-        	for (int c = 0; c < IMG_W; ++c)
-        	{
-        		++total_pixels;
-        		float gt_disp = gt_f.at<float>(r,c);
+            for(int c = 0; c < IMG_W; ++c)
+            {
+                float gt_disp = gt_f.at<float>(r,c);
 
-                bool gt_valid = gt_disp > 0.0f;
-                bool roi_valid =
-                    (r >= valid_r_min) &&
-                    (c >= valid_c_min) &&
-                    (c < valid_c_max);
+                float est_disp = float(disp.at<out_u_t>(r,c));
 
-                bool disp_range_valid =
-                    (gt_disp >= 0.0f) &&
-                    (gt_disp < DISP);
+                /* For all valid GT pixels */
+                if(gt_disp <= 0.0f)
+                {
+                    ++kitti_invalid_count;
+                    continue;
+                }
+                ++kitti_valid_count;
 
-                bool eval_valid = gt_valid && roi_valid && disp_range_valid;
+                float err_reduced = std::abs(est_disp - gt_disp);
 
-        		if(!eval_valid)
-        			{
-        				++eval_invalid_count;
-        				continue;
-        			}
-        		++eval_valid_count;
+                float err_orig = err_reduced / scale_x;
 
-        		float est_disp = float(disp.at<out_u_t>(r,c));
+                err_map.at<float>(r,c) = err_orig;
 
-        		if(est_disp == 0.0f)
-        			++zero_count_on_gt_valid;
-        		else
-        			++nonzero_count_on_gt_valid;
+                sum_abs_err += err_orig;
 
-        		if(est_disp < 0.0f || est_disp >= DISP)
-        			++out_of_range_on_gt_valid;
+                if(err_orig > 3.0f)
+                {
+                    ++bad3;
+                }
 
-        		float err = std::abs(est_disp - gt_disp);
-        		err_map.at<float>(r,c) = err;
+                bool abs_error_gt3 = err_orig > 3.0f;
 
-        		sum_abs_err += err;
-        		if (err > 1.0f) bad1++;
-        		if (err > 3.0f) bad3++;
-        	}
+                bool rel_error_gt5 = (err_reduced / gt_disp) > 0.05f;
+
+                if(abs_error_gt3 && rel_error_gt5)
+                {
+                    ++kitti_d1_err;
+                }
+            }
         }
-
-        double err_max = 0.0;
-        cv::minMaxLoc(err_map, nullptr, &err_max);
-
-        cv::Mat err_vis;
-        double scale = (err_max > 0.0) ? (255.0 / err_max) : 1.0;
-
-        err_map.convertTo(err_vis, CV_8U, scale);
-
-        cv::imwrite("err_map.png", err_vis);
-
-        std::cout << "Total pixels: " << total_pixels << "\n";
-        std::cout << "Evaluation-valid pixels (>0): " << eval_valid_count << "\n";
-        std::cout << "Excluded invalid pixels (<=0): " << eval_invalid_count << "\n";
-        std::cout << "est == 0 on GT-valid pixels: " << zero_count_on_gt_valid << "\n";
-        std::cout << "est != 0 on GT-valid pixels: " << nonzero_count_on_gt_valid << "\n";
-        std::cout << "est out of range on GT-valid pixels: " << out_of_range_on_gt_valid << "\n";
-
-        if (eval_valid_count == 0)
+        if(kitti_valid_count == 0)
         {
-            std::cerr << "ERROR: No valid GT pixels for comparison\n";
+            std::cerr << "ERROR: No KITTI-valid pixels at frame " << id
+                << std::endl;
             return 6;
         }
 
-        std::cout << "MAE: " << (sum_abs_err / eval_valid_count) << "\n";
-        std::cout << "Bad >1 px: " << (100.0 * bad1 / eval_valid_count) << "%\n";
-        std::cout << "Bad >3 px: " << (100.0 * bad3 / eval_valid_count) << "%\n";
+        if((kitti_valid_count + kitti_invalid_count) != (IMG_H * IMG_W))
+        {
+            std::cerr << "ERROR: GT pixel count mismatch at frame " << id
+                << std::endl;
+            return 7;
+        }
 
-        return 0;
+        double current_d1 = 100.0 * kitti_d1_err / kitti_valid_count;
+        double current_mae = sum_abs_err / kitti_valid_count;
+        double current_bad3 = 100.0 * bad3 / kitti_valid_count;
+
+        d1_per_frame[i] = current_d1;
+
+        mae_per_frame[i] = current_mae;
+
+        bad3_per_frame[i] = current_bad3;
+
+        total_d1 += current_d1;
+
+        total_mae += current_mae;
+
+        total_bad3 += current_bad3;
+
+        ++valid_frame_count;
+
+        std::cout << "Frame " << id << ", D1 = " << current_d1 << " %, MAE = "
+            << current_mae << " px, Bad >3 = " << current_bad3 << " %"
+			<< std::endl;
+
+        if(i == 0)
+        {
+        #if (DISP > 256)
+            cv::imwrite("disp_u16_frame0.png", disp);
+        #else
+            cv::imwrite("disp_u8_frame0.png", disp);
+        #endif
+            double disp_min = 0.0;
+            double disp_max = 0.0;
+
+            cv::minMaxLoc(disp, &disp_min, &disp_max);
+
+            double scale_den = (disp_max > 0.0) ? disp_max :
+            		std::max(1, DISP - 1);
+
+            cv::Mat disp_vis;
+
+            disp.convertTo(disp_vis, CV_8U, 255.0 / scale_den);
+
+            cv::imwrite("disp_vis_frame0.png", disp_vis);
+
+            cv::Mat disp_color;
+
+            cv::applyColorMap(disp_vis, disp_color, cv::COLORMAP_JET);
+
+            cv::imwrite("disp_color_frame0.png", disp_color);
+
+            double err_max = 0.0;
+
+            cv::minMaxLoc(err_map, nullptr, &err_max);
+
+            cv::Mat err_vis;
+
+            double err_scale = (err_max > 0.0) ? (255.0 / err_max) : 1.0;
+
+            err_map.convertTo(err_vis, CV_8U, err_scale);
+
+            cv::imwrite("err_map_frame0.png", err_vis);
+         }
+    }
+
+    /* Dataset statistics */
+    if(valid_frame_count == 0)
+    {
+        std::cerr << "ERROR: No valid frames evaluated." << std::endl;
+        return 8;
+    }
+
+    double mean_d1 = total_d1 / valid_frame_count;
+
+    double mean_mae = total_mae / valid_frame_count;
+
+    double mean_bad3 = total_bad3 / valid_frame_count;
+
+    double d1_squared_diff_sum = 0.0;
+    double mae_squared_diff_sum = 0.0;
+    double bad3_squared_diff_sum = 0.0;
+
+    for(int i = 0; i < NUM_FRAME; ++i)
+    {
+        double d1_diff = d1_per_frame[i] - mean_d1;
+        double mae_diff = mae_per_frame[i] - mean_mae;
+        double bad3_diff = bad3_per_frame[i] - mean_bad3;
+
+        d1_squared_diff_sum += d1_diff * d1_diff;
+        mae_squared_diff_sum += mae_diff * mae_diff;
+        bad3_squared_diff_sum +=bad3_diff * bad3_diff;
+    }
+
+    double std_d1 = std::sqrt(d1_squared_diff_sum / valid_frame_count);
+    double std_mae = std::sqrt(mae_squared_diff_sum / valid_frame_count);
+    double std_bad3 = std::sqrt(bad3_squared_diff_sum / valid_frame_count);
+
+    /* Final results*/
+
+    std::cout << "----------200-Frame Accuracy Evaluation----------\n";
+
+    std::cout << "Mean D1: " << mean_d1 << " %\n";
+    std::cout << "D1 Standard Deviation: " << std_d1 << " %\n";
+
+    std::cout << "Mean MAE: " << mean_mae << " px\n";
+    std::cout << "MAE Standard Deviation: " << std_mae << " px\n";
+
+    std::cout << "Mean Bad >3: " << mean_bad3<< " %\n";
+    std::cout << "Bad >3 Standard Deviation: " << std_bad3 << " %\n";
+
+    return 0;
 }
