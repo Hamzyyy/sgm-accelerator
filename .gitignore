@@ -10,6 +10,9 @@ tools/right_*.hpp
 tools/xrc.log
 Vivado_design/
 export/
+.Xil/
+Debug/
+
 
 # Ignore files
 vitis_hls.log
@@ -17,4 +20,4 @@ hls.app
 .cproject
 .project
 .vitis_hls_log_all.xml
-
+xrc.log

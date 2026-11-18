@@ -15,22 +15,16 @@ int main()
 	const int NUM_FRAME = 200;
 
 	int kitti_valid_frame = 0;
-	int hw_valid_frame = 0;
 
 	double total_kitti_d1_error = 0;
 	double total_mae = 0;
-	double total_Bad1_error = 0, total_Bad3_error = 0;
-	int invalid_selected_count = 0;
+	double total_Bad3_error = 0;
 
 	double d1_per_frame[NUM_FRAME];
 	double mae_per_frame[NUM_FRAME];
-	double bad1_per_frame[NUM_FRAME];
 	double bad3_per_frame[NUM_FRAME];
 
     double img_out_scale = 255.0f / (DISP - 1);
-
-    const int cx = WIN >> 1;
-    const int cy = WIN >> 1;
 
 	for(int i = 0; i < NUM_FRAME; ++i)
 	{
@@ -148,9 +142,9 @@ int main()
 
 			cv::Mat gt_vis = gt_f.clone();
 			cv::Mat invalid_mask(IMG_H, IMG_W, CV_8U, cv::Scalar(0));
-			cv::Mat out_of_range_mask(IMG_H, IMG_W, CV_8U, cv::Scalar(0));
-			cv::Mat out_of_border_mask(IMG_H, IMG_W, CV_8U, cv::Scalar(0));
 			cv::Mat err_map(IMG_H, IMG_W, CV_32F, cv::Scalar(0));
+
+			cv::imwrite("disp_raw_par8.png", disp);
 
 			volatile uint32_t checksum = 0;
 			for(int r = 0; r < IMG_H; ++r)
@@ -161,25 +155,14 @@ int main()
 					float est_disp = float(disp.at<uint8_t>(r,c));
 
 					checksum += static_cast<uint32_t>(est_disp);
-					cv::imwrite("disp_raw_par8.png", disp);
 
-					if(r < WIN -1 || c >= IMG_W-cx)
-					{
-						out_of_border_mask.at<uint8_t>(r, c) = 255;
-					}
 					if(gt_disp <= 0.0f)
 					{
 						gt_vis.at<float>(r,c) = 0.0f;
 						invalid_mask.at<uint8_t>(r, c) = 255;
 					}
-					if(gt_disp >= DISP)
-					{
-						gt_vis.at<float>(r,c) = 0.0f;
-						out_of_range_mask.at<uint8_t>(r, c) = 255;
-					}
 
-					if(r >= WIN -1 && c < IMG_W-cx
-							&& gt_disp > 0.0f && gt_disp < DISP)
+					if(gt_disp > 0.0f)
 					{
 		        		float err = std::abs((est_disp - gt_disp)/scale_x);
 		        		err_map.at<float>(r,c) = err;
@@ -194,7 +177,6 @@ int main()
 	        cv::Mat gt_color_0;
 	        cv::applyColorMap(gt_8u_0, gt_color_0, cv::COLORMAP_JET);
 	        gt_color_0.setTo(cv::Scalar(0,0,0), invalid_mask);
-	        gt_color_0.setTo(cv::Scalar(128,128,128), out_of_range_mask);
 	        cv::imwrite("gt_color_0.png", gt_color_0);
 
 	        cv::Mat err_map_0;
@@ -204,8 +186,6 @@ int main()
 	        cv::Mat err_map_color_0;
 	        cv::applyColorMap(err_map_0, err_map_color_0, cv::COLORMAP_JET);
 	        err_map_color_0.setTo(cv::Scalar(0,0,0), invalid_mask);
-	        err_map_color_0.setTo(cv::Scalar(128,128,128), out_of_range_mask);
-	        err_map_color_0.setTo(cv::Scalar(0,0,0), out_of_border_mask);
 	        cv::imwrite("err_map_color_0.png", err_map_color_0);
 
 
@@ -224,8 +204,6 @@ int main()
 
 			cv::Mat gt_vis = gt_f.clone();
 			cv::Mat invalid_mask(IMG_H, IMG_W, CV_8U, cv::Scalar(0));
-			cv::Mat out_of_range_mask(IMG_H, IMG_W, CV_8U, cv::Scalar(0));
-			cv::Mat out_of_border_mask(IMG_H, IMG_W, CV_8U, cv::Scalar(0));
 			cv::Mat err_map(IMG_H, IMG_W, CV_32F, cv::Scalar(0));
 
 			for(int r = 0; r < IMG_H; ++r)
@@ -235,23 +213,13 @@ int main()
 					float gt_disp = gt_vis.at<float>(r,c);
 					float est_disp = disp.at<uint8_t>(r,c);
 
-					if(r < WIN -1 || c >= IMG_W-cx)
-					{
-						out_of_border_mask.at<uint8_t>(r, c) = 255;
-					}
 					if(gt_disp <= 0.0f)
 					{
 						gt_vis.at<float>(r,c) = 0.0f;
 						invalid_mask.at<uint8_t>(r, c) = 255;
 					}
-					if(gt_disp >= DISP)
-					{
-						gt_vis.at<float>(r,c) = 0.0f;
-						out_of_range_mask.at<uint8_t>(r, c) = 255;
-					}
 
-					if(r >= WIN -1 && c < IMG_W-cx
-							&& gt_disp > 0.0f && gt_disp < DISP)
+					if(gt_disp > 0.0f)
 					{
 		        		float err = std::abs((est_disp - gt_disp)/scale_x);
 		        		err_map.at<float>(r,c) = err;
@@ -265,7 +233,6 @@ int main()
 	        cv::Mat gt_color_104;
 	        cv::applyColorMap(gt_8u_104, gt_color_104, cv::COLORMAP_JET);
 	        gt_color_104.setTo(cv::Scalar(0,0,0), invalid_mask);
-	        gt_color_104.setTo(cv::Scalar(128,128,128), out_of_range_mask);
 	        cv::imwrite("gt_color_104.png", gt_color_104);
 
 	        cv::Mat err_map_104;
@@ -275,8 +242,6 @@ int main()
 	        cv::Mat err_map_color_104;
 	        cv::applyColorMap(err_map_104, err_map_color_104, cv::COLORMAP_JET);
 	        err_map_color_104.setTo(cv::Scalar(0,0,0), invalid_mask);
-	        err_map_color_104.setTo(cv::Scalar(128,128,128), out_of_range_mask);
-	        err_map_color_104.setTo(cv::Scalar(0,0,0), out_of_border_mask);
 	        cv::imwrite("err_map_color_104.png", err_map_color_104);
 
 	        cv::Mat disp_vis_8u_104;
@@ -294,8 +259,6 @@ int main()
 
 			cv::Mat gt_vis = gt_f.clone();
 			cv::Mat invalid_mask(IMG_H, IMG_W, CV_8U, cv::Scalar(0));
-			cv::Mat out_of_range_mask(IMG_H, IMG_W, CV_8U, cv::Scalar(0));
-			cv::Mat out_of_border_mask(IMG_H, IMG_W, CV_8U, cv::Scalar(0));
 			cv::Mat err_map(IMG_H, IMG_W, CV_32F, cv::Scalar(0));
 
 			for(int r = 0; r < IMG_H; ++r)
@@ -305,23 +268,13 @@ int main()
 					float gt_disp = gt_vis.at<float>(r,c);
 					float est_disp = disp.at<uint8_t>(r,c);
 
-					if(r < WIN -1 || c >= IMG_W-cx)
-					{
-						out_of_border_mask.at<uint8_t>(r, c) = 255;
-					}
 					if(gt_disp <= 0.0f)
 					{
 						gt_vis.at<float>(r,c) = 0.0f;
 						invalid_mask.at<uint8_t>(r, c) = 255;
 					}
-					if(gt_disp >= DISP)
-					{
-						gt_vis.at<float>(r,c) = 0.0f;
-						out_of_range_mask.at<uint8_t>(r, c) = 255;
-					}
 
-					if(r >= WIN -1 && c < IMG_W-cx
-							&& gt_disp > 0.0f && gt_disp < DISP)
+					if(gt_disp > 0.0f)
 					{
 		        		float err = std::abs((est_disp - gt_disp)/scale_x);
 		        		err_map.at<float>(r,c) = err;
@@ -335,7 +288,6 @@ int main()
 	        cv::Mat gt_color_128;
 	        cv::applyColorMap(gt_8u_128, gt_color_128, cv::COLORMAP_JET);
 	        gt_color_128.setTo(cv::Scalar(0,0,0), invalid_mask);
-	        gt_color_128.setTo(cv::Scalar(128,128,128), out_of_range_mask);
 	        cv::imwrite("gt_color_128.png", gt_color_128);
 
 
@@ -346,8 +298,6 @@ int main()
 	        cv::Mat err_map_color_128;
 	        cv::applyColorMap(err_map_128, err_map_color_128, cv::COLORMAP_JET);
 	        err_map_color_128.setTo(cv::Scalar(0,0,0), invalid_mask);
-	        err_map_color_128.setTo(cv::Scalar(128,128,128), out_of_range_mask);
-	        err_map_color_128.setTo(cv::Scalar(0,0,0), out_of_border_mask);
 	        cv::imwrite("err_map_color_128.png", err_map_color_128);
 
 	        cv::Mat disp_vis_8u_128;
@@ -360,80 +310,61 @@ int main()
 		}
 
 		/* Evaluation metrics */
-			int kitti_d1_err = 0;
-			int kitti_valid_count = 0;
-			int kitti_invalid_count = 0;
+		/* Evaluation metrics */
+		int kitti_d1_err = 0;
+		int kitti_valid_count = 0;
+		int kitti_invalid_count = 0;
 
-			int hw_valid_count = 0, hw_invalid_count = 0;
+		int bad3 = 0;
+		double sum_abs_err = 0.0;
 
-			int bad1 = 0, bad3 = 0;
-			double sum_abs_err = 0.0;
+		for(int r = 0; r < IMG_H; ++r)
+		{
+		    for(int c = 0; c < IMG_W; ++c)
+		    {
+		        float est_disp = float(disp.at<out_u_t>(r,c));
 
-			const int valid_r_min = WIN - 1 - cy;
-			const int valid_r_max = IMG_H - 1 - cy;
-			const int valid_c_max = IMG_W - cx;
+		        float gt_disp = gt_f.at<float>(r,c);
 
-			for (int r = 0; r < IMG_H; ++r)
-			{
-				for (int c = 0; c < IMG_W; ++c)
-				{
-					float est_disp = float(disp.at<out_u_t>(r,c));
-					float gt_disp = gt_f.at<float>(r,c);
+		        if(gt_disp <= 0.0f)
+		        {
+		            ++kitti_invalid_count;
+		            continue;
+		        }
 
-					if(r>= valid_r_min && est_disp > c)
-						++invalid_selected_count;
+		        ++kitti_valid_count;
 
-					bool gt_valid = gt_disp > 0.0f;
-					if(!gt_valid)
-					{
-						// Invalid kitti ground truth
-						kitti_invalid_count++;
-						continue;
-					}
-					++kitti_valid_count;
-					float err = (std::abs(est_disp - gt_disp)) / scale_x;
+		        float err_reduced = std::abs(est_disp - gt_disp);
+		        float err_orig = err_reduced / scale_x;
+		        sum_abs_err += err_orig;
 
-					/* Kitt-style D1 */
-					bool abs_error_gt3 = err > 3.0f;
-					bool rel_error_gt5 = ((err / (gt_disp/scale_x)) > 0.05f);
+		        if(err_orig > 3.0f) ++bad3;
 
-					if(abs_error_gt3 && rel_error_gt5)
-					{
-						++kitti_d1_err;
-					}
 
-					bool roi_valid = (r >= valid_r_min) && (r <= valid_r_max)
-							&& (c < valid_c_max);
+		        bool abs_error_gt3 = err_orig > 3.0f;
 
-					bool disp_range_valid = (gt_disp < DISP) && (gt_disp <= c);
+		        bool rel_error_gt5 = (err_reduced / gt_disp) > 0.05f;
 
-					bool hw_valid = roi_valid && disp_range_valid;
-
-					if(!hw_valid)
-						{
-							++hw_invalid_count;
-						}
-					else
-					{
-						++hw_valid_count;
-
-						sum_abs_err += err;
-						if (err > 1.0f) bad1++;
-						if (err > 3.0f) bad3++;
-					}
-				}
-			}
+		        if(abs_error_gt3 && rel_error_gt5)
+		            ++kitti_d1_err;
+		    }
+		}
 			////////////////////////////////
 			double current_kitti_error = 0.0f;
 			double current_mae = 0.0f;
-			double current_bad1 = 0.0f;
 			double current_bad3= 0.0f;
 
 	        if(kitti_valid_count > 0)
 	        {
-	        	current_kitti_error = (100.0 * kitti_d1_err / kitti_valid_count);
-	        	++kitti_valid_frame;
-	        	total_kitti_d1_error += current_kitti_error;
+	            current_kitti_error = 100.0 * kitti_d1_err / kitti_valid_count;
+	            current_mae = sum_abs_err / kitti_valid_count;
+	            current_bad3 = 100.0 * bad3 / kitti_valid_count;
+
+	            ++kitti_valid_frame;
+
+	            total_kitti_d1_error += current_kitti_error;
+	            total_mae += current_mae;
+	            total_Bad3_error += current_bad3;
 	        }
 	        else
 	        {
@@ -442,32 +373,12 @@ int main()
 	            return 5;
 	        }
 
-	        if(hw_valid_count > 0)
-	        {
-	        	++hw_valid_frame;
-	        	current_mae = (sum_abs_err / hw_valid_count);
-				current_bad1 = (100.0 * bad1 / hw_valid_count);
-				current_bad3= (100.0 * bad3 / hw_valid_count);
-
-				total_mae += current_mae;
-				total_Bad1_error += current_bad1;
-				total_Bad3_error +=current_bad3;
-	        }
-	        if (hw_valid_count == 0)
-	        {
-	            std::cerr << "ERROR: No HW-valid GT pixels for comparison at frame: "
-	            		<< id << std::endl;;
-	            return 6;
-	        }
-
 	    	d1_per_frame[i] = current_kitti_error;
 	    	mae_per_frame[i] = current_mae;
-	    	bad1_per_frame[i] = current_bad1;
 	    	bad3_per_frame[i] = current_bad3;
 
 			std::cout << "Frame " << id << ", D1 = " << d1_per_frame[i] << " %"
-					", MAE = " << mae_per_frame[i] << " px" <<", Bad1 = " <<
-					bad1_per_frame[i] << " %" << ", Bad3 = " <<
+					", MAE = " << mae_per_frame[i] << " px" << ", Bad3 = " <<
 					bad3_per_frame[i] << " %" <<std::endl;
 
 	        if((kitti_invalid_count + kitti_valid_count) != (IMG_H * IMG_W))
@@ -476,22 +387,16 @@ int main()
 	        			"size at frame: "
 	        			<< id << std::endl;
 	        }
-
-	        if((hw_invalid_count + hw_valid_count) != kitti_valid_count)
-	        {
-	        	std::cerr << "ERROR: HW-valid + HW-excluded counts do not match"
-	        			" KITTI-valid count at frame: " << id << std::endl;
-	        }
 	}
 ////////////////////////////////////////////////////////////////////////
 	double max_d1 = d1_per_frame[0], max_mae = mae_per_frame[0];
 	double min_d1 = d1_per_frame[0], min_mae = mae_per_frame[0];
 
-	double max_bad1 = bad1_per_frame[0], max_bad3 = bad3_per_frame[0];
-	double min_bad1 = bad1_per_frame[0], min_bad3 = bad3_per_frame[0];
+	double max_bad3 = bad3_per_frame[0];
+	double min_bad3 = bad3_per_frame[0];
 
-	int max_d1_id = 0 , max_mae_id = 0, max_bad1_id = 0, max_bad3_id = 0;
-	int min_d1_id = 0, min_mae_id = 0, min_bad1_id = 0, min_bad3_id = 0;
+	int max_d1_id = 0 , max_mae_id = 0, max_bad3_id = 0;
+	int min_d1_id = 0, min_mae_id = 0, min_bad3_id = 0;
 	/////////////////////////////////////////////////////////////////////////////
 	for(int i  = 0; i < NUM_FRAME; ++i)
 	{
@@ -519,18 +424,6 @@ int main()
 			max_mae_id = i;
 		}
 
-		if(min_bad1 > bad1_per_frame[i])
-		{
-			min_bad1 = bad1_per_frame[i];
-			min_bad1_id = i;
-		}
-
-		if(max_bad1 < bad1_per_frame[i])
-		{
-			max_bad1 = bad1_per_frame[i];
-			max_bad1_id = i;
-		}
-
 		if(min_bad3 > bad3_per_frame[i])
 		{
 			min_bad3 = bad3_per_frame[i];
@@ -543,8 +436,6 @@ int main()
 			max_bad3_id = i;
 		}
 	}
-
-	std::cout << "Invalid Selected disparity count: " << invalid_selected_count << " \n\n";
 
 	if(kitti_valid_frame > 0)
 	{
@@ -573,17 +464,14 @@ int main()
 				<< max_d1_id << ")" << std::endl;
 	}
 
-	if(hw_valid_frame > 0)
+	if(kitti_valid_frame > 0)
 	{
-		std::cout << "\n --- HW Valid Evaluation --- \n ";
+		std::cout << "\n --- KITTI Valid Evaluation --- \n ";
 
-		double mean_mae = total_mae / hw_valid_frame;
+		double mean_mae = total_mae / kitti_valid_frame;
 		double mae_squared_diff_sum = 0.0;
 
-		double mean_bad1 = total_Bad1_error / hw_valid_frame;
-		double bad1_squared_diff_sum = 0.0;
-
-		double mean_bad3 = total_Bad3_error / hw_valid_frame;
+		double mean_bad3 = total_Bad3_error / kitti_valid_frame;
 		double bad3_squared_diff_sum = 0.0;
 
 		for(int i = 0; i < NUM_FRAME; ++i)
@@ -592,41 +480,24 @@ int main()
 			mae_squared_diff_sum += mae_diff * mae_diff;
 
 
-			double bad1_diff = bad1_per_frame[i] - mean_bad1;
-			bad1_squared_diff_sum += bad1_diff * bad1_diff;
-
-
 			double bad3_diff = bad3_per_frame[i] - mean_bad3;
 			bad3_squared_diff_sum += bad3_diff * bad3_diff;
 		}
-		double std_mae = std::sqrt(mae_squared_diff_sum / hw_valid_frame);
-		double std_bad1 = std::sqrt(bad1_squared_diff_sum / hw_valid_frame);
-		double std_bad3 = std::sqrt(bad3_squared_diff_sum / hw_valid_frame);
+		double std_mae = std::sqrt(mae_squared_diff_sum / kitti_valid_frame);
+		double std_bad3 = std::sqrt(bad3_squared_diff_sum / kitti_valid_frame);
 
 
     	std::cout << "Mean MAE: " << mean_mae << " px\n";
 		std::cout << "MAE Standard Deviation: " << std_mae << " px" << std::endl;
 
-    	std::cout << "Mean Bad >1 px: " << mean_bad1 << " %\n";
-    	std::cout << "Bad > 1 Standard Deviation: " << std_bad1 << " %" << std::endl;
-
     	std::cout << "Mean Bad >3 px: " << mean_bad3 << " %\n";
     	std::cout << "Bad > 3 Standard Deviation: " << std_bad3 << " %" << std::endl;
-
 
 		std::cout << "Minimum MAE: " << min_mae << " px (Frame: "
 				<< min_mae_id << ")" << std::endl;
 
 		std::cout << "Maximum MAE: " << max_mae << " px (Frame: "
 				<< max_mae_id << ")" <<std::endl;
-
-
-		std::cout << "Minimum Bad > 1: " << min_bad1 << " % (Frame: "
-				<< min_bad1_id << ")" <<std::endl;
-
-		std::cout << "Maximum Bad > 1: " << max_bad1 << " % (Frame: "
-				<< max_bad1_id << ")" << std::endl;
-
 
 		std::cout << "Minimum Bad > 3: " << min_bad3 << " % (Frame: "
 				<< min_bad3_id << ")" <<std::endl;
