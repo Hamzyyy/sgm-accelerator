@@ -3,7 +3,7 @@
 ================================================================
 == Vitis HLS Report for 'sgm_kernel'
 ================================================================
-* Date:           Wed Nov 11 23:39:35 2026
+* Date:           Thu Nov 19 15:20:45 2026
 
 * Version:        2023.1 (Build 3854077 on May  4 2023)
 * Project:        sgm_kernel
@@ -29,28 +29,28 @@
     |  Latency (cycles) |   Latency (absolute)  |      Interval     | Pipeline|
     |   min   |   max   |    min    |    max    |   min   |   max   |   Type  |
     +---------+---------+-----------+-----------+---------+---------+---------+
-    |  3696581|  3735365|  36.966 ms|  37.354 ms|  3696582|  3735366|       no|
+    |  3445829|  3445829|  34.458 ms|  34.458 ms|  3445830|  3445830|       no|
     +---------+---------+-----------+-----------+---------+---------+---------+
 
     + Detail: 
         * Instance: 
-        +-----------------------------------------------------------+-----------------------------------------------+---------+---------+-----------+-----------+-------+-------+----------+
-        |                                                           |                                               |  Latency (cycles) |   Latency (absolute)  |    Interval   | Pipeline |
-        |                          Instance                         |                     Module                    |   min   |   max   |    min    |    max    |  min  |  max  |   Type   |
-        +-----------------------------------------------------------+-----------------------------------------------+---------+---------+-----------+-----------+-------+-------+----------+
-        |grp_sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_1026_1_fu_1643  |sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_1026_1  |     1922|     1922|  19.220 us|  19.220 us|   1922|   1922|        no|
-        |grp_sgm_kernel_Pipeline_InitTBRowD_fu_1659                 |sgm_kernel_Pipeline_InitTBRowD                 |       10|       10|   0.100 us|   0.100 us|     10|     10|        no|
-        |grp_process_row_fu_1669                                    |process_row                                    |    19200|    19402|   0.192 ms|   0.194 ms|  17894|  19403|  dataflow|
-        +-----------------------------------------------------------+-----------------------------------------------+---------+---------+-----------+-----------+-------+-------+----------+
+        +----------------------------------------------------------+----------------------------------------------+---------+---------+-----------+-----------+-------+-------+----------+
+        |                                                          |                                              |  Latency (cycles) |   Latency (absolute)  |    Interval   | Pipeline |
+        |                         Instance                         |                    Module                    |   min   |   max   |    min    |    max    |  min  |  max  |   Type   |
+        +----------------------------------------------------------+----------------------------------------------+---------+---------+-----------+-----------+-------+-------+----------+
+        |grp_sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_997_1_fu_1643  |sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_997_1  |     1922|     1922|  19.220 us|  19.220 us|   1922|   1922|        no|
+        |grp_sgm_kernel_Pipeline_InitTBRowD_fu_1659                |sgm_kernel_Pipeline_InitTBRowD                |       10|       10|   0.100 us|   0.100 us|     10|     10|        no|
+        |grp_process_row_fu_1669                                   |process_row                                   |    17894|    17894|   0.179 ms|   0.179 ms|  17894|  17894|  dataflow|
+        +----------------------------------------------------------+----------------------------------------------+---------+---------+-----------+-----------+-------+-------+----------+
 
         * Loop: 
-        +-------------+---------+---------+---------------+-----------+-----------+------+----------+
-        |             |  Latency (cycles) |   Iteration   |  Initiation Interval  | Trip |          |
-        |  Loop Name  |   min   |   max   |    Latency    |  achieved |   target  | Count| Pipelined|
-        +-------------+---------+---------+---------------+-----------+-----------+------+----------+
-        |- InitTBRow  |     7680|     7680|             12|          -|          -|   640|        no|
-        |- Row        |  3686976|  3725760|  19203 ~ 19405|          -|          -|   192|        no|
-        +-------------+---------+---------+---------------+-----------+-----------+------+----------+
+        +-------------+---------+---------+----------+-----------+-----------+------+----------+
+        |             |  Latency (cycles) | Iteration|  Initiation Interval  | Trip |          |
+        |  Loop Name  |   min   |   max   |  Latency |  achieved |   target  | Count| Pipelined|
+        +-------------+---------+---------+----------+-----------+-----------+------+----------+
+        |- InitTBRow  |     7680|     7680|        12|          -|          -|   640|        no|
+        |- Row        |  3436224|  3436224|     17897|          -|          -|   192|        no|
+        +-------------+---------+---------+----------+-----------+-----------+------+----------+
 
 
 
@@ -64,12 +64,12 @@
 |DSP              |        -|   -|      -|      -|    -|
 |Expression       |        -|   -|      0|     92|    -|
 |FIFO             |        -|   -|      -|      -|    -|
-|Instance         |        0|   -|   6947|  15162|    -|
+|Instance         |        0|   -|   6858|  15101|    -|
 |Memory           |       56|   -|     48|     27|    0|
 |Multiplexer      |        -|   -|      -|   2806|    -|
 |Register         |        -|   -|   2285|      -|    -|
 +-----------------+---------+----+-------+-------+-----+
-|Total            |       56|   0|   9280|  18087|    0|
+|Total            |       56|   0|   9191|  18026|    0|
 +-----------------+---------+----+-------+-------+-----+
 |Available        |      120|  80|  35200|  17600|    0|
 +-----------------+---------+----+-------+-------+-----+
@@ -78,16 +78,16 @@
 
 + Detail: 
     * Instance: 
-    +-----------------------------------------------------------+-----------------------------------------------+---------+----+------+-------+-----+
-    |                          Instance                         |                     Module                    | BRAM_18K| DSP|  FF  |  LUT  | URAM|
-    +-----------------------------------------------------------+-----------------------------------------------+---------+----+------+-------+-----+
-    |control_s_axi_U                                            |control_s_axi                                  |        0|   0|    36|     40|    0|
-    |grp_process_row_fu_1669                                    |process_row                                    |        0|   0|  6862|  14877|    0|
-    |grp_sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_1026_1_fu_1643  |sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_1026_1  |        0|   0|    38|    146|    0|
-    |grp_sgm_kernel_Pipeline_InitTBRowD_fu_1659                 |sgm_kernel_Pipeline_InitTBRowD                 |        0|   0|    11|     99|    0|
-    +-----------------------------------------------------------+-----------------------------------------------+---------+----+------+-------+-----+
-    |Total                                                      |                                               |        0|   0|  6947|  15162|    0|
-    +-----------------------------------------------------------+-----------------------------------------------+---------+----+------+-------+-----+
+    +----------------------------------------------------------+----------------------------------------------+---------+----+------+-------+-----+
+    |                         Instance                         |                    Module                    | BRAM_18K| DSP|  FF  |  LUT  | URAM|
+    +----------------------------------------------------------+----------------------------------------------+---------+----+------+-------+-----+
+    |control_s_axi_U                                           |control_s_axi                                 |        0|   0|    36|     40|    0|
+    |grp_process_row_fu_1669                                   |process_row                                   |        0|   0|  6773|  14816|    0|
+    |grp_sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_997_1_fu_1643  |sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_997_1  |        0|   0|    38|    146|    0|
+    |grp_sgm_kernel_Pipeline_InitTBRowD_fu_1659                |sgm_kernel_Pipeline_InitTBRowD                |        0|   0|    11|     99|    0|
+    +----------------------------------------------------------+----------------------------------------------+---------+----+------+-------+-----+
+    |Total                                                     |                                              |        0|   0|  6858|  15101|    0|
+    +----------------------------------------------------------+----------------------------------------------+---------+----+------+-------+-----+
 
     * DSP: 
     N/A
@@ -96,12 +96,12 @@
     +-----------------+---------------------------+---------+----+----+-----+------+-----+------+-------------+
     |      Memory     |           Module          | BRAM_18K| FF | LUT| URAM| Words| Bits| Banks| W*Bits*Banks|
     +-----------------+---------------------------+---------+----+----+-----+------+-----+------+-------------+
-    |bufL_U           |bufL_RAM_AUTO_1R1W         |        1|   0|   0|    0|   640|    8|     1|         5120|
-    |bufL_1_U         |bufL_RAM_AUTO_1R1W         |        1|   0|   0|    0|   640|    8|     1|         5120|
-    |bufL_2_U         |bufL_RAM_AUTO_1R1W         |        1|   0|   0|    0|   640|    8|     1|         5120|
-    |bufR_U           |bufL_RAM_AUTO_1R1W         |        1|   0|   0|    0|   640|    8|     1|         5120|
-    |bufR_1_U         |bufL_RAM_AUTO_1R1W         |        1|   0|   0|    0|   640|    8|     1|         5120|
-    |bufR_2_U         |bufL_RAM_AUTO_1R1W         |        1|   0|   0|    0|   640|    8|     1|         5120|
+    |bufL_1_U         |bufL_1_RAM_AUTO_1R1W       |        1|   0|   0|    0|   640|    8|     1|         5120|
+    |bufL_2_U         |bufL_1_RAM_AUTO_1R1W       |        1|   0|   0|    0|   640|    8|     1|         5120|
+    |bufR_1_U         |bufL_1_RAM_AUTO_1R1W       |        1|   0|   0|    0|   640|    8|     1|         5120|
+    |bufR_2_U         |bufL_1_RAM_AUTO_1R1W       |        1|   0|   0|    0|   640|    8|     1|         5120|
+    |bufL_U           |bufL_RAM_AUTO_0R0W         |        1|   0|   0|    0|   640|    8|     1|         5120|
+    |bufR_U           |bufL_RAM_AUTO_0R0W         |        1|   0|   0|    0|   640|    8|     1|         5120|
     |costT_A_U        |costT_A_RAM_2P_BRAM_1R1W   |       24|   0|   0|    0|  5120|   48|     1|       245760|
     |costT_B_U        |costT_A_RAM_2P_BRAM_1R1W   |       24|   0|   0|    0|  5120|   48|     1|       245760|
     |minT_A_U         |minT_A_RAM_AUTO_1R1W       |        1|   0|   0|    0|   640|    6|     1|         3840|
@@ -120,16 +120,16 @@
     +------------------------------------------+----------+----+---+----+------------+------------+
     |               Variable Name              | Operation| DSP| FF| LUT| Bitwidth P0| Bitwidth P1|
     +------------------------------------------+----------+----+---+----+------------+------------+
-    |add_ln1056_fu_1859_p2                     |         +|   0|  0|  13|          10|           1|
+    |add_ln1027_fu_1859_p2                     |         +|   0|  0|  13|          10|           1|
     |out_r_fu_1910_p2                          |         +|   0|  0|  14|           9|           2|
     |r_2_fu_1904_p2                            |         +|   0|  0|  15|           8|           1|
-    |icmp_ln1056_fu_1853_p2                    |      icmp|   0|  0|  13|          10|          10|
-    |icmp_ln1081_fu_1898_p2                    |      icmp|   0|  0|  15|           8|           8|
-    |icmp_ln1138_fu_2754_p2                    |      icmp|   0|  0|  14|           7|           1|
+    |icmp_ln1027_fu_1853_p2                    |      icmp|   0|  0|  13|          10|          10|
+    |icmp_ln1052_fu_1898_p2                    |      icmp|   0|  0|  15|           8|           8|
+    |icmp_ln1109_fu_2754_p2                    |      icmp|   0|  0|  14|           7|           1|
     |ap_sync_grp_process_row_fu_1669_ap_done   |        or|   0|  0|   2|           1|           1|
     |ap_sync_grp_process_row_fu_1669_ap_ready  |        or|   0|  0|   2|           1|           1|
     |tbReadA_1_fu_2766_p3                      |    select|   0|  0|   2|           1|           1|
-    |xor_ln1140_fu_2760_p2                     |       xor|   0|  0|   2|           1|           2|
+    |xor_ln1111_fu_2760_p2                     |       xor|   0|  0|   2|           1|           2|
     +------------------------------------------+----------+----+---+----+------------+------------+
     |Total                                     |          |   0|  0|  92|          56|          28|
     +------------------------------------------+----------+----+---+----+------------+------------+
@@ -344,302 +344,302 @@
     +---------------------------------------------------+----+-----------+-----+-----------+
 
     * Register: 
-    +------------------------------------------------------------------------+----+----+-----+-----------+
-    |                                  Name                                  | FF | LUT| Bits| Const Bits|
-    +------------------------------------------------------------------------+----+----+-----+-----------+
-    |ap_CS_fsm                                                               |   8|   0|    8|          0|
-    |ap_sync_reg_grp_process_row_fu_1669_ap_done                             |   1|   0|    1|          0|
-    |ap_sync_reg_grp_process_row_fu_1669_ap_ready                            |   1|   0|    1|          0|
-    |c_1_reg_3978                                                            |  10|   0|   10|          0|
-    |c_fu_94                                                                 |  10|   0|   10|          0|
-    |grp_process_row_fu_1669_ap_start_reg                                    |   1|   0|    1|          0|
-    |grp_sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_1026_1_fu_1643_ap_start_reg  |   1|   0|    1|          0|
-    |grp_sgm_kernel_Pipeline_InitTBRowD_fu_1659_ap_start_reg                 |   1|   0|    1|          0|
-    |leftWin_16_fu_706                                                       |   8|   0|    8|          0|
-    |leftWin_16_load_reg_4430                                                |   8|   0|    8|          0|
-    |leftWin_17_fu_710                                                       |   8|   0|    8|          0|
-    |leftWin_17_load_reg_4435                                                |   8|   0|    8|          0|
-    |leftWin_18_fu_714                                                       |   8|   0|    8|          0|
-    |leftWin_18_load_reg_4440                                                |   8|   0|    8|          0|
-    |leftWin_19_fu_718                                                       |   8|   0|    8|          0|
-    |leftWin_19_load_reg_4445                                                |   8|   0|    8|          0|
-    |leftWin_1_copyout10_fu_370                                              |   8|   0|    8|          0|
-    |leftWin_1_copyout_fu_646                                                |   8|   0|    8|          0|
-    |leftWin_20_fu_722                                                       |   8|   0|    8|          0|
-    |leftWin_20_load_reg_4450                                                |   8|   0|    8|          0|
-    |leftWin_21_fu_726                                                       |   8|   0|    8|          0|
-    |leftWin_21_load_reg_4455                                                |   8|   0|    8|          0|
-    |leftWin_2_copyout11_fu_366                                              |   8|   0|    8|          0|
-    |leftWin_2_copyout_fu_642                                                |   8|   0|    8|          0|
-    |leftWin_4_copyout12_fu_362                                              |   8|   0|    8|          0|
-    |leftWin_4_copyout_fu_638                                                |   8|   0|    8|          0|
-    |leftWin_5_copyout13_fu_358                                              |   8|   0|    8|          0|
-    |leftWin_5_copyout_fu_634                                                |   8|   0|    8|          0|
-    |leftWin_7_copyout14_fu_354                                              |   8|   0|    8|          0|
-    |leftWin_7_copyout_fu_630                                                |   8|   0|    8|          0|
-    |leftWin_8_copyout15_fu_350                                              |   8|   0|    8|          0|
-    |leftWin_8_copyout_fu_626                                                |   8|   0|    8|          0|
-    |out_r_reg_4425                                                          |   9|   0|    9|          0|
-    |r_1_reg_4412                                                            |   8|   0|    8|          0|
-    |r_2_reg_4420                                                            |   8|   0|    8|          0|
-    |r_fu_702                                                                |   8|   0|    8|          0|
-    |rightCensusHistory_10_copyout26_fu_306                                  |   8|   0|    8|          0|
-    |rightCensusHistory_10_copyout_fu_582                                    |   8|   0|    8|          0|
-    |rightCensusHistory_11_copyout27_fu_302                                  |   8|   0|    8|          0|
-    |rightCensusHistory_11_copyout_fu_578                                    |   8|   0|    8|          0|
-    |rightCensusHistory_127_fu_730                                           |   8|   0|    8|          0|
-    |rightCensusHistory_127_load_reg_4460                                    |   8|   0|    8|          0|
-    |rightCensusHistory_128_fu_734                                           |   8|   0|    8|          0|
-    |rightCensusHistory_128_load_reg_4465                                    |   8|   0|    8|          0|
-    |rightCensusHistory_129_fu_738                                           |   8|   0|    8|          0|
-    |rightCensusHistory_129_load_reg_4470                                    |   8|   0|    8|          0|
-    |rightCensusHistory_12_copyout28_fu_298                                  |   8|   0|    8|          0|
-    |rightCensusHistory_12_copyout_fu_574                                    |   8|   0|    8|          0|
-    |rightCensusHistory_130_fu_742                                           |   8|   0|    8|          0|
-    |rightCensusHistory_130_load_reg_4475                                    |   8|   0|    8|          0|
-    |rightCensusHistory_131_fu_746                                           |   8|   0|    8|          0|
-    |rightCensusHistory_131_load_reg_4480                                    |   8|   0|    8|          0|
-    |rightCensusHistory_132_fu_750                                           |   8|   0|    8|          0|
-    |rightCensusHistory_132_load_reg_4485                                    |   8|   0|    8|          0|
-    |rightCensusHistory_133_fu_754                                           |   8|   0|    8|          0|
-    |rightCensusHistory_133_load_reg_4490                                    |   8|   0|    8|          0|
-    |rightCensusHistory_134_fu_758                                           |   8|   0|    8|          0|
-    |rightCensusHistory_134_load_reg_4495                                    |   8|   0|    8|          0|
-    |rightCensusHistory_135_fu_762                                           |   8|   0|    8|          0|
-    |rightCensusHistory_135_load_reg_4500                                    |   8|   0|    8|          0|
-    |rightCensusHistory_136_fu_766                                           |   8|   0|    8|          0|
-    |rightCensusHistory_136_load_reg_4505                                    |   8|   0|    8|          0|
-    |rightCensusHistory_137_fu_770                                           |   8|   0|    8|          0|
-    |rightCensusHistory_137_load_reg_4510                                    |   8|   0|    8|          0|
-    |rightCensusHistory_138_fu_774                                           |   8|   0|    8|          0|
-    |rightCensusHistory_138_load_reg_4515                                    |   8|   0|    8|          0|
-    |rightCensusHistory_139_fu_778                                           |   8|   0|    8|          0|
-    |rightCensusHistory_139_load_reg_4520                                    |   8|   0|    8|          0|
-    |rightCensusHistory_13_copyout29_fu_294                                  |   8|   0|    8|          0|
-    |rightCensusHistory_13_copyout_fu_570                                    |   8|   0|    8|          0|
-    |rightCensusHistory_140_fu_782                                           |   8|   0|    8|          0|
-    |rightCensusHistory_140_load_reg_4525                                    |   8|   0|    8|          0|
-    |rightCensusHistory_141_fu_786                                           |   8|   0|    8|          0|
-    |rightCensusHistory_141_load_reg_4530                                    |   8|   0|    8|          0|
-    |rightCensusHistory_142_fu_790                                           |   8|   0|    8|          0|
-    |rightCensusHistory_142_load_reg_4535                                    |   8|   0|    8|          0|
-    |rightCensusHistory_143_fu_794                                           |   8|   0|    8|          0|
-    |rightCensusHistory_143_load_reg_4540                                    |   8|   0|    8|          0|
-    |rightCensusHistory_144_fu_798                                           |   8|   0|    8|          0|
-    |rightCensusHistory_144_load_reg_4545                                    |   8|   0|    8|          0|
-    |rightCensusHistory_145_fu_802                                           |   8|   0|    8|          0|
-    |rightCensusHistory_145_load_reg_4550                                    |   8|   0|    8|          0|
-    |rightCensusHistory_146_fu_806                                           |   8|   0|    8|          0|
-    |rightCensusHistory_146_load_reg_4555                                    |   8|   0|    8|          0|
-    |rightCensusHistory_147_fu_810                                           |   8|   0|    8|          0|
-    |rightCensusHistory_147_load_reg_4560                                    |   8|   0|    8|          0|
-    |rightCensusHistory_148_fu_814                                           |   8|   0|    8|          0|
-    |rightCensusHistory_148_load_reg_4565                                    |   8|   0|    8|          0|
-    |rightCensusHistory_149_fu_818                                           |   8|   0|    8|          0|
-    |rightCensusHistory_149_load_reg_4570                                    |   8|   0|    8|          0|
-    |rightCensusHistory_14_copyout30_fu_290                                  |   8|   0|    8|          0|
-    |rightCensusHistory_14_copyout_fu_566                                    |   8|   0|    8|          0|
-    |rightCensusHistory_150_fu_822                                           |   8|   0|    8|          0|
-    |rightCensusHistory_150_load_reg_4575                                    |   8|   0|    8|          0|
-    |rightCensusHistory_151_fu_826                                           |   8|   0|    8|          0|
-    |rightCensusHistory_151_load_reg_4580                                    |   8|   0|    8|          0|
-    |rightCensusHistory_152_fu_830                                           |   8|   0|    8|          0|
-    |rightCensusHistory_152_load_reg_4585                                    |   8|   0|    8|          0|
-    |rightCensusHistory_153_fu_834                                           |   8|   0|    8|          0|
-    |rightCensusHistory_153_load_reg_4590                                    |   8|   0|    8|          0|
-    |rightCensusHistory_154_fu_838                                           |   8|   0|    8|          0|
-    |rightCensusHistory_154_load_reg_4595                                    |   8|   0|    8|          0|
-    |rightCensusHistory_155_fu_842                                           |   8|   0|    8|          0|
-    |rightCensusHistory_155_load_reg_4600                                    |   8|   0|    8|          0|
-    |rightCensusHistory_156_fu_846                                           |   8|   0|    8|          0|
-    |rightCensusHistory_156_load_reg_4605                                    |   8|   0|    8|          0|
-    |rightCensusHistory_157_fu_850                                           |   8|   0|    8|          0|
-    |rightCensusHistory_157_load_reg_4610                                    |   8|   0|    8|          0|
-    |rightCensusHistory_158_fu_854                                           |   8|   0|    8|          0|
-    |rightCensusHistory_158_load_reg_4615                                    |   8|   0|    8|          0|
-    |rightCensusHistory_159_fu_858                                           |   8|   0|    8|          0|
-    |rightCensusHistory_159_load_reg_4620                                    |   8|   0|    8|          0|
-    |rightCensusHistory_15_copyout31_fu_286                                  |   8|   0|    8|          0|
-    |rightCensusHistory_15_copyout_fu_562                                    |   8|   0|    8|          0|
-    |rightCensusHistory_160_fu_862                                           |   8|   0|    8|          0|
-    |rightCensusHistory_160_load_reg_4625                                    |   8|   0|    8|          0|
-    |rightCensusHistory_161_fu_866                                           |   8|   0|    8|          0|
-    |rightCensusHistory_161_load_reg_4630                                    |   8|   0|    8|          0|
-    |rightCensusHistory_162_fu_870                                           |   8|   0|    8|          0|
-    |rightCensusHistory_162_load_reg_4635                                    |   8|   0|    8|          0|
-    |rightCensusHistory_163_fu_874                                           |   8|   0|    8|          0|
-    |rightCensusHistory_163_load_reg_4640                                    |   8|   0|    8|          0|
-    |rightCensusHistory_164_fu_878                                           |   8|   0|    8|          0|
-    |rightCensusHistory_164_load_reg_4645                                    |   8|   0|    8|          0|
-    |rightCensusHistory_165_fu_882                                           |   8|   0|    8|          0|
-    |rightCensusHistory_165_load_reg_4650                                    |   8|   0|    8|          0|
-    |rightCensusHistory_166_fu_886                                           |   8|   0|    8|          0|
-    |rightCensusHistory_166_load_reg_4655                                    |   8|   0|    8|          0|
-    |rightCensusHistory_167_fu_890                                           |   8|   0|    8|          0|
-    |rightCensusHistory_167_load_reg_4660                                    |   8|   0|    8|          0|
-    |rightCensusHistory_168_fu_894                                           |   8|   0|    8|          0|
-    |rightCensusHistory_168_load_reg_4665                                    |   8|   0|    8|          0|
-    |rightCensusHistory_169_fu_898                                           |   8|   0|    8|          0|
-    |rightCensusHistory_169_load_reg_4670                                    |   8|   0|    8|          0|
-    |rightCensusHistory_16_copyout32_fu_282                                  |   8|   0|    8|          0|
-    |rightCensusHistory_16_copyout_fu_558                                    |   8|   0|    8|          0|
-    |rightCensusHistory_170_fu_902                                           |   8|   0|    8|          0|
-    |rightCensusHistory_170_load_reg_4675                                    |   8|   0|    8|          0|
-    |rightCensusHistory_171_fu_906                                           |   8|   0|    8|          0|
-    |rightCensusHistory_171_load_reg_4680                                    |   8|   0|    8|          0|
-    |rightCensusHistory_172_fu_910                                           |   8|   0|    8|          0|
-    |rightCensusHistory_172_load_reg_4685                                    |   8|   0|    8|          0|
-    |rightCensusHistory_173_fu_914                                           |   8|   0|    8|          0|
-    |rightCensusHistory_173_load_reg_4690                                    |   8|   0|    8|          0|
-    |rightCensusHistory_174_fu_918                                           |   8|   0|    8|          0|
-    |rightCensusHistory_174_load_reg_4695                                    |   8|   0|    8|          0|
-    |rightCensusHistory_175_fu_922                                           |   8|   0|    8|          0|
-    |rightCensusHistory_175_load_reg_4700                                    |   8|   0|    8|          0|
-    |rightCensusHistory_176_fu_926                                           |   8|   0|    8|          0|
-    |rightCensusHistory_176_load_reg_4705                                    |   8|   0|    8|          0|
-    |rightCensusHistory_177_fu_930                                           |   8|   0|    8|          0|
-    |rightCensusHistory_177_load_reg_4710                                    |   8|   0|    8|          0|
-    |rightCensusHistory_178_fu_934                                           |   8|   0|    8|          0|
-    |rightCensusHistory_178_load_reg_4715                                    |   8|   0|    8|          0|
-    |rightCensusHistory_179_fu_938                                           |   8|   0|    8|          0|
-    |rightCensusHistory_179_load_reg_4720                                    |   8|   0|    8|          0|
-    |rightCensusHistory_17_copyout33_fu_278                                  |   8|   0|    8|          0|
-    |rightCensusHistory_17_copyout_fu_554                                    |   8|   0|    8|          0|
-    |rightCensusHistory_180_fu_942                                           |   8|   0|    8|          0|
-    |rightCensusHistory_180_load_reg_4725                                    |   8|   0|    8|          0|
-    |rightCensusHistory_181_fu_946                                           |   8|   0|    8|          0|
-    |rightCensusHistory_181_load_reg_4730                                    |   8|   0|    8|          0|
-    |rightCensusHistory_182_fu_950                                           |   8|   0|    8|          0|
-    |rightCensusHistory_182_load_reg_4735                                    |   8|   0|    8|          0|
-    |rightCensusHistory_183_fu_954                                           |   8|   0|    8|          0|
-    |rightCensusHistory_183_load_reg_4740                                    |   8|   0|    8|          0|
-    |rightCensusHistory_184_fu_958                                           |   8|   0|    8|          0|
-    |rightCensusHistory_184_load_reg_4745                                    |   8|   0|    8|          0|
-    |rightCensusHistory_185_fu_962                                           |   8|   0|    8|          0|
-    |rightCensusHistory_185_load_reg_4750                                    |   8|   0|    8|          0|
-    |rightCensusHistory_186_fu_966                                           |   8|   0|    8|          0|
-    |rightCensusHistory_186_load_reg_4755                                    |   8|   0|    8|          0|
-    |rightCensusHistory_187_fu_970                                           |   8|   0|    8|          0|
-    |rightCensusHistory_187_load_reg_4760                                    |   8|   0|    8|          0|
-    |rightCensusHistory_188_fu_974                                           |   8|   0|    8|          0|
-    |rightCensusHistory_188_load_reg_4765                                    |   8|   0|    8|          0|
-    |rightCensusHistory_189_fu_978                                           |   8|   0|    8|          0|
-    |rightCensusHistory_189_load_reg_4770                                    |   8|   0|    8|          0|
-    |rightCensusHistory_18_copyout34_fu_274                                  |   8|   0|    8|          0|
-    |rightCensusHistory_18_copyout_fu_550                                    |   8|   0|    8|          0|
-    |rightCensusHistory_19_copyout35_fu_270                                  |   8|   0|    8|          0|
-    |rightCensusHistory_19_copyout_fu_546                                    |   8|   0|    8|          0|
-    |rightCensusHistory_1_copyout17_fu_342                                   |   8|   0|    8|          0|
-    |rightCensusHistory_1_copyout_fu_618                                     |   8|   0|    8|          0|
-    |rightCensusHistory_20_copyout36_fu_266                                  |   8|   0|    8|          0|
-    |rightCensusHistory_20_copyout_fu_542                                    |   8|   0|    8|          0|
-    |rightCensusHistory_21_copyout37_fu_262                                  |   8|   0|    8|          0|
-    |rightCensusHistory_21_copyout_fu_538                                    |   8|   0|    8|          0|
-    |rightCensusHistory_22_copyout38_fu_258                                  |   8|   0|    8|          0|
-    |rightCensusHistory_22_copyout_fu_534                                    |   8|   0|    8|          0|
-    |rightCensusHistory_23_copyout39_fu_254                                  |   8|   0|    8|          0|
-    |rightCensusHistory_23_copyout_fu_530                                    |   8|   0|    8|          0|
-    |rightCensusHistory_24_copyout40_fu_250                                  |   8|   0|    8|          0|
-    |rightCensusHistory_24_copyout_fu_526                                    |   8|   0|    8|          0|
-    |rightCensusHistory_25_copyout41_fu_246                                  |   8|   0|    8|          0|
-    |rightCensusHistory_25_copyout_fu_522                                    |   8|   0|    8|          0|
-    |rightCensusHistory_26_copyout42_fu_242                                  |   8|   0|    8|          0|
-    |rightCensusHistory_26_copyout_fu_518                                    |   8|   0|    8|          0|
-    |rightCensusHistory_27_copyout43_fu_238                                  |   8|   0|    8|          0|
-    |rightCensusHistory_27_copyout_fu_514                                    |   8|   0|    8|          0|
-    |rightCensusHistory_28_copyout44_fu_234                                  |   8|   0|    8|          0|
-    |rightCensusHistory_28_copyout_fu_510                                    |   8|   0|    8|          0|
-    |rightCensusHistory_29_copyout45_fu_230                                  |   8|   0|    8|          0|
-    |rightCensusHistory_29_copyout_fu_506                                    |   8|   0|    8|          0|
-    |rightCensusHistory_2_copyout18_fu_338                                   |   8|   0|    8|          0|
-    |rightCensusHistory_2_copyout_fu_614                                     |   8|   0|    8|          0|
-    |rightCensusHistory_30_copyout46_fu_226                                  |   8|   0|    8|          0|
-    |rightCensusHistory_30_copyout_fu_502                                    |   8|   0|    8|          0|
-    |rightCensusHistory_31_copyout47_fu_222                                  |   8|   0|    8|          0|
-    |rightCensusHistory_31_copyout_fu_498                                    |   8|   0|    8|          0|
-    |rightCensusHistory_32_copyout48_fu_218                                  |   8|   0|    8|          0|
-    |rightCensusHistory_32_copyout_fu_494                                    |   8|   0|    8|          0|
-    |rightCensusHistory_33_copyout49_fu_214                                  |   8|   0|    8|          0|
-    |rightCensusHistory_33_copyout_fu_490                                    |   8|   0|    8|          0|
-    |rightCensusHistory_34_copyout50_fu_210                                  |   8|   0|    8|          0|
-    |rightCensusHistory_34_copyout_fu_486                                    |   8|   0|    8|          0|
-    |rightCensusHistory_35_copyout51_fu_206                                  |   8|   0|    8|          0|
-    |rightCensusHistory_35_copyout_fu_482                                    |   8|   0|    8|          0|
-    |rightCensusHistory_36_copyout52_fu_202                                  |   8|   0|    8|          0|
-    |rightCensusHistory_36_copyout_fu_478                                    |   8|   0|    8|          0|
-    |rightCensusHistory_37_copyout53_fu_198                                  |   8|   0|    8|          0|
-    |rightCensusHistory_37_copyout_fu_474                                    |   8|   0|    8|          0|
-    |rightCensusHistory_38_copyout54_fu_194                                  |   8|   0|    8|          0|
-    |rightCensusHistory_38_copyout_fu_470                                    |   8|   0|    8|          0|
-    |rightCensusHistory_39_copyout55_fu_190                                  |   8|   0|    8|          0|
-    |rightCensusHistory_39_copyout_fu_466                                    |   8|   0|    8|          0|
-    |rightCensusHistory_3_copyout19_fu_334                                   |   8|   0|    8|          0|
-    |rightCensusHistory_3_copyout_fu_610                                     |   8|   0|    8|          0|
-    |rightCensusHistory_40_copyout56_fu_186                                  |   8|   0|    8|          0|
-    |rightCensusHistory_40_copyout_fu_462                                    |   8|   0|    8|          0|
-    |rightCensusHistory_41_copyout57_fu_182                                  |   8|   0|    8|          0|
-    |rightCensusHistory_41_copyout_fu_458                                    |   8|   0|    8|          0|
-    |rightCensusHistory_42_copyout58_fu_178                                  |   8|   0|    8|          0|
-    |rightCensusHistory_42_copyout_fu_454                                    |   8|   0|    8|          0|
-    |rightCensusHistory_43_copyout59_fu_174                                  |   8|   0|    8|          0|
-    |rightCensusHistory_43_copyout_fu_450                                    |   8|   0|    8|          0|
-    |rightCensusHistory_44_copyout60_fu_170                                  |   8|   0|    8|          0|
-    |rightCensusHistory_44_copyout_fu_446                                    |   8|   0|    8|          0|
-    |rightCensusHistory_45_copyout61_fu_166                                  |   8|   0|    8|          0|
-    |rightCensusHistory_45_copyout_fu_442                                    |   8|   0|    8|          0|
-    |rightCensusHistory_46_copyout62_fu_162                                  |   8|   0|    8|          0|
-    |rightCensusHistory_46_copyout_fu_438                                    |   8|   0|    8|          0|
-    |rightCensusHistory_47_copyout63_fu_158                                  |   8|   0|    8|          0|
-    |rightCensusHistory_47_copyout_fu_434                                    |   8|   0|    8|          0|
-    |rightCensusHistory_48_copyout64_fu_154                                  |   8|   0|    8|          0|
-    |rightCensusHistory_48_copyout_fu_430                                    |   8|   0|    8|          0|
-    |rightCensusHistory_49_copyout65_fu_150                                  |   8|   0|    8|          0|
-    |rightCensusHistory_49_copyout_fu_426                                    |   8|   0|    8|          0|
-    |rightCensusHistory_4_copyout20_fu_330                                   |   8|   0|    8|          0|
-    |rightCensusHistory_4_copyout_fu_606                                     |   8|   0|    8|          0|
-    |rightCensusHistory_50_copyout66_fu_146                                  |   8|   0|    8|          0|
-    |rightCensusHistory_50_copyout_fu_422                                    |   8|   0|    8|          0|
-    |rightCensusHistory_51_copyout67_fu_142                                  |   8|   0|    8|          0|
-    |rightCensusHistory_51_copyout_fu_418                                    |   8|   0|    8|          0|
-    |rightCensusHistory_52_copyout68_fu_138                                  |   8|   0|    8|          0|
-    |rightCensusHistory_52_copyout_fu_414                                    |   8|   0|    8|          0|
-    |rightCensusHistory_53_copyout69_fu_134                                  |   8|   0|    8|          0|
-    |rightCensusHistory_53_copyout_fu_410                                    |   8|   0|    8|          0|
-    |rightCensusHistory_54_copyout70_fu_130                                  |   8|   0|    8|          0|
-    |rightCensusHistory_54_copyout_fu_406                                    |   8|   0|    8|          0|
-    |rightCensusHistory_55_copyout71_fu_126                                  |   8|   0|    8|          0|
-    |rightCensusHistory_55_copyout_fu_402                                    |   8|   0|    8|          0|
-    |rightCensusHistory_56_copyout72_fu_122                                  |   8|   0|    8|          0|
-    |rightCensusHistory_56_copyout_fu_398                                    |   8|   0|    8|          0|
-    |rightCensusHistory_57_copyout73_fu_118                                  |   8|   0|    8|          0|
-    |rightCensusHistory_57_copyout_fu_394                                    |   8|   0|    8|          0|
-    |rightCensusHistory_58_copyout74_fu_114                                  |   8|   0|    8|          0|
-    |rightCensusHistory_58_copyout_fu_390                                    |   8|   0|    8|          0|
-    |rightCensusHistory_59_copyout75_fu_110                                  |   8|   0|    8|          0|
-    |rightCensusHistory_59_copyout_fu_386                                    |   8|   0|    8|          0|
-    |rightCensusHistory_5_copyout21_fu_326                                   |   8|   0|    8|          0|
-    |rightCensusHistory_5_copyout_fu_602                                     |   8|   0|    8|          0|
-    |rightCensusHistory_60_copyout76_fu_106                                  |   8|   0|    8|          0|
-    |rightCensusHistory_60_copyout_fu_382                                    |   8|   0|    8|          0|
-    |rightCensusHistory_61_copyout77_fu_102                                  |   8|   0|    8|          0|
-    |rightCensusHistory_61_copyout_fu_378                                    |   8|   0|    8|          0|
-    |rightCensusHistory_62_copyout78_fu_98                                   |   8|   0|    8|          0|
-    |rightCensusHistory_62_copyout_fu_374                                    |   8|   0|    8|          0|
-    |rightCensusHistory_6_copyout22_fu_322                                   |   8|   0|    8|          0|
-    |rightCensusHistory_6_copyout_fu_598                                     |   8|   0|    8|          0|
-    |rightCensusHistory_7_copyout23_fu_318                                   |   8|   0|    8|          0|
-    |rightCensusHistory_7_copyout_fu_594                                     |   8|   0|    8|          0|
-    |rightCensusHistory_8_copyout24_fu_314                                   |   8|   0|    8|          0|
-    |rightCensusHistory_8_copyout_fu_590                                     |   8|   0|    8|          0|
-    |rightCensusHistory_9_copyout25_fu_310                                   |   8|   0|    8|          0|
-    |rightCensusHistory_9_copyout_fu_586                                     |   8|   0|    8|          0|
-    |rightCensusHistory_copyout16_fu_346                                     |   8|   0|    8|          0|
-    |rightCensusHistory_copyout_fu_622                                       |   8|   0|    8|          0|
-    |tbReadA_reg_1010                                                        |   1|   0|    1|          0|
-    |tmp_reg_3986                                                            |  10|   0|   13|          3|
-    +------------------------------------------------------------------------+----+----+-----+-----------+
-    |Total                                                                   |2285|   0| 2288|          3|
-    +------------------------------------------------------------------------+----+----+-----+-----------+
+    +-----------------------------------------------------------------------+----+----+-----+-----------+
+    |                                  Name                                 | FF | LUT| Bits| Const Bits|
+    +-----------------------------------------------------------------------+----+----+-----+-----------+
+    |ap_CS_fsm                                                              |   8|   0|    8|          0|
+    |ap_sync_reg_grp_process_row_fu_1669_ap_done                            |   1|   0|    1|          0|
+    |ap_sync_reg_grp_process_row_fu_1669_ap_ready                           |   1|   0|    1|          0|
+    |c_1_reg_3978                                                           |  10|   0|   10|          0|
+    |c_fu_94                                                                |  10|   0|   10|          0|
+    |grp_process_row_fu_1669_ap_start_reg                                   |   1|   0|    1|          0|
+    |grp_sgm_kernel_Pipeline_InitBuf_VITIS_LOOP_997_1_fu_1643_ap_start_reg  |   1|   0|    1|          0|
+    |grp_sgm_kernel_Pipeline_InitTBRowD_fu_1659_ap_start_reg                |   1|   0|    1|          0|
+    |leftWin_16_fu_706                                                      |   8|   0|    8|          0|
+    |leftWin_16_load_reg_4430                                               |   8|   0|    8|          0|
+    |leftWin_17_fu_710                                                      |   8|   0|    8|          0|
+    |leftWin_17_load_reg_4435                                               |   8|   0|    8|          0|
+    |leftWin_18_fu_714                                                      |   8|   0|    8|          0|
+    |leftWin_18_load_reg_4440                                               |   8|   0|    8|          0|
+    |leftWin_19_fu_718                                                      |   8|   0|    8|          0|
+    |leftWin_19_load_reg_4445                                               |   8|   0|    8|          0|
+    |leftWin_1_copyout10_fu_370                                             |   8|   0|    8|          0|
+    |leftWin_1_copyout_fu_646                                               |   8|   0|    8|          0|
+    |leftWin_20_fu_722                                                      |   8|   0|    8|          0|
+    |leftWin_20_load_reg_4450                                               |   8|   0|    8|          0|
+    |leftWin_21_fu_726                                                      |   8|   0|    8|          0|
+    |leftWin_21_load_reg_4455                                               |   8|   0|    8|          0|
+    |leftWin_2_copyout11_fu_366                                             |   8|   0|    8|          0|
+    |leftWin_2_copyout_fu_642                                               |   8|   0|    8|          0|
+    |leftWin_4_copyout12_fu_362                                             |   8|   0|    8|          0|
+    |leftWin_4_copyout_fu_638                                               |   8|   0|    8|          0|
+    |leftWin_5_copyout13_fu_358                                             |   8|   0|    8|          0|
+    |leftWin_5_copyout_fu_634                                               |   8|   0|    8|          0|
+    |leftWin_7_copyout14_fu_354                                             |   8|   0|    8|          0|
+    |leftWin_7_copyout_fu_630                                               |   8|   0|    8|          0|
+    |leftWin_8_copyout15_fu_350                                             |   8|   0|    8|          0|
+    |leftWin_8_copyout_fu_626                                               |   8|   0|    8|          0|
+    |out_r_reg_4425                                                         |   9|   0|    9|          0|
+    |r_1_reg_4412                                                           |   8|   0|    8|          0|
+    |r_2_reg_4420                                                           |   8|   0|    8|          0|
+    |r_fu_702                                                               |   8|   0|    8|          0|
+    |rightCensusHistory_10_copyout26_fu_306                                 |   8|   0|    8|          0|
+    |rightCensusHistory_10_copyout_fu_582                                   |   8|   0|    8|          0|
+    |rightCensusHistory_11_copyout27_fu_302                                 |   8|   0|    8|          0|
+    |rightCensusHistory_11_copyout_fu_578                                   |   8|   0|    8|          0|
+    |rightCensusHistory_127_fu_730                                          |   8|   0|    8|          0|
+    |rightCensusHistory_127_load_reg_4460                                   |   8|   0|    8|          0|
+    |rightCensusHistory_128_fu_734                                          |   8|   0|    8|          0|
+    |rightCensusHistory_128_load_reg_4465                                   |   8|   0|    8|          0|
+    |rightCensusHistory_129_fu_738                                          |   8|   0|    8|          0|
+    |rightCensusHistory_129_load_reg_4470                                   |   8|   0|    8|          0|
+    |rightCensusHistory_12_copyout28_fu_298                                 |   8|   0|    8|          0|
+    |rightCensusHistory_12_copyout_fu_574                                   |   8|   0|    8|          0|
+    |rightCensusHistory_130_fu_742                                          |   8|   0|    8|          0|
+    |rightCensusHistory_130_load_reg_4475                                   |   8|   0|    8|          0|
+    |rightCensusHistory_131_fu_746                                          |   8|   0|    8|          0|
+    |rightCensusHistory_131_load_reg_4480                                   |   8|   0|    8|          0|
+    |rightCensusHistory_132_fu_750                                          |   8|   0|    8|          0|
+    |rightCensusHistory_132_load_reg_4485                                   |   8|   0|    8|          0|
+    |rightCensusHistory_133_fu_754                                          |   8|   0|    8|          0|
+    |rightCensusHistory_133_load_reg_4490                                   |   8|   0|    8|          0|
+    |rightCensusHistory_134_fu_758                                          |   8|   0|    8|          0|
+    |rightCensusHistory_134_load_reg_4495                                   |   8|   0|    8|          0|
+    |rightCensusHistory_135_fu_762                                          |   8|   0|    8|          0|
+    |rightCensusHistory_135_load_reg_4500                                   |   8|   0|    8|          0|
+    |rightCensusHistory_136_fu_766                                          |   8|   0|    8|          0|
+    |rightCensusHistory_136_load_reg_4505                                   |   8|   0|    8|          0|
+    |rightCensusHistory_137_fu_770                                          |   8|   0|    8|          0|
+    |rightCensusHistory_137_load_reg_4510                                   |   8|   0|    8|          0|
+    |rightCensusHistory_138_fu_774                                          |   8|   0|    8|          0|
+    |rightCensusHistory_138_load_reg_4515                                   |   8|   0|    8|          0|
+    |rightCensusHistory_139_fu_778                                          |   8|   0|    8|          0|
+    |rightCensusHistory_139_load_reg_4520                                   |   8|   0|    8|          0|
+    |rightCensusHistory_13_copyout29_fu_294                                 |   8|   0|    8|          0|
+    |rightCensusHistory_13_copyout_fu_570                                   |   8|   0|    8|          0|
+    |rightCensusHistory_140_fu_782                                          |   8|   0|    8|          0|
+    |rightCensusHistory_140_load_reg_4525                                   |   8|   0|    8|          0|
+    |rightCensusHistory_141_fu_786                                          |   8|   0|    8|          0|
+    |rightCensusHistory_141_load_reg_4530                                   |   8|   0|    8|          0|
+    |rightCensusHistory_142_fu_790                                          |   8|   0|    8|          0|
+    |rightCensusHistory_142_load_reg_4535                                   |   8|   0|    8|          0|
+    |rightCensusHistory_143_fu_794                                          |   8|   0|    8|          0|
+    |rightCensusHistory_143_load_reg_4540                                   |   8|   0|    8|          0|
+    |rightCensusHistory_144_fu_798                                          |   8|   0|    8|          0|
+    |rightCensusHistory_144_load_reg_4545                                   |   8|   0|    8|          0|
+    |rightCensusHistory_145_fu_802                                          |   8|   0|    8|          0|
+    |rightCensusHistory_145_load_reg_4550                                   |   8|   0|    8|          0|
+    |rightCensusHistory_146_fu_806                                          |   8|   0|    8|          0|
+    |rightCensusHistory_146_load_reg_4555                                   |   8|   0|    8|          0|
+    |rightCensusHistory_147_fu_810                                          |   8|   0|    8|          0|
+    |rightCensusHistory_147_load_reg_4560                                   |   8|   0|    8|          0|
+    |rightCensusHistory_148_fu_814                                          |   8|   0|    8|          0|
+    |rightCensusHistory_148_load_reg_4565                                   |   8|   0|    8|          0|
+    |rightCensusHistory_149_fu_818                                          |   8|   0|    8|          0|
+    |rightCensusHistory_149_load_reg_4570                                   |   8|   0|    8|          0|
+    |rightCensusHistory_14_copyout30_fu_290                                 |   8|   0|    8|          0|
+    |rightCensusHistory_14_copyout_fu_566                                   |   8|   0|    8|          0|
+    |rightCensusHistory_150_fu_822                                          |   8|   0|    8|          0|
+    |rightCensusHistory_150_load_reg_4575                                   |   8|   0|    8|          0|
+    |rightCensusHistory_151_fu_826                                          |   8|   0|    8|          0|
+    |rightCensusHistory_151_load_reg_4580                                   |   8|   0|    8|          0|
+    |rightCensusHistory_152_fu_830                                          |   8|   0|    8|          0|
+    |rightCensusHistory_152_load_reg_4585                                   |   8|   0|    8|          0|
+    |rightCensusHistory_153_fu_834                                          |   8|   0|    8|          0|
+    |rightCensusHistory_153_load_reg_4590                                   |   8|   0|    8|          0|
+    |rightCensusHistory_154_fu_838                                          |   8|   0|    8|          0|
+    |rightCensusHistory_154_load_reg_4595                                   |   8|   0|    8|          0|
+    |rightCensusHistory_155_fu_842                                          |   8|   0|    8|          0|
+    |rightCensusHistory_155_load_reg_4600                                   |   8|   0|    8|          0|
+    |rightCensusHistory_156_fu_846                                          |   8|   0|    8|          0|
+    |rightCensusHistory_156_load_reg_4605                                   |   8|   0|    8|          0|
+    |rightCensusHistory_157_fu_850                                          |   8|   0|    8|          0|
+    |rightCensusHistory_157_load_reg_4610                                   |   8|   0|    8|          0|
+    |rightCensusHistory_158_fu_854                                          |   8|   0|    8|          0|
+    |rightCensusHistory_158_load_reg_4615                                   |   8|   0|    8|          0|
+    |rightCensusHistory_159_fu_858                                          |   8|   0|    8|          0|
+    |rightCensusHistory_159_load_reg_4620                                   |   8|   0|    8|          0|
+    |rightCensusHistory_15_copyout31_fu_286                                 |   8|   0|    8|          0|
+    |rightCensusHistory_15_copyout_fu_562                                   |   8|   0|    8|          0|
+    |rightCensusHistory_160_fu_862                                          |   8|   0|    8|          0|
+    |rightCensusHistory_160_load_reg_4625                                   |   8|   0|    8|          0|
+    |rightCensusHistory_161_fu_866                                          |   8|   0|    8|          0|
+    |rightCensusHistory_161_load_reg_4630                                   |   8|   0|    8|          0|
+    |rightCensusHistory_162_fu_870                                          |   8|   0|    8|          0|
+    |rightCensusHistory_162_load_reg_4635                                   |   8|   0|    8|          0|
+    |rightCensusHistory_163_fu_874                                          |   8|   0|    8|          0|
+    |rightCensusHistory_163_load_reg_4640                                   |   8|   0|    8|          0|
+    |rightCensusHistory_164_fu_878                                          |   8|   0|    8|          0|
+    |rightCensusHistory_164_load_reg_4645                                   |   8|   0|    8|          0|
+    |rightCensusHistory_165_fu_882                                          |   8|   0|    8|          0|
+    |rightCensusHistory_165_load_reg_4650                                   |   8|   0|    8|          0|
+    |rightCensusHistory_166_fu_886                                          |   8|   0|    8|          0|
+    |rightCensusHistory_166_load_reg_4655                                   |   8|   0|    8|          0|
+    |rightCensusHistory_167_fu_890                                          |   8|   0|    8|          0|
+    |rightCensusHistory_167_load_reg_4660                                   |   8|   0|    8|          0|
+    |rightCensusHistory_168_fu_894                                          |   8|   0|    8|          0|
+    |rightCensusHistory_168_load_reg_4665                                   |   8|   0|    8|          0|
+    |rightCensusHistory_169_fu_898                                          |   8|   0|    8|          0|
+    |rightCensusHistory_169_load_reg_4670                                   |   8|   0|    8|          0|
+    |rightCensusHistory_16_copyout32_fu_282                                 |   8|   0|    8|          0|
+    |rightCensusHistory_16_copyout_fu_558                                   |   8|   0|    8|          0|
+    |rightCensusHistory_170_fu_902                                          |   8|   0|    8|          0|
+    |rightCensusHistory_170_load_reg_4675                                   |   8|   0|    8|          0|
+    |rightCensusHistory_171_fu_906                                          |   8|   0|    8|          0|
+    |rightCensusHistory_171_load_reg_4680                                   |   8|   0|    8|          0|
+    |rightCensusHistory_172_fu_910                                          |   8|   0|    8|          0|
+    |rightCensusHistory_172_load_reg_4685                                   |   8|   0|    8|          0|
+    |rightCensusHistory_173_fu_914                                          |   8|   0|    8|          0|
+    |rightCensusHistory_173_load_reg_4690                                   |   8|   0|    8|          0|
+    |rightCensusHistory_174_fu_918                                          |   8|   0|    8|          0|
+    |rightCensusHistory_174_load_reg_4695                                   |   8|   0|    8|          0|
+    |rightCensusHistory_175_fu_922                                          |   8|   0|    8|          0|
+    |rightCensusHistory_175_load_reg_4700                                   |   8|   0|    8|          0|
+    |rightCensusHistory_176_fu_926                                          |   8|   0|    8|          0|
+    |rightCensusHistory_176_load_reg_4705                                   |   8|   0|    8|          0|
+    |rightCensusHistory_177_fu_930                                          |   8|   0|    8|          0|
+    |rightCensusHistory_177_load_reg_4710                                   |   8|   0|    8|          0|
+    |rightCensusHistory_178_fu_934                                          |   8|   0|    8|          0|
+    |rightCensusHistory_178_load_reg_4715                                   |   8|   0|    8|          0|
+    |rightCensusHistory_179_fu_938                                          |   8|   0|    8|          0|
+    |rightCensusHistory_179_load_reg_4720                                   |   8|   0|    8|          0|
+    |rightCensusHistory_17_copyout33_fu_278                                 |   8|   0|    8|          0|
+    |rightCensusHistory_17_copyout_fu_554                                   |   8|   0|    8|          0|
+    |rightCensusHistory_180_fu_942                                          |   8|   0|    8|          0|
+    |rightCensusHistory_180_load_reg_4725                                   |   8|   0|    8|          0|
+    |rightCensusHistory_181_fu_946                                          |   8|   0|    8|          0|
+    |rightCensusHistory_181_load_reg_4730                                   |   8|   0|    8|          0|
+    |rightCensusHistory_182_fu_950                                          |   8|   0|    8|          0|
+    |rightCensusHistory_182_load_reg_4735                                   |   8|   0|    8|          0|
+    |rightCensusHistory_183_fu_954                                          |   8|   0|    8|          0|
+    |rightCensusHistory_183_load_reg_4740                                   |   8|   0|    8|          0|
+    |rightCensusHistory_184_fu_958                                          |   8|   0|    8|          0|
+    |rightCensusHistory_184_load_reg_4745                                   |   8|   0|    8|          0|
+    |rightCensusHistory_185_fu_962                                          |   8|   0|    8|          0|
+    |rightCensusHistory_185_load_reg_4750                                   |   8|   0|    8|          0|
+    |rightCensusHistory_186_fu_966                                          |   8|   0|    8|          0|
+    |rightCensusHistory_186_load_reg_4755                                   |   8|   0|    8|          0|
+    |rightCensusHistory_187_fu_970                                          |   8|   0|    8|          0|
+    |rightCensusHistory_187_load_reg_4760                                   |   8|   0|    8|          0|
+    |rightCensusHistory_188_fu_974                                          |   8|   0|    8|          0|
+    |rightCensusHistory_188_load_reg_4765                                   |   8|   0|    8|          0|
+    |rightCensusHistory_189_fu_978                                          |   8|   0|    8|          0|
+    |rightCensusHistory_189_load_reg_4770                                   |   8|   0|    8|          0|
+    |rightCensusHistory_18_copyout34_fu_274                                 |   8|   0|    8|          0|
+    |rightCensusHistory_18_copyout_fu_550                                   |   8|   0|    8|          0|
+    |rightCensusHistory_19_copyout35_fu_270                                 |   8|   0|    8|          0|
+    |rightCensusHistory_19_copyout_fu_546                                   |   8|   0|    8|          0|
+    |rightCensusHistory_1_copyout17_fu_342                                  |   8|   0|    8|          0|
+    |rightCensusHistory_1_copyout_fu_618                                    |   8|   0|    8|          0|
+    |rightCensusHistory_20_copyout36_fu_266                                 |   8|   0|    8|          0|
+    |rightCensusHistory_20_copyout_fu_542                                   |   8|   0|    8|          0|
+    |rightCensusHistory_21_copyout37_fu_262                                 |   8|   0|    8|          0|
+    |rightCensusHistory_21_copyout_fu_538                                   |   8|   0|    8|          0|
+    |rightCensusHistory_22_copyout38_fu_258                                 |   8|   0|    8|          0|
+    |rightCensusHistory_22_copyout_fu_534                                   |   8|   0|    8|          0|
+    |rightCensusHistory_23_copyout39_fu_254                                 |   8|   0|    8|          0|
+    |rightCensusHistory_23_copyout_fu_530                                   |   8|   0|    8|          0|
+    |rightCensusHistory_24_copyout40_fu_250                                 |   8|   0|    8|          0|
+    |rightCensusHistory_24_copyout_fu_526                                   |   8|   0|    8|          0|
+    |rightCensusHistory_25_copyout41_fu_246                                 |   8|   0|    8|          0|
+    |rightCensusHistory_25_copyout_fu_522                                   |   8|   0|    8|          0|
+    |rightCensusHistory_26_copyout42_fu_242                                 |   8|   0|    8|          0|
+    |rightCensusHistory_26_copyout_fu_518                                   |   8|   0|    8|          0|
+    |rightCensusHistory_27_copyout43_fu_238                                 |   8|   0|    8|          0|
+    |rightCensusHistory_27_copyout_fu_514                                   |   8|   0|    8|          0|
+    |rightCensusHistory_28_copyout44_fu_234                                 |   8|   0|    8|          0|
+    |rightCensusHistory_28_copyout_fu_510                                   |   8|   0|    8|          0|
+    |rightCensusHistory_29_copyout45_fu_230                                 |   8|   0|    8|          0|
+    |rightCensusHistory_29_copyout_fu_506                                   |   8|   0|    8|          0|
+    |rightCensusHistory_2_copyout18_fu_338                                  |   8|   0|    8|          0|
+    |rightCensusHistory_2_copyout_fu_614                                    |   8|   0|    8|          0|
+    |rightCensusHistory_30_copyout46_fu_226                                 |   8|   0|    8|          0|
+    |rightCensusHistory_30_copyout_fu_502                                   |   8|   0|    8|          0|
+    |rightCensusHistory_31_copyout47_fu_222                                 |   8|   0|    8|          0|
+    |rightCensusHistory_31_copyout_fu_498                                   |   8|   0|    8|          0|
+    |rightCensusHistory_32_copyout48_fu_218                                 |   8|   0|    8|          0|
+    |rightCensusHistory_32_copyout_fu_494                                   |   8|   0|    8|          0|
+    |rightCensusHistory_33_copyout49_fu_214                                 |   8|   0|    8|          0|
+    |rightCensusHistory_33_copyout_fu_490                                   |   8|   0|    8|          0|
+    |rightCensusHistory_34_copyout50_fu_210                                 |   8|   0|    8|          0|
+    |rightCensusHistory_34_copyout_fu_486                                   |   8|   0|    8|          0|
+    |rightCensusHistory_35_copyout51_fu_206                                 |   8|   0|    8|          0|
+    |rightCensusHistory_35_copyout_fu_482                                   |   8|   0|    8|          0|
+    |rightCensusHistory_36_copyout52_fu_202                                 |   8|   0|    8|          0|
+    |rightCensusHistory_36_copyout_fu_478                                   |   8|   0|    8|          0|
+    |rightCensusHistory_37_copyout53_fu_198                                 |   8|   0|    8|          0|
+    |rightCensusHistory_37_copyout_fu_474                                   |   8|   0|    8|          0|
+    |rightCensusHistory_38_copyout54_fu_194                                 |   8|   0|    8|          0|
+    |rightCensusHistory_38_copyout_fu_470                                   |   8|   0|    8|          0|
+    |rightCensusHistory_39_copyout55_fu_190                                 |   8|   0|    8|          0|
+    |rightCensusHistory_39_copyout_fu_466                                   |   8|   0|    8|          0|
+    |rightCensusHistory_3_copyout19_fu_334                                  |   8|   0|    8|          0|
+    |rightCensusHistory_3_copyout_fu_610                                    |   8|   0|    8|          0|
+    |rightCensusHistory_40_copyout56_fu_186                                 |   8|   0|    8|          0|
+    |rightCensusHistory_40_copyout_fu_462                                   |   8|   0|    8|          0|
+    |rightCensusHistory_41_copyout57_fu_182                                 |   8|   0|    8|          0|
+    |rightCensusHistory_41_copyout_fu_458                                   |   8|   0|    8|          0|
+    |rightCensusHistory_42_copyout58_fu_178                                 |   8|   0|    8|          0|
+    |rightCensusHistory_42_copyout_fu_454                                   |   8|   0|    8|          0|
+    |rightCensusHistory_43_copyout59_fu_174                                 |   8|   0|    8|          0|
+    |rightCensusHistory_43_copyout_fu_450                                   |   8|   0|    8|          0|
+    |rightCensusHistory_44_copyout60_fu_170                                 |   8|   0|    8|          0|
+    |rightCensusHistory_44_copyout_fu_446                                   |   8|   0|    8|          0|
+    |rightCensusHistory_45_copyout61_fu_166                                 |   8|   0|    8|          0|
+    |rightCensusHistory_45_copyout_fu_442                                   |   8|   0|    8|          0|
+    |rightCensusHistory_46_copyout62_fu_162                                 |   8|   0|    8|          0|
+    |rightCensusHistory_46_copyout_fu_438                                   |   8|   0|    8|          0|
+    |rightCensusHistory_47_copyout63_fu_158                                 |   8|   0|    8|          0|
+    |rightCensusHistory_47_copyout_fu_434                                   |   8|   0|    8|          0|
+    |rightCensusHistory_48_copyout64_fu_154                                 |   8|   0|    8|          0|
+    |rightCensusHistory_48_copyout_fu_430                                   |   8|   0|    8|          0|
+    |rightCensusHistory_49_copyout65_fu_150                                 |   8|   0|    8|          0|
+    |rightCensusHistory_49_copyout_fu_426                                   |   8|   0|    8|          0|
+    |rightCensusHistory_4_copyout20_fu_330                                  |   8|   0|    8|          0|
+    |rightCensusHistory_4_copyout_fu_606                                    |   8|   0|    8|          0|
+    |rightCensusHistory_50_copyout66_fu_146                                 |   8|   0|    8|          0|
+    |rightCensusHistory_50_copyout_fu_422                                   |   8|   0|    8|          0|
+    |rightCensusHistory_51_copyout67_fu_142                                 |   8|   0|    8|          0|
+    |rightCensusHistory_51_copyout_fu_418                                   |   8|   0|    8|          0|
+    |rightCensusHistory_52_copyout68_fu_138                                 |   8|   0|    8|          0|
+    |rightCensusHistory_52_copyout_fu_414                                   |   8|   0|    8|          0|
+    |rightCensusHistory_53_copyout69_fu_134                                 |   8|   0|    8|          0|
+    |rightCensusHistory_53_copyout_fu_410                                   |   8|   0|    8|          0|
+    |rightCensusHistory_54_copyout70_fu_130                                 |   8|   0|    8|          0|
+    |rightCensusHistory_54_copyout_fu_406                                   |   8|   0|    8|          0|
+    |rightCensusHistory_55_copyout71_fu_126                                 |   8|   0|    8|          0|
+    |rightCensusHistory_55_copyout_fu_402                                   |   8|   0|    8|          0|
+    |rightCensusHistory_56_copyout72_fu_122                                 |   8|   0|    8|          0|
+    |rightCensusHistory_56_copyout_fu_398                                   |   8|   0|    8|          0|
+    |rightCensusHistory_57_copyout73_fu_118                                 |   8|   0|    8|          0|
+    |rightCensusHistory_57_copyout_fu_394                                   |   8|   0|    8|          0|
+    |rightCensusHistory_58_copyout74_fu_114                                 |   8|   0|    8|          0|
+    |rightCensusHistory_58_copyout_fu_390                                   |   8|   0|    8|          0|
+    |rightCensusHistory_59_copyout75_fu_110                                 |   8|   0|    8|          0|
+    |rightCensusHistory_59_copyout_fu_386                                   |   8|   0|    8|          0|
+    |rightCensusHistory_5_copyout21_fu_326                                  |   8|   0|    8|          0|
+    |rightCensusHistory_5_copyout_fu_602                                    |   8|   0|    8|          0|
+    |rightCensusHistory_60_copyout76_fu_106                                 |   8|   0|    8|          0|
+    |rightCensusHistory_60_copyout_fu_382                                   |   8|   0|    8|          0|
+    |rightCensusHistory_61_copyout77_fu_102                                 |   8|   0|    8|          0|
+    |rightCensusHistory_61_copyout_fu_378                                   |   8|   0|    8|          0|
+    |rightCensusHistory_62_copyout78_fu_98                                  |   8|   0|    8|          0|
+    |rightCensusHistory_62_copyout_fu_374                                   |   8|   0|    8|          0|
+    |rightCensusHistory_6_copyout22_fu_322                                  |   8|   0|    8|          0|
+    |rightCensusHistory_6_copyout_fu_598                                    |   8|   0|    8|          0|
+    |rightCensusHistory_7_copyout23_fu_318                                  |   8|   0|    8|          0|
+    |rightCensusHistory_7_copyout_fu_594                                    |   8|   0|    8|          0|
+    |rightCensusHistory_8_copyout24_fu_314                                  |   8|   0|    8|          0|
+    |rightCensusHistory_8_copyout_fu_590                                    |   8|   0|    8|          0|
+    |rightCensusHistory_9_copyout25_fu_310                                  |   8|   0|    8|          0|
+    |rightCensusHistory_9_copyout_fu_586                                    |   8|   0|    8|          0|
+    |rightCensusHistory_copyout16_fu_346                                    |   8|   0|    8|          0|
+    |rightCensusHistory_copyout_fu_622                                      |   8|   0|    8|          0|
+    |tbReadA_reg_1010                                                       |   1|   0|    1|          0|
+    |tmp_reg_3986                                                           |  10|   0|   13|          3|
+    +-----------------------------------------------------------------------+----+----+-----+-----------+
+    |Total                                                                  |2285|   0| 2288|          3|
+    +-----------------------------------------------------------------------+----+----+-----+-----------+
 
 
 
