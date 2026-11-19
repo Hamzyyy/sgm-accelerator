@@ -18,17 +18,18 @@ struct CostPacket
 /* Helper Function                                           */
 /* --------------------------------------------------------- */
 
-static inline void update_line_buffers(
-		pix_t bufL[WIN][IMG_W],
-		pix_t bufR[WIN][IMG_W],
-		int c,
-		pix_t pL,
-		pix_t pR)
+static inline void update_line_buffers(pix_t bufL[WIN][IMG_W],
+									pix_t bufR[WIN][IMG_W],
+									int c,
+									pix_t pL,
+									pix_t pR)
 {
 #pragma HLS INLINE
 
+	ShiftLineBufferRows:
     for (int i = 0; i < WIN - 1; ++i)
     {
+#pragma HLS UNROLL
         bufL[i][c] = bufL[i + 1][c];
         bufR[i][c] = bufR[i + 1][c];
     }
@@ -36,13 +37,12 @@ static inline void update_line_buffers(
     bufR[WIN - 1][c] = pR;
 }
 
-static void update_sliding_windows(
-		pix_t bufL[WIN][IMG_W],
-		pix_t bufR[WIN][IMG_W],
-		int c,
-		pix_t leftWin[WIN][WIN],
-		pix_t rightStripe[WIN][RIGHT_STRIPE_W],
-		int& right_wr)
+static void update_sliding_windows(pix_t bufL[WIN][IMG_W],
+								pix_t bufR[WIN][IMG_W],
+								int c,
+								pix_t leftWin[WIN][WIN],
+								pix_t rightStripe[WIN][RIGHT_STRIPE_W],
+								int& right_wr)
 {
 #pragma HLS INLINE
 
@@ -100,18 +100,19 @@ census_t compute_census_descriptor(pix_t leftWin[WIN][WIN])
         return descriptor;
 }
 
-census_t compute_right_census_descriptor(pix_t rightStripe
-		[WIN][RIGHT_STRIPE_W], int right_wr)
+census_t compute_right_census_descriptor(pix_t rightStripe [WIN][RIGHT_STRIPE_W],
+										int right_wr)
 {
 	census_t descriptor = 0;
 
 	int center_idx = right_wr - CENSUS_CX;
 	if(center_idx < 0)
+	{
 		center_idx += RIGHT_STRIPE_W;
-
+	}
 	pix_t centerR = rightStripe[CENSUS_CY][center_idx];
 
-    CENSUS_WinY:
+	CENSUS_WinY:
         for (int wy = 0; wy < WIN; ++wy)
         {
 		#pragma HLS UNROLL
@@ -136,12 +137,11 @@ census_t compute_right_census_descriptor(pix_t rightStripe
         return descriptor;
 }
 
-static void compute_census_cost_vector(
-		census_t leftDesc,
-		census_t rightCensusHistory[DISP],
-		int g,
-		int out_c,
-	    cost_t curCost[PAR])
+static void compute_census_cost_vector(census_t leftDesc,
+									census_t rightCensusHistory[DISP],
+									int g,
+									int out_c,
+									cost_t curCost[PAR])
 {
 #pragma HLS INLINE
 		for(int lane = 0; lane < PAR; ++lane)
@@ -167,8 +167,7 @@ static void compute_census_cost_vector(
 			}
 		}
 }
-//////////////////////////////////////////////////////
-//////////////////////////////////////////////////////
+
 
 struct PrepPacket
 {
@@ -183,8 +182,9 @@ struct PrepPacket
 	cost_t tbCenter[PAR];
 	cost_t tbLeft[PAR];
 	cost_t tbRight[PAR];
-
 };
+
+
 static void prepare_group(const CostPacket& pkt,
 	    				int g,
 						const cost_t prevCostL[DISP],
@@ -203,6 +203,7 @@ static void prepare_group(const CostPacket& pkt,
     cost_t tbCur[PAR];
 #pragma HLS ARRAY_PARTITION variable=tbCur type=complete
 
+    UnpackTBGroup:
     for(int lane = 0; lane < PAR; ++lane)
     {
 	#pragma HLS UNROLL
@@ -210,12 +211,10 @@ static void prepare_group(const CostPacket& pkt,
     			lane * COST_BITS);
     }
 
-    cost_t leftBoundary =
-        tbPrevWord.range(PAR * COST_BITS - 1,
+    cost_t leftBoundary = tbPrevWord.range(PAR * COST_BITS - 1,
                          (PAR - 1) * COST_BITS);
 
-    cost_t rightBoundary =
-        tbNextWord.range(COST_BITS - 1, 0);
+    cost_t rightBoundary = tbNextWord.range(COST_BITS - 1, 0);
 
 	LaneLoop:
 	    	for(int lane = 0; lane < PAR; lane++)
@@ -224,22 +223,28 @@ static void prepare_group(const CostPacket& pkt,
 	    		int d = g * PAR + lane;
 
 	    		out.curCost[lane] = pkt.curCost[lane];
-
 				out.lrCenter[lane] = prevCostL[d];
 				out.lrLeft[lane] = (d > 0) ? prevCostL[d - 1] : INF_COST;
 				out.lrRight[lane] = (d < DISP - 1) ? prevCostL[d + 1] : INF_COST;
 
-
 				out.tbCenter[lane] = tbCur[lane];
 				if(lane == 0)
+				{
 					out.tbLeft[lane] = (d > 0) ? leftBoundary : INF_COST;
+				}
 				else
+				{
 					out.tbLeft[lane] = (d > 0) ? tbCur[lane - 1] : INF_COST;
+				}
 
 				if(lane == PAR-1)
+				{
 					out.tbRight[lane] = (d < DISP - 1) ? rightBoundary : INF_COST;
+				}
 				else
+				{
 					out.tbRight[lane] = (d < DISP - 1) ? tbCur[lane+1] : INF_COST;
+				}
 	    	}
 }
 
@@ -265,7 +270,6 @@ static void aggregate_group(const PrepPacket& in,
 	    	for(int lane = 0; lane < PAR; lane++)
 	    	{
 			#pragma HLS UNROLL
-
 				cost_t p0_LR = in.lrCenter[lane];
 				cost_t p1_LR = sat12(wide_t(in.lrLeft[lane]) + wide_t(P1));
 				cost_t p2_LR = sat12(wide_t(in.lrRight[lane]) + wide_t(P1));
@@ -277,10 +281,14 @@ static void aggregate_group(const PrepPacket& in,
 				if (p3_LR < minLR) minLR = p3_LR;
 
 				if (in.curCost[lane] == INF_COST)
+				{
 				    out.aggLR[lane] = INF_COST;
+				}
 				else
+				{
 					out.aggLR[lane] = sat12(wide_t(in.curCost[lane]) + wide_t(minLR)
 							- wide_t(in.minPrevLR));
+				}
 
 				cost_t p0_TB = in.tbCenter[lane];
 				cost_t p1_TB = sat12(wide_t(in.tbLeft[lane]) + wide_t(P1));
@@ -296,10 +304,14 @@ static void aggregate_group(const PrepPacket& in,
 
 
 				if (in.curCost[lane] == INF_COST)
+				{
 					out.aggTB[lane] = INF_COST;
+				}
 				else
-					out.aggTB[lane] = sat12(wide_t(in.curCost[lane]) + wide_t(minTB)
-							- wide_t(in.minPrevTB));
+				{
+					out.aggTB[lane] = sat12(wide_t(in.curCost[lane])
+							+ wide_t(minTB) - wide_t(in.minPrevTB));
+				}
 	    	}
 }
 
@@ -402,9 +414,8 @@ ReduceLanes:
 
 
 
-static void commit_prev_costs(
-    cost_t prevCostL[DISP],
-    const cost_t aggLR_arr[DISP])
+static void commit_prev_costs(cost_t prevCostL[DISP],
+							const cost_t aggLR_arr[DISP])
 {
 #pragma HLS INLINE off
 
@@ -417,17 +428,17 @@ CopyPrevLR:
 }
 
 
-////////////////////////////////////////////////////////////
-static void prepare_stage(
-    hls::stream<CostPacket>& coststream,
-    hls::stream<PrepPacket>& prepstream,
-    const cost_t prevCostL[DISP],
-    const group_t prevCostT[GROUPS],
-    cost_t minPrevLR,
-    cost_t minPrevTB)
+static void prepare_stage(hls::stream<CostPacket>& coststream,
+						hls::stream<PrepPacket>& prepstream,
+						const cost_t prevCostL[DISP],
+						const group_t prevCostT[GROUPS],
+						cost_t minPrevLR,
+						cost_t minPrevTB)
 {
 #pragma HLS INLINE off
 	group_t tbPrevWord;
+
+	InitPrevBoundary:
 	for(int lane = 0; lane < PAR; ++lane)
 	{
 		tbPrevWord.range((lane + 1) * COST_BITS -1, lane * COST_BITS) = INF_COST;
@@ -442,7 +453,6 @@ PrepareGroups:
 #pragma HLS PIPELINE II=1
 
         CostPacket pkt = coststream.read();
-
         PrepPacket prep;
 
         prepare_group(pkt, g,
@@ -460,9 +470,12 @@ PrepareGroups:
         tbCurWord  = tbNextWord;
 
         if (g + 2 < GROUPS)
+        {
             tbNextWord = prevCostT[g + 2];
+        }
         else
         {
+        	SetRightBoundary:
         	for(int lane = 0; lane < PAR; ++lane)
         	{
         		tbNextWord.range((lane + 1) * COST_BITS -1, lane * COST_BITS) = INF_COST;
@@ -473,9 +486,8 @@ PrepareGroups:
 }
 
 
-static void aggregate_stage(
-    hls::stream<PrepPacket>& prepstream,
-    hls::stream<AggPacket>& aggstream)
+static void aggregate_stage(hls::stream<PrepPacket>& prepstream,
+							hls::stream<AggPacket>& aggstream)
 {
 AggregateGroups:
     for (int g = 0; g < GROUPS; ++g)
@@ -483,7 +495,6 @@ AggregateGroups:
 #pragma HLS PIPELINE II=1
 
         PrepPacket prep = prepstream.read();
-
         AggPacket agg;
         aggregate_group(prep, agg);
         aggstream.write(agg);
@@ -519,6 +530,7 @@ ReduceGroups:
         {
             validPixel_out = true;
 
+            CopyLRGroup:
             for (int lane = 0; lane < PAR; ++lane)
             {
 			#pragma HLS UNROLL
@@ -529,10 +541,14 @@ ReduceGroups:
             nextCostT_out[g] = result.newTBWord;
 
             if (result.groupMinLR < runMinLR)
+            {
                 runMinLR = result.groupMinLR;
+            }
 
             if (result.groupMinTB < runMinTB)
+            {
                 runMinTB = result.groupMinTB;
+            }
 
             if (result.groupBestCost < bestCost ||
             	(result.groupBestCost == bestCost &&
@@ -552,29 +568,18 @@ ReduceGroups:
 }
 
 
-
-
-
-
-
-
-
-/////////////////////////////////////////////////////////////
-
-
-static bool prepare_census_column(
-	    bram_word_t left[FRAME_WORDS],
-		bram_word_t right[FRAME_WORDS],
-		pix_t bufL[WIN][IMG_W],
-		pix_t bufR[WIN][IMG_W],
-	    int r,
-	    int c,
-	    int cx,
-		pix_t leftWin[WIN][WIN],
-		pix_t rightStripe[WIN][RIGHT_STRIPE_W],
-		census_t &leftDesc,
-		census_t rightCensusHistory[DISP],
-		int& right_wr)
+static bool prepare_census_column(bram_word_t left[FRAME_WORDS],
+								bram_word_t right[FRAME_WORDS],
+								pix_t bufL[WIN][IMG_W],
+								pix_t bufR[WIN][IMG_W],
+								int r,
+								int c,
+								int cx,
+								pix_t leftWin[WIN][WIN],
+								pix_t rightStripe[WIN][RIGHT_STRIPE_W],
+								census_t &leftDesc,
+								census_t rightCensusHistory[DISP],
+								int& right_wr)
 {
 #pragma HLS INLINE off
 
@@ -596,16 +601,15 @@ static bool prepare_census_column(
 	census_t newRightDesc = compute_right_census_descriptor(rightStripe,
 			right_wr);
 
+	ShiftRightCensusHistory:
 	for (int d = DISP - 1; d > 0; --d)
 	{
 	#pragma HLS UNROLL
-	    rightCensusHistory[d] =
-	        rightCensusHistory[d - 1];
+	    rightCensusHistory[d] = rightCensusHistory[d - 1];
 	}
 
 	rightCensusHistory[0] = newRightDesc;
 	const bool interior = (r >= WIN - 1) && (c < IMG_W);
-
 	return interior;
 }
 
@@ -628,17 +632,15 @@ static void col_frontend(
 
 	        if (interior)
 	        {
-	            compute_census_cost_vector(
-	                leftDesc,
-	                rightCensusHistory,
-	                g,
-					out_c,
-	                pkt.curCost);
+	            compute_census_cost_vector( leftDesc,
+										rightCensusHistory,
+										g,
+										out_c,
+										pkt.curCost);
 	        }
 	        coststream.write(pkt);
 	    }
 }
-
 
 
 static disp_t col_backend(hls::stream<CostPacket>& coststream,
@@ -679,46 +681,42 @@ static disp_t col_backend(hls::stream<CostPacket>& coststream,
 				minPrevTB_out,
 				bestDisp,
 				validPixel);
-
     return bestDisp;
 }
 
-static disp_t process_cost_groups(
-    bool interior,
-    census_t leftDesc,
-    census_t rightCensusHistory[DISP],
-    const cost_t prevCostL_in[DISP],
-    const group_t prevCostT_in[GROUPS],
-    cost_t nextCostL_out[DISP],
-    group_t nextCostT_out[GROUPS],
-    cost_t minPrevLR_in,
-    cost_t minPrevTB_in,
-    cost_t& minPrevLR_out,
-    cost_t& minPrevTB_out,
-	int out_c)
+static disp_t process_cost_groups(bool interior,
+								census_t leftDesc,
+								census_t rightCensusHistory[DISP],
+								const cost_t prevCostL_in[DISP],
+								const group_t prevCostT_in[GROUPS],
+								cost_t nextCostL_out[DISP],
+								group_t nextCostT_out[GROUPS],
+								cost_t minPrevLR_in,
+								cost_t minPrevTB_in,
+								cost_t& minPrevLR_out,
+								cost_t& minPrevTB_out,
+								int out_c)
 {
 #pragma HLS DATAFLOW
 
     hls::stream<CostPacket> coststream;
 #pragma HLS STREAM variable=coststream depth=2
 
-    col_frontend(
-        coststream,
-        interior,
-		out_c,
-        leftDesc,
-        rightCensusHistory);
+    col_frontend(coststream,
+				interior,
+				out_c,
+				leftDesc,
+				rightCensusHistory);
 
-    return col_backend(
-        coststream,
-        prevCostL_in,
-        prevCostT_in,
-        nextCostL_out,
-        nextCostT_out,
-        minPrevLR_in,
-        minPrevTB_in,
-        minPrevLR_out,
-        minPrevTB_out);
+    return col_backend(coststream,
+					prevCostL_in,
+					prevCostT_in,
+					nextCostL_out,
+					nextCostT_out,
+					minPrevLR_in,
+					minPrevTB_in,
+					minPrevLR_out,
+					minPrevTB_out);
 }
 
 
@@ -736,6 +734,7 @@ static void row_frontend(bram_word_t left[FRAME_WORDS],
 	int right_wr = RIGHT_STRIPE_W - 1;
 	census_t leftDesc;
 
+	InitRightCensusHistory:
 	for (int d = 0; d < DISP; ++d)
 	{
 	#pragma HLS UNROLL factor=2
@@ -760,6 +759,7 @@ static void row_frontend(bram_word_t left[FRAME_WORDS],
 	    }
 	}
 
+	FrontendColumns:
     for (int c = 0; c < IMG_W; ++c)
     {
         bool interior = prepare_census_column(left,
@@ -779,10 +779,10 @@ static void row_frontend(bram_word_t left[FRAME_WORDS],
 
         if (out_c >= 0)
         {
+        	FrontendGroups:
             for (int g = 0; g < GROUPS; ++g)
             {
 			#pragma HLS PIPELINE II=1
-
                 CostPacket pkt;
                 pkt.valid = interior;
 
@@ -801,18 +801,13 @@ static void row_frontend(bram_word_t left[FRAME_WORDS],
 }
 
 
-static void row_backend(
-    hls::stream<CostPacket>& coststream,
-
-    bool rowValid,
-
-    const group_t prevCostT[IMG_W][GROUPS],
-    group_t nextCostT[IMG_W][GROUPS],
-
-    const cost_t minPrevT[IMG_W],
-    cost_t minNextT[IMG_W],
-
-    hls::stream<disp_t>& dispstream)
+static void row_backend(hls::stream<CostPacket>& coststream,
+						bool rowValid,
+						const group_t prevCostT[IMG_W][GROUPS],
+						group_t nextCostT[IMG_W][GROUPS],
+						const cost_t minPrevT[IMG_W],
+						cost_t minNextT[IMG_W],
+						hls::stream<disp_t>& dispstream)
 {
 #pragma HLS INLINE off
 
@@ -833,57 +828,42 @@ ResetLR:
     cost_t minPrevLR = 0;
     bool lrReadA = true;
 
-
 RowBackendCols:
-    for (int out_c = 0;
-         out_c < IMG_W - CENSUS_CX;
-         ++out_c)
+    for (int out_c = 0; out_c < IMG_W - CENSUS_CX; ++out_c)
     {
         cost_t newMinLR = minPrevLR;
         cost_t newMinTB = minPrevT[out_c];
-
         disp_t outDisp;
 
         if (lrReadA)
         {
-            outDisp = col_backend(
-                coststream,
-
-                costL_A,
-                prevCostT[out_c],
-
-                costL_B,
-                nextCostT[out_c],
-
-                minPrevLR,
-                minPrevT[out_c],
-
-                newMinLR,
-                newMinTB);
+            outDisp = col_backend(coststream,
+								costL_A,
+								prevCostT[out_c],
+								costL_B,
+								nextCostT[out_c],
+								minPrevLR,
+								minPrevT[out_c],
+								newMinLR,
+								newMinTB);
         }
         else
         {
-            outDisp = col_backend(
-                coststream,
-
-                costL_B,
-                prevCostT[out_c],
-
-                costL_A,
-                nextCostT[out_c],
-
-                minPrevLR,
-                minPrevT[out_c],
-
-                newMinLR,
-                newMinTB);
+            outDisp = col_backend(coststream,
+								costL_B,
+								prevCostT[out_c],
+								costL_A,
+								nextCostT[out_c],
+								minPrevLR,
+								minPrevT[out_c],
+								newMinLR,
+								newMinTB);
         }
 
         if (rowValid)
         {
             minPrevLR = newMinLR;
             minNextT[out_c] = newMinTB;
-
             lrReadA = !lrReadA;
         }
 
@@ -892,20 +872,16 @@ RowBackendCols:
 }
 
 
-static void row_output(
-    hls::stream<disp_t>& dispstream,
-    bram_word_t disp[FRAME_WORDS],
-    int out_r,
-    bool outputValid)
+static void row_output(hls::stream<disp_t>& dispstream,
+					bram_word_t disp[FRAME_WORDS],
+					int out_r,
+					bool outputValid)
 {
 #pragma HLS INLINE off
-
     bram_word_t disp_word = 0;
 
 RowOutputCols:
-    for (int out_c = 0;
-         out_c < IMG_W - CENSUS_CX;
-         ++out_c)
+    for (int out_c = 0; out_c < IMG_W - CENSUS_CX; ++out_c)
     {
 #pragma HLS PIPELINE II=1
 
@@ -917,8 +893,7 @@ RowOutputCols:
             int word_idx  = pixel_idx >> 2;
             int byte_idx  = pixel_idx & 3;
 
-            disp_word.range(
-                byte_idx * 8 + 7,
+            disp_word.range(byte_idx * 8 + 7,
                 byte_idx * 8) = outDisp;
 
             if (byte_idx == 3)
@@ -938,27 +913,20 @@ RowOutputCols:
     }
 }
 
-static void process_row(
-    bram_word_t left[FRAME_WORDS],
-    bram_word_t right[FRAME_WORDS],
-    bram_word_t disp[FRAME_WORDS],
-
-    int r,
-    int out_r,
-
-    pix_t bufL[WIN][IMG_W],
-    pix_t bufR[WIN][IMG_W],
-
-    pix_t leftWin[WIN][WIN],
-    pix_t rightStripe[WIN][RIGHT_STRIPE_W],
-
-    census_t rightCensusHistory[DISP],
-
-    const group_t prevCostT[IMG_W][GROUPS],
-    group_t nextCostT[IMG_W][GROUPS],
-
-    const cost_t minPrevT[IMG_W],
-    cost_t minNextT[IMG_W])
+static void process_row(bram_word_t left[FRAME_WORDS],
+						bram_word_t right[FRAME_WORDS],
+						bram_word_t disp[FRAME_WORDS],
+						int r,
+						int out_r,
+						pix_t bufL[WIN][IMG_W],
+						pix_t bufR[WIN][IMG_W],
+						pix_t leftWin[WIN][WIN],
+						pix_t rightStripe[WIN][RIGHT_STRIPE_W],
+						census_t rightCensusHistory[DISP],
+						const group_t prevCostT[IMG_W][GROUPS],
+						group_t nextCostT[IMG_W][GROUPS],
+						const cost_t minPrevT[IMG_W],
+						cost_t minNextT[IMG_W])
 {
 #pragma HLS INLINE off
 #pragma HLS DATAFLOW
@@ -972,31 +940,28 @@ static void process_row(
     bool rowValid = (r >= WIN - 1);
     bool outputValid = (out_r >= 0);
 
-    row_frontend(
-        left,
-        right,
-        r,
-        bufL,
-        bufR,
-        leftWin,
-        rightStripe,
-        rightCensusHistory,
-        coststream);
+    row_frontend(left,
+				right,
+				r,
+				bufL,
+				bufR,
+				leftWin,
+				rightStripe,
+				rightCensusHistory,
+				coststream);
 
-    row_backend(
-        coststream,
-        rowValid,
-        prevCostT,
-        nextCostT,
-        minPrevT,
-        minNextT,
-        dispstream);
+    row_backend(coststream,
+				rowValid,
+				prevCostT,
+				nextCostT,
+				minPrevT,
+				minNextT,
+				dispstream);
 
-    row_output(
-        dispstream,
-        disp,
-        out_r,
-        outputValid);
+    row_output(dispstream,
+				disp,
+				out_r,
+				outputValid);
 }
 
 /* --------------------------------------------------------- */
@@ -1034,8 +999,8 @@ void sgm_kernel(bram_word_t left[FRAME_WORDS],
     static group_t costT_A[IMG_W][GROUPS];
     static group_t costT_B[IMG_W][GROUPS];
 
-    #pragma HLS bind_storage variable=costT_A type=RAM_2P impl=BRAM
-    #pragma HLS bind_storage variable=costT_B type=RAM_2P impl=BRAM
+#pragma HLS bind_storage variable=costT_A type=RAM_2P impl=BRAM
+#pragma HLS bind_storage variable=costT_B type=RAM_2P impl=BRAM
 
     pix_t leftWin[WIN][WIN];
     pix_t rightStripe[WIN][RIGHT_STRIPE_W];
@@ -1055,7 +1020,7 @@ void sgm_kernel(bram_word_t left[FRAME_WORDS],
 InitTBRow:
     for (int c = 0; c < IMG_W; ++c)
     {
-#pragma HLS LOOP_TRIPCOUNT min=IMG_W max=IMG_W
+	#pragma HLS LOOP_TRIPCOUNT min=IMG_W max=IMG_W
 
         minT_A[c] = cost_t(0);
         minT_B[c] = cost_t(0);
@@ -1063,7 +1028,7 @@ InitTBRow:
     InitTBRowD:
         for (int g = 0; g < GROUPS; ++g)
         {
-#pragma HLS UNROLL factor=2
+		#pragma HLS UNROLL factor=2
             costT_A[c][g] = group_t(0);
             costT_B[c][g] = group_t(0);
         }
@@ -1086,53 +1051,39 @@ Row:
         {
             // previous row = A
             // current row  = B
-            process_row(
-                left,
-                right,
-                disp,
-
-                r,
-                out_r,
-
-                bufL,
-                bufR,
-
-                leftWin,
-                rightStripe,
-
-                rightCensusHistory,
-
-                costT_A,
-                costT_B,
-
-                minT_A,
-                minT_B);
+            process_row(left,
+						right,
+						disp,
+						r,
+						out_r,
+						bufL,
+						bufR,
+						leftWin,
+						rightStripe,
+						rightCensusHistory,
+						costT_A,
+						costT_B,
+						minT_A,
+						minT_B);
         }
         else
         {
             // previous row = B
             // current row  = A
-            process_row(
-                left,
-                right,
-                disp,
-
-                r,
-                out_r,
-
-                bufL,
-                bufR,
-
-                leftWin,
-                rightStripe,
-
-                rightCensusHistory,
-
-                costT_B,
-                costT_A,
-
-                minT_B,
-                minT_A);
+            process_row(left,
+						right,
+						disp,
+						r,
+						out_r,
+						bufL,
+						bufR,
+						leftWin,
+						rightStripe,
+						rightCensusHistory,
+						costT_B,
+						costT_A,
+						minT_B,
+						minT_A);
         }
 
         if (r >= WIN - 1)
