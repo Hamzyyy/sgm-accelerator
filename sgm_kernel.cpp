@@ -187,6 +187,18 @@ struct PrepPacket
 	cost_t tbRight[PAR];
 
 };
+
+struct RowPrepPacket
+{
+	bool valid;
+	int g;
+	cost_t minPrevTB;
+	cost_t curCost[PAR];
+	cost_t tbCenter[PAR];
+	cost_t tbLeft[PAR];
+	cost_t tbRight[PAR];
+};
+
 static void prepare_group(const CostPacket& pkt,
 	    				int g,
 						const cost_t prevCostL[DISP],
@@ -245,6 +257,79 @@ static void prepare_group(const CostPacket& pkt,
 					out.tbRight[lane] = (d < DISP - 1) ? tbCur[lane+1] : INF_COST;
 	    	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+static void prepare_row_group(const CostPacket& pkt,
+	    				int g,
+						group_t tbPrevWord,
+						group_t tbCurWord,
+						group_t tbNextWord,
+						cost_t minPrevTB,
+						RowPrepPacket& out)
+{
+	out.valid = pkt.valid;
+	out.g = g;
+	out.minPrevTB = minPrevTB;
+
+    cost_t tbCur[PAR];
+#pragma HLS ARRAY_PARTITION variable=tbCur type=complete
+
+    UnpackTBGroup:
+    for(int lane = 0; lane < PAR; ++lane)
+    {
+	#pragma HLS UNROLL
+    	tbCur[lane] = tbCurWord.range((lane+1) * COST_BITS - 1,
+    			lane * COST_BITS);
+    }
+
+    cost_t leftBoundary =
+        tbPrevWord.range(PAR * COST_BITS - 1,
+                         (PAR - 1) * COST_BITS);
+
+    cost_t rightBoundary =
+        tbNextWord.range(COST_BITS - 1, 0);
+
+	LaneLoop:
+	    	for(int lane = 0; lane < PAR; lane++)
+	    	{
+			#pragma HLS UNROLL
+	    		int d = g * PAR + lane;
+
+	    		out.curCost[lane] = pkt.curCost[lane];
+
+				out.tbCenter[lane] = tbCur[lane];
+				if(lane == 0)
+					out.tbLeft[lane] = (d > 0) ? leftBoundary : INF_COST;
+				else
+					out.tbLeft[lane] = (d > 0) ? tbCur[lane - 1] : INF_COST;
+
+				if(lane == PAR-1)
+					out.tbRight[lane] = (d < DISP - 1) ? rightBoundary : INF_COST;
+				else
+					out.tbRight[lane] = (d < DISP - 1) ? tbCur[lane+1] : INF_COST;
+	    	}
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -477,6 +562,102 @@ PrepareGroups:
 }
 
 
+
+
+
+
+
+
+
+
+
+static void row_prepare_stage(hls::stream<CostPacket>& coststream,
+							hls::stream<RowPrepPacket>& prepstream,
+							const group_t prevCostT[IMG_W][GROUPS],
+							const cost_t minPrevT[IMG_W])
+{
+#pragma HLS INLINE off
+    RowPrepareCols:
+    for (int out_c = 0; out_c < IMG_W - CENSUS_CX; ++out_c)
+    {
+        group_t tbPrevWord = 0;
+
+        InitPrevBoundary:
+        for (int lane = 0; lane < PAR; ++lane)
+        {
+#pragma HLS UNROLL
+            tbPrevWord.range((lane + 1) * COST_BITS - 1,
+                lane * COST_BITS) = INF_COST;
+        }
+
+        group_t tbCurWord  = prevCostT[out_c][0];
+        group_t tbNextWord = prevCostT[out_c][1];
+
+        cost_t minPrevTB = minPrevT[out_c];
+
+        PrepareGroups:
+        for (int g = 0; g < GROUPS; ++g)
+        {
+		#pragma HLS PIPELINE II=1
+
+            CostPacket pkt = coststream.read();
+
+            RowPrepPacket prep;
+
+            prepare_row_group(pkt,
+							g,
+							tbPrevWord,
+							tbCurWord,
+							tbNextWord,
+							minPrevTB,
+							prep);
+
+            prepstream.write(prep);
+
+            tbPrevWord = tbCurWord;
+            tbCurWord  = tbNextWord;
+
+            if (g + 2 < GROUPS)
+            {
+                tbNextWord = prevCostT[out_c][g + 2];
+            }
+            else
+            {
+                SetRightBoundary:
+                for (int lane = 0; lane < PAR; ++lane)
+                {
+				#pragma HLS UNROLL
+                    tbNextWord.range((lane + 1) * COST_BITS - 1,
+                        lane * COST_BITS) = INF_COST;
+                }
+            }
+        }
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 static void aggregate_stage(
     hls::stream<PrepPacket>& prepstream,
     hls::stream<AggPacket>& aggstream)
@@ -493,6 +674,150 @@ AggregateGroups:
         aggstream.write(agg);
     }
 }
+
+
+static cost_t reduce_lr_group_min(const cost_t values[PAR])
+{
+#pragma HLS INLINE
+
+    cost_t tree[PAR];
+#pragma HLS ARRAY_PARTITION variable=tree complete
+
+InitLRMinTree:
+    for (int lane = 0; lane < PAR; ++lane)
+    {
+#pragma HLS UNROLL
+        tree[lane] = values[lane];
+    }
+
+LRMinStages:
+    for (int step = PAR / 2; step > 0; step >>= 1)
+    {
+#pragma HLS UNROLL
+
+    LRMinPairs:
+        for (int i = 0; i < PAR; ++i)
+        {
+#pragma HLS UNROLL
+            if (i < step)
+            {
+                int j = i + step;
+
+                if (tree[j] < tree[i])
+                    tree[i] = tree[j];
+            }
+        }
+    }
+
+    return tree[0];
+}
+
+
+static void row_aggregate_stage(
+    hls::stream<RowPrepPacket>& prepstream,
+    hls::stream<AggPacket>& aggstream)
+{
+#pragma HLS INLINE off
+
+    cost_t costL_A[DISP];
+    cost_t costL_B[DISP];
+
+#pragma HLS ARRAY_PARTITION variable=costL_A complete
+#pragma HLS ARRAY_PARTITION variable=costL_B complete
+
+ResetLR:
+    for (int d = 0; d < DISP; ++d)
+    {
+#pragma HLS UNROLL factor=2
+        costL_A[d] = 0;
+        costL_B[d] = 0;
+    }
+
+    cost_t minPrevLR = 0;
+    bool lrReadA = true;
+
+    AggregateRowCols:
+    for (int out_c = 0; out_c < IMG_W - CENSUS_CX; ++out_c)
+    {
+    	cost_t runMinLR = INF_COST;
+    	bool pixelValid = false;
+
+    	AggregateRowGroups:
+    	    for (int g = 0; g < GROUPS; ++g)
+    	    {
+    		#pragma HLS PIPELINE II=4
+
+    	    	RowPrepPacket rowPrep = prepstream.read();
+    	    	PrepPacket prep;
+    	    	prep.valid     = rowPrep.valid;
+    	    	prep.g         = rowPrep.g;
+    	    	prep.minPrevTB = rowPrep.minPrevTB;
+    	    	prep.minPrevLR = minPrevLR;
+
+    	    	PrepareAggregateLanes:
+    	    	for (int lane = 0; lane < PAR; ++lane)
+    	    	{
+    	    	#pragma HLS UNROLL
+
+    	    	    int d = g * PAR + lane;
+
+    	    	    prep.curCost[lane]  = rowPrep.curCost[lane];
+
+    	    	    prep.tbCenter[lane] = rowPrep.tbCenter[lane];
+    	    	    prep.tbLeft[lane]   = rowPrep.tbLeft[lane];
+    	    	    prep.tbRight[lane]  = rowPrep.tbRight[lane];
+
+    	    	    if (lrReadA)
+    	    	    {
+    	    	        prep.lrCenter[lane] = costL_A[d];
+    	    	        prep.lrLeft[lane]   = (d > 0) ? costL_A[d - 1] : INF_COST;
+    	    	        prep.lrRight[lane]  = (d < DISP - 1) ? costL_A[d + 1] : INF_COST;
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	        prep.lrCenter[lane] = costL_B[d];
+    	    	        prep.lrLeft[lane]   = (d > 0) ? costL_B[d - 1] : INF_COST;
+    	    	        prep.lrRight[lane]  = (d < DISP - 1) ? costL_B[d + 1] : INF_COST;
+    	    	    }
+    	    	}
+    	    	AggPacket agg;
+    	    	aggregate_group(prep, agg);
+
+    	    	StoreNewLR:
+    	    	for (int lane = 0; lane < PAR; ++lane)
+    	    	{
+    	    	#pragma HLS UNROLL
+    	    	    int d = g * PAR + lane;
+
+    	    	    if (lrReadA)
+    	    	        costL_B[d] = agg.aggLR[lane];
+    	    	    else
+    	    	        costL_A[d] = agg.aggLR[lane];
+    	    	}
+
+    	    	cost_t groupMinLR = reduce_lr_group_min(agg.aggLR);
+
+    	    	if (groupMinLR < runMinLR)
+    	    	    runMinLR = groupMinLR;
+
+    	    	if (agg.valid)
+    	    	    pixelValid = true;
+
+    	    	aggstream.write(agg);
+    	    }
+    	    if (pixelValid)
+    	    {
+    	        minPrevLR = runMinLR;
+    	        lrReadA = !lrReadA;
+    	    }
+
+
+    }
+}
+
+
+
+
 
 static void reduce_stage(hls::stream<AggPacket>& aggstream,
 						cost_t nextCostL_out[DISP],
@@ -555,6 +880,80 @@ ReduceGroups:
         minPrevTB_out = runMinTB;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+static void row_reduce_stage( hls::stream<AggPacket>& aggstream,
+							group_t nextCostT[IMG_W][GROUPS],
+							cost_t minNextT[IMG_W],
+							hls::stream<disp_t>& dispstream)
+{
+    ReduceRowCols:
+    for (int out_c = 0; out_c < IMG_W - CENSUS_CX; ++out_c)
+    {
+        cost_t runMinTB = INF_COST;
+        cost_t bestCost = INF_COST;
+
+        bool validPixel = false;
+        disp_t bestDisp = 0;
+
+        ReduceRowGroups:
+        for (int g = 0; g < GROUPS; ++g)
+        {
+#pragma HLS PIPELINE II=1
+
+            AggPacket agg = aggstream.read();
+
+            ResultPacket result;
+            reduce_group(agg, result);
+
+            if (result.valid)
+            {
+                validPixel = true;
+
+                nextCostT[out_c][g] = result.newTBWord;
+
+                if (result.groupMinTB < runMinTB)
+                    runMinTB = result.groupMinTB;
+
+                if (result.groupBestCost < bestCost ||
+                    (result.groupBestCost == bestCost &&
+                     result.groupBestDisp < bestDisp))
+                {
+                    bestCost = result.groupBestCost;
+                    bestDisp = result.groupBestDisp;
+                }
+            }
+        }
+
+        if (validPixel)
+            minNextT[out_c] = runMinTB;
+
+        dispstream.write(bestDisp);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 static bool prepare_census_column(
@@ -628,6 +1027,14 @@ static void col_frontend(
 										g,
 										out_c,
 										pkt.curCost);
+	        }
+	        else
+	        {
+	            for (int lane = 0; lane < PAR; ++lane)
+	            {
+	        	#pragma HLS UNROLL
+	                pkt.curCost[lane] = INF_COST;
+	            }
 	        }
 	        coststream.write(pkt);
 	    }
@@ -788,6 +1195,16 @@ static void row_frontend(bram_word_t left[FRAME_WORDS],
 											out_c,
 											pkt.curCost);
                 }
+
+                else
+                {
+                    for (int lane = 0; lane < PAR; ++lane)
+                    {
+                #pragma HLS UNROLL
+                        pkt.curCost[lane] = INF_COST;
+                    }
+                }
+
                 coststream.write(pkt);
             }
         }
@@ -874,11 +1291,49 @@ RowBackendCols:
 }
 
 
-static void row_output(
-    hls::stream<disp_t>& dispstream,
-    bram_word_t disp[FRAME_WORDS],
-    int out_r,
-    bool outputValid)
+
+
+static void row_backend_dataflow(
+    hls::stream<CostPacket>& coststream,
+
+    const group_t prevCostT[IMG_W][GROUPS],
+    group_t nextCostT[IMG_W][GROUPS],
+
+    const cost_t minPrevT[IMG_W],
+    cost_t minNextT[IMG_W],
+
+    hls::stream<disp_t>& dispstream)
+{
+#pragma HLS INLINE off
+#pragma HLS DATAFLOW
+
+    hls::stream<RowPrepPacket> prepstream;
+    hls::stream<AggPacket>     aggstream;
+
+#pragma HLS STREAM variable=prepstream depth=16
+#pragma HLS STREAM variable=aggstream  depth=16
+
+    row_prepare_stage(coststream,
+        prepstream,
+        prevCostT,
+        minPrevT);
+
+    row_aggregate_stage(prepstream,
+    					aggstream);
+
+    row_reduce_stage(aggstream,
+					nextCostT,
+					minNextT,
+					dispstream);
+}
+
+
+
+
+static void row_output(hls::stream<disp_t>& dispstream,
+					bram_word_t disp[FRAME_WORDS],
+					int out_r,
+					bool outputValid)
 {
 #pragma HLS INLINE off
 
@@ -943,7 +1398,6 @@ static void process_row(bram_word_t left[FRAME_WORDS],
 #pragma HLS STREAM variable=coststream depth=16
 #pragma HLS STREAM variable=dispstream depth=4
 
-    bool rowValid = (r >= WIN - 1);
     bool outputValid = (out_r >= 0);
 
     row_frontend(left,
@@ -956,13 +1410,12 @@ static void process_row(bram_word_t left[FRAME_WORDS],
 				rightCensusHistory,
 				coststream);
 
-    row_backend(coststream,
-				rowValid,
-				prevCostT,
-				nextCostT,
-				minPrevT,
-				minNextT,
-				dispstream);
+    row_backend_dataflow(coststream,
+						prevCostT,
+						nextCostT,
+						minPrevT,
+						minNextT,
+						dispstream);
 
     row_output(dispstream,
 				disp,
